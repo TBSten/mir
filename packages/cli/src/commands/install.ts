@@ -31,6 +31,22 @@ export interface InstallOptions {
   interactive?: boolean;
 }
 
+export function getBuiltinVariables(cwd: string): Record<string, unknown> {
+  const packageJsonPath = path.join(cwd, "package.json");
+  let projectName = path.basename(cwd);
+  try {
+    if (fs.existsSync(packageJsonPath)) {
+      const pkg = JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
+      if (pkg.name) {
+        projectName = pkg.name;
+      }
+    }
+  } catch {
+    // package.json の読み込みに失敗した場合はディレクトリ名をそのまま使う
+  }
+  return { "project-name": projectName };
+}
+
 export function validateOutputPath(filePath: string, outDir: string): void {
   const resolved = path.resolve(outDir, filePath);
   const normalizedOutDir = path.resolve(outDir);
@@ -72,7 +88,15 @@ export async function installSnippet(
   }
 
   const variableDefs = definition.variables ?? {};
+  const builtinVars = getBuiltinVariables(cwd);
   const variables = await resolveVariables(variableDefs, variableArgs);
+
+  // builtin 変数をマージ (ユーザ指定が優先)
+  for (const [key, value] of Object.entries(builtinVars)) {
+    if (!(key in variables)) {
+      variables[key] = value;
+    }
+  }
 
   // 変数一覧を表示
   logVariableSummary(name, variableDefs, variables, variableArgs);

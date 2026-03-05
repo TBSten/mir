@@ -3,7 +3,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import yaml from "js-yaml";
-import { installSnippet, parseVariableArgs, validateOutputPath } from "../../commands/install.js";
+import { installSnippet, parseVariableArgs, validateOutputPath, getBuiltinVariables } from "../../commands/install.js";
 import { MirError, SnippetNotFoundError, PathTraversalError, FileConflictError } from "../../lib/errors.js";
 import { ExitHookError } from "../../lib/hooks.js";
 import type { SnippetDefinition } from "../../lib/snippet-schema.js";
@@ -565,6 +565,57 @@ describe("上書き保護", () => {
     expect(mockConfirmOverwrite).toHaveBeenCalledTimes(1);
     expect(fs.readFileSync(path.join(outDir, "a.txt"), "utf-8")).toBe("new-a");
     expect(fs.readFileSync(path.join(outDir, "b.txt"), "utf-8")).toBe("new-b");
+  });
+});
+
+describe("getBuiltinVariables", () => {
+  it("package.json から project-name を取得する", () => {
+    const projDir = path.join(tmpDir, "my-project");
+    fs.mkdirSync(projDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(projDir, "package.json"),
+      JSON.stringify({ name: "my-awesome-project" }),
+      "utf-8",
+    );
+    const vars = getBuiltinVariables(projDir);
+    expect(vars["project-name"]).toBe("my-awesome-project");
+  });
+
+  it("package.json がない場合はディレクトリ名を使う", () => {
+    const projDir = path.join(tmpDir, "fallback-project");
+    fs.mkdirSync(projDir, { recursive: true });
+    const vars = getBuiltinVariables(projDir);
+    expect(vars["project-name"]).toBe("fallback-project");
+  });
+
+  it("{{ project-name }} がテンプレートで展開される", async () => {
+    setupSnippet("proj-name", { name: "proj-name" }, {
+      "readme.txt": "Project: {{ project-name }}",
+    });
+
+    await installSnippet("proj-name", {}, { outDir }, tmpDir, configPath);
+
+    const content = fs.readFileSync(path.join(outDir, "readme.txt"), "utf-8");
+    expect(content).toContain("Project: ");
+    expect(content).not.toContain("{{ project-name }}");
+  });
+
+  it("CLI 引数で project-name を上書きできる", async () => {
+    setupSnippet("proj-override", { name: "proj-override" }, {
+      "readme.txt": "Project: {{ project-name }}",
+    });
+
+    await installSnippet(
+      "proj-override",
+      { "project-name": "custom-name" },
+      { outDir },
+      tmpDir,
+      configPath,
+    );
+
+    expect(
+      fs.readFileSync(path.join(outDir, "readme.txt"), "utf-8"),
+    ).toBe("Project: custom-name");
   });
 });
 

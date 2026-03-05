@@ -36,9 +36,10 @@ mir install <name> [--registry=<name>] [--out-dir=<path>] [--<variable>=<value> 
 
 ### 2. 変数の解決
 
-1. snippet 定義の `variables` を読み取る
-2. コマンド引数で指定された変数値を収集する
-3. 未指定の変数がある場合:
+1. 標準変数（builtin variables）を解決する
+2. snippet 定義の `variables` を読み取る
+3. コマンド引数で指定された変数値を収集する
+4. 未指定の変数がある場合:
    - インタラクティブモード（デフォルト）: プロンプトで入力を受け付ける
    - `--no-interactive` 指定時: エラーを返す
 4. 変数値を JSON Schema に基づいてバリデーションする
@@ -106,6 +107,18 @@ mir install react-hook --name=useAuth --out-dir=src/hooks
 
 ```shell
 mir install react-hook --name=useAuth --no-interactive
+```
+
+## 標準変数 (Builtin Variables)
+
+以下の変数は自動的に解決され、テンプレート内で使用できる。ユーザが CLI 引数で同名の変数を指定した場合、ユーザ指定値が優先される。
+
+| 変数名 | 説明 | 解決ロジック |
+|---|---|---|
+| `project-name` | プロジェクト名 | `package.json` の `name` フィールド。存在しない場合はカレントディレクトリ名 |
+
+```handlebars
+Project: {{ project-name }}
 ```
 
 ## 関連
