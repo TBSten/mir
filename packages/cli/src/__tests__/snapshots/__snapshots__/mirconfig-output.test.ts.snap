@@ -1,0 +1,72 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`mergeConfigs snapshot > defaults マージ (ローカル author のみ) 1`] = `
+{
+  "defaults": {
+    "author": "alice",
+  },
+  "locale": undefined,
+  "registries": [],
+}
+`;
+
+exports[`mergeConfigs snapshot > locale は local ?? global 1`] = `
+{
+  "defaults": undefined,
+  "locale": "en",
+  "registries": [],
+}
+`;
+
+exports[`mergeConfigs snapshot > グローバルのみ 1`] = `
+{
+  "defaults": {
+    "author": "bob",
+  },
+  "locale": "en",
+  "registries": [
+    {
+      "name": "global-reg",
+      "path": "~/.mir/registry",
+    },
+  ],
+}
+`;
+
+exports[`mergeConfigs snapshot > ローカルのみ 1`] = `
+{
+  "defaults": {
+    "author": "alice",
+  },
+  "locale": "ja",
+  "registries": [
+    {
+      "name": "local-reg",
+      "path": "~/my-registry",
+    },
+  ],
+}
+`;
+
+exports[`mergeConfigs snapshot > 両方ありのマージ 1`] = `
+{
+  "defaults": {
+    "author": "alice",
+  },
+  "locale": "ja",
+  "registries": [
+    {
+      "name": "shared",
+      "path": "~/local-shared",
+    },
+    {
+      "name": "local-only",
+      "path": "~/local-only",
+    },
+    {
+      "name": "global-only",
+      "path": "~/global-only",
+    },
+  ],
+}
+`;

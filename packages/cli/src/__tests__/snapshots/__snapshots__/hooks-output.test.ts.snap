@@ -1,0 +1,28 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`executeHooks snapshot > echo アクションの変数返却値 1`] = `
+{
+  "count": 3,
+  "name": "Alice",
+}
+`;
+
+exports[`executeHooks snapshot > exit: true, if: 'false' は throw しない 1`] = `
+{
+  "key": "val",
+}
+`;
+
+exports[`executeHooks snapshot > input アクション (default あり) の変数返却値 1`] = `
+{
+  "existing": "value",
+  "userName": "DefaultUser",
+}
+`;
+
+exports[`executeHooks snapshot > 複数アクションの組み合わせ 1`] = `
+{
+  "name": "mir",
+  "theme": "dark",
+}
+`;

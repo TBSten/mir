@@ -1,0 +1,27 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`エラーメッセージ snapshot (日本語) > FileConflictError 1`] = `"ファイル "index.ts" は既に存在します"`;
+
+exports[`エラーメッセージ snapshot (日本語) > PathTraversalError 1`] = `"パス "../secret.txt" は出力ディレクトリの外を参照しています"`;
+
+exports[`エラーメッセージ snapshot (日本語) > RegistryNotFoundError 1`] = `"Registry "team" が見つかりません"`;
+
+exports[`エラーメッセージ snapshot (日本語) > RegistryRemoteError (named) 1`] = `"Registry "community" はリモート registry のため publish できません"`;
+
+exports[`エラーメッセージ snapshot (日本語) > RegistryRemoteError (unnamed) 1`] = `"リモート registry には publish できません"`;
+
+exports[`エラーメッセージ snapshot (日本語) > SnippetAlreadyExistsError 1`] = `"Snippet "my-comp" は既に存在します"`;
+
+exports[`エラーメッセージ snapshot (日本語) > SnippetNotFoundError 1`] = `"Snippet "my-comp" が見つかりません"`;
+
+exports[`エラーメッセージ snapshot (英語) > FileConflictError 1`] = `"File "index.ts" already exists"`;
+
+exports[`エラーメッセージ snapshot (英語) > PathTraversalError 1`] = `"Path "../secret.txt" references outside the output directory"`;
+
+exports[`エラーメッセージ snapshot (英語) > RegistryNotFoundError 1`] = `"Registry "team" not found"`;
+
+exports[`エラーメッセージ snapshot (英語) > RegistryRemoteError (named) 1`] = `"Cannot publish to registry "community" because it is a remote registry"`;
+
+exports[`エラーメッセージ snapshot (英語) > SnippetAlreadyExistsError 1`] = `"Snippet "my-comp" already exists"`;
+
+exports[`エラーメッセージ snapshot (英語) > SnippetNotFoundError 1`] = `"Snippet "my-comp" not found"`;

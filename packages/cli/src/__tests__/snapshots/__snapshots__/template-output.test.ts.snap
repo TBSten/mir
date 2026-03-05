@@ -1,0 +1,54 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`テンプレートディレクトリ展開 snapshot > コンポーネント snippet 展開 1`] = `
+{
+  "Button/Button.test.tsx": "import { render, screen } from "@testing-library/react";
+import { Button } from "./";
+
+describe("Button", () => {
+  it("renders correctly", () => {
+    render(<Button />);
+    expect(screen.getByText("Button")).toBeInTheDocument();
+  });
+});
+",
+  "Button/index.tsx": "import React from "react";
+
+export interface ButtonProps {
+  className?: string;
+}
+
+export const Button: React.FC<ButtonProps> = ({ className }) => {
+  return <div className={className}>Button</div>;
+};
+",
+}
+`;
+
+exports[`テンプレート展開 snapshot > #each ブロック展開 1`] = `
+"import { Button } from "./Button";
+import { Input } from "./Input";
+import { Select } from "./Select";
+
+export { Button, Input, Select,  };"
+`;
+
+exports[`テンプレート展開 snapshot > #if ブロック展開 (false) 1`] = `
+"import { Component } from "react";
+
+export const MyComp: Component = () => {
+  return <div>MyComp</div>;
+};"
+`;
+
+exports[`テンプレート展開 snapshot > #if ブロック展開 (true) 1`] = `
+"import type { Component } from "react";
+
+export const MyComp: Component = () => {
+  return <div>MyComp</div>;
+};"
+`;
+
+exports[`テンプレート展開 snapshot > パス展開 1`] = `"src/components/Button.tsx"`;
+
+exports[`テンプレート展開 snapshot > 単純な変数展開 1`] = `"Hello Alice, welcome to mir!"`;
