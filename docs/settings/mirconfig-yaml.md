@@ -1,12 +1,31 @@
-# グローバル設定ファイル仕様 (mirconfig.yaml)
+# 設定ファイル仕様 (config.yaml)
 
-mir のグローバル設定ファイルの仕様。全フィールドは省略可能で、デフォルト値で動作する。
+mir の設定ファイルの仕様。全フィールドは省略可能で、デフォルト値で動作する。
 
 ## ファイルパス
 
+### グローバル設定
+
 ```
-~/.mir/mirconfig.yaml
+~/.mir/config.yaml
 ```
+
+全プロジェクト共通の設定。
+
+### ローカル設定
+
+```
+.mir/config.yaml
+```
+
+プロジェクト固有の設定。グローバル設定よりも優先される。
+
+## マージルール
+
+ローカル設定とグローバル設定が両方存在する場合、以下のルールでマージされる:
+
+- **registries**: ローカルの registries が先頭、グローバルの registries が後方に配置。同名の registry はローカルが優先（グローバル側は除外）
+- **defaults**: ローカルの値でグローバルの値を上書き
 
 ## JSON Schema
 
@@ -115,12 +134,12 @@ defaults:
 
 ## 完全な例
 
+### グローバル設定 (`~/.mir/config.yaml`)
+
 ```yaml
 registries:
   - name: default
     path: ~/.mir/registry
-  - name: team
-    path: ~/shared/team-snippets
   - name: community
     url: https://example.com/mir-registry
 
@@ -128,9 +147,24 @@ defaults:
   author: tbsten
 ```
 
+### ローカル設定 (`.mir/config.yaml`)
+
+```yaml
+registries:
+  - name: team
+    path: ~/shared/team-snippets
+```
+
+この場合、マージ結果は:
+1. `team` (ローカル)
+2. `default` (グローバル)
+3. `community` (グローバル)
+
+の順で検索される。
+
 ## 設定ファイルが存在しない場合
 
-`~/.mir/mirconfig.yaml` が存在しない場合、全てデフォルト値で動作する。手動で作成する必要はない。
+設定ファイルが存在しない場合、全てデフォルト値で動作する。手動で作成する必要はない。
 
 ## 関連
 

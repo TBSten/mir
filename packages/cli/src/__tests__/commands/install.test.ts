@@ -1,0 +1,514 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import yaml from "js-yaml";
+import { installSnippet, parseVariableArgs } from "../../commands/install.js";
+import { MirError, SnippetNotFoundError } from "../../lib/errors.js";
+import { ExitHookError } from "../../lib/hooks.js";
+import type { SnippetDefinition } from "../../lib/snippet-schema.js";
+
+// prompt モジュールをモック
+vi.mock("../../lib/prompt.js", () => ({
+  prompt: vi.fn(),
+  selectWithSuggests: vi.fn(),
+}));
+import { prompt, selectWithSuggests } from "../../lib/prompt.js";
+const mockPrompt = vi.mocked(prompt);
+const mockSelectWithSuggests = vi.mocked(selectWithSuggests);
+
+// logger モジュールをモック
+vi.mock("../../lib/logger.js", () => ({
+  success: vi.fn(),
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+  step: vi.fn(),
+  label: vi.fn(),
+  fileItem: vi.fn(),
+  dirItem: vi.fn(),
+}));
+import * as logger from "../../lib/logger.js";
+const mockSuccess = vi.mocked(logger.success);
+const mockInfo = vi.mocked(logger.info);
+const mockStep = vi.mocked(logger.step);
+const mockLabel = vi.mocked(logger.label);
+const mockFileItem = vi.mocked(logger.fileItem);
+
+let tmpDir: string;
+let registryDir: string;
+let configPath: string;
+let outDir: string;
+
+function setupSnippet(
+  name: string,
+  def: SnippetDefinition,
+  files: Record<string, string>,
+): void {
+  fs.writeFileSync(
+    path.join(registryDir, `${name}.yaml`),
+    yaml.dump(def),
+    "utf-8",
+  );
+  const snippetDir = path.join(registryDir, name);
+  fs.mkdirSync(snippetDir, { recursive: true });
+  for (const [filePath, content] of Object.entries(files)) {
+    const fullPath = path.join(snippetDir, filePath);
+    fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+    fs.writeFileSync(fullPath, content, "utf-8");
+  }
+}
+
+beforeEach(() => {
+  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "mir-test-install-"));
+  registryDir = path.join(tmpDir, "registry");
+  fs.mkdirSync(registryDir, { recursive: true });
+  outDir = path.join(tmpDir, "out");
+  fs.mkdirSync(outDir, { recursive: true });
+
+  configPath = path.join(tmpDir, "mirconfig.yaml");
+  fs.writeFileSync(
+    configPath,
+    yaml.dump({ registries: [{ name: "default", path: registryDir }] }),
+    "utf-8",
+  );
+
+  mockPrompt.mockReset();
+  mockSelectWithSuggests.mockReset();
+  vi.mocked(logger.success).mockClear();
+  vi.mocked(logger.info).mockClear();
+  vi.mocked(logger.step).mockClear();
+  vi.mocked(logger.label).mockClear();
+  vi.mocked(logger.fileItem).mockClear();
+});
+
+afterEach(() => {
+  fs.rmSync(tmpDir, { recursive: true, force: true });
+});
+
+describe("installSnippet", () => {
+  it("変数なしの基本インストール", async () => {
+    setupSnippet("simple", { name: "simple" }, {
+      "index.ts": "export const hello = 'world';",
+    });
+
+    await installSnippet("simple", {}, { outDir }, tmpDir, configPath);
+
+    expect(
+      fs.readFileSync(path.join(outDir, "index.ts"), "utf-8"),
+    ).toBe("export const hello = 'world';");
+  });
+
+  it("ファイル内容の変数展開", async () => {
+    setupSnippet(
+      "with-vars",
+      {
+        name: "with-vars",
+        variables: {
+          name: { schema: { type: "string" } },
+        },
+      },
+      { "hook.ts": "export function {{ name }}() {}" },
+    );
+
+    await installSnippet(
+      "with-vars",
+      { name: "useAuth" },
+      { outDir },
+      tmpDir,
+      configPath,
+    );
+
+    expect(
+      fs.readFileSync(path.join(outDir, "hook.ts"), "utf-8"),
+    ).toBe("export function useAuth() {}");
+  });
+
+  it("ファイル名の変数展開", async () => {
+    setupSnippet(
+      "file-name",
+      {
+        name: "file-name",
+        variables: { name: { schema: { type: "string" } } },
+      },
+      { "{{ name }}.ts": "export const {{ name }} = true;" },
+    );
+
+    await installSnippet(
+      "file-name",
+      { name: "myModule" },
+      { outDir },
+      tmpDir,
+      configPath,
+    );
+
+    expect(fs.existsSync(path.join(outDir, "myModule.ts"))).toBe(true);
+    expect(
+      fs.readFileSync(path.join(outDir, "myModule.ts"), "utf-8"),
+    ).toBe("export const myModule = true;");
+  });
+
+  it("ディレクトリ名の変数展開", async () => {
+    setupSnippet(
+      "dir-name",
+      {
+        name: "dir-name",
+        variables: { name: { schema: { type: "string" } } },
+      },
+      { [path.join("{{ name }}", "index.ts")]: "export default '{{ name }}';" },
+    );
+
+    await installSnippet(
+      "dir-name",
+      { name: "components" },
+      { outDir },
+      tmpDir,
+      configPath,
+    );
+
+    expect(
+      fs.readFileSync(
+        path.join(outDir, "components", "index.ts"),
+        "utf-8",
+      ),
+    ).toBe("export default 'components';");
+  });
+
+  it("複数ファイルのインストール", async () => {
+    setupSnippet(
+      "multi",
+      {
+        name: "multi",
+        variables: { name: { schema: { type: "string" } } },
+      },
+      {
+        "{{ name }}.ts": "export function {{ name }}() {}",
+        "{{ name }}.test.ts": "import { {{ name }} } from './{{ name }}'",
+      },
+    );
+
+    await installSnippet(
+      "multi",
+      { name: "useAuth" },
+      { outDir },
+      tmpDir,
+      configPath,
+    );
+
+    expect(fs.existsSync(path.join(outDir, "useAuth.ts"))).toBe(true);
+    expect(fs.existsSync(path.join(outDir, "useAuth.test.ts"))).toBe(true);
+  });
+
+  it("default 値を使用する", async () => {
+    setupSnippet(
+      "defaults",
+      {
+        name: "defaults",
+        variables: {
+          name: { schema: { type: "string" } },
+          ext: { schema: { type: "string", default: "ts" } },
+        },
+      },
+      { "file.txt": "{{ name }}.{{ ext }}" },
+    );
+
+    await installSnippet(
+      "defaults",
+      { name: "test" },
+      { outDir },
+      tmpDir,
+      configPath,
+    );
+
+    expect(
+      fs.readFileSync(path.join(outDir, "file.txt"), "utf-8"),
+    ).toBe("test.ts");
+  });
+
+  it("未指定の変数を interactive に入力する", async () => {
+    setupSnippet(
+      "interactive",
+      {
+        name: "interactive",
+        variables: {
+          name: { description: "コンポーネント名", schema: { type: "string" } },
+        },
+      },
+      { "file.txt": "{{ name }}" },
+    );
+
+    mockPrompt.mockResolvedValueOnce("MyComponent");
+
+    await installSnippet(
+      "interactive",
+      {},
+      { outDir },
+      tmpDir,
+      configPath,
+    );
+
+    expect(mockPrompt).toHaveBeenCalledWith("コンポーネント名 (name): ");
+    expect(
+      fs.readFileSync(path.join(outDir, "file.txt"), "utf-8"),
+    ).toBe("MyComponent");
+  });
+
+  it("interactive 入力で空文字を入力した場合エラー", async () => {
+    setupSnippet(
+      "interactive-empty",
+      {
+        name: "interactive-empty",
+        variables: {
+          name: { schema: { type: "string" } },
+        },
+      },
+      { "file.txt": "{{ name }}" },
+    );
+
+    mockPrompt.mockResolvedValueOnce("");
+
+    await expect(
+      installSnippet("interactive-empty", {}, { outDir }, tmpDir, configPath),
+    ).rejects.toThrow(MirError);
+  });
+
+  it("snippet が存在しない場合にエラー", async () => {
+    await expect(
+      installSnippet("nonexistent", {}, { outDir }, tmpDir, configPath),
+    ).rejects.toThrow(SnippetNotFoundError);
+  });
+
+  it("hooks を実行する", async () => {
+    setupSnippet(
+      "with-hooks",
+      {
+        name: "with-hooks",
+        hooks: {
+          "before-install": [{ echo: "Before: {{ name }}" }],
+          "after-install": [{ echo: "After: {{ name }}" }],
+        },
+        variables: { name: { schema: { type: "string" } } },
+      },
+      { "file.txt": "hello" },
+    );
+
+    await installSnippet(
+      "with-hooks",
+      { name: "test" },
+      { outDir },
+      tmpDir,
+      configPath,
+    );
+
+    expect(mockInfo).toHaveBeenCalledWith("Before: test");
+    expect(mockInfo).toHaveBeenCalledWith("After: test");
+  });
+
+  it("exit hook でインストールを中止する", async () => {
+    setupSnippet(
+      "with-exit",
+      {
+        name: "with-exit",
+        hooks: {
+          "before-install": [{ exit: true }],
+        },
+      },
+      { "file.txt": "should not be created" },
+    );
+
+    await expect(
+      installSnippet("with-exit", {}, { outDir }, tmpDir, configPath),
+    ).rejects.toThrow(ExitHookError);
+
+    expect(fs.existsSync(path.join(outDir, "file.txt"))).toBe(false);
+  });
+
+  it("変数一覧を表示する", async () => {
+    setupSnippet(
+      "var-display",
+      {
+        name: "var-display",
+        variables: {
+          name: { schema: { type: "string" } },
+          ext: { schema: { type: "string", default: "ts" } },
+        },
+      },
+      { "file.txt": "{{ name }}.{{ ext }}" },
+    );
+
+    await installSnippet(
+      "var-display",
+      { name: "test" },
+      { outDir },
+      tmpDir,
+      configPath,
+    );
+
+    expect(mockInfo).toHaveBeenCalledWith('Snippet "var-display"');
+    expect(mockStep).toHaveBeenCalledWith("Variables:");
+    expect(mockLabel).toHaveBeenCalledWith("name", "test");
+    expect(mockLabel).toHaveBeenCalledWith("ext", "ts (default)");
+  });
+
+  it("suggests がある場合 selectWithSuggests が呼ばれる", async () => {
+    setupSnippet(
+      "with-suggests",
+      {
+        name: "with-suggests",
+        variables: {
+          framework: {
+            description: "フレームワーク",
+            suggests: ["react", "vue", "svelte"],
+            schema: { type: "string" },
+          },
+        },
+      },
+      { "file.txt": "{{ framework }}" },
+    );
+
+    mockSelectWithSuggests.mockResolvedValueOnce("react");
+
+    await installSnippet(
+      "with-suggests",
+      {},
+      { outDir },
+      tmpDir,
+      configPath,
+    );
+
+    expect(mockSelectWithSuggests).toHaveBeenCalledWith({
+      question: "フレームワーク (framework)",
+      suggests: ["react", "vue", "svelte"],
+      allowManualInput: true,
+      defaultValue: undefined,
+    });
+    expect(
+      fs.readFileSync(path.join(outDir, "file.txt"), "utf-8"),
+    ).toBe("react");
+  });
+
+  it("CLI 引数で指定済みなら suggests をスキップする", async () => {
+    setupSnippet(
+      "suggests-skip",
+      {
+        name: "suggests-skip",
+        variables: {
+          framework: {
+            suggests: ["react", "vue"],
+            schema: { type: "string" },
+          },
+        },
+      },
+      { "file.txt": "{{ framework }}" },
+    );
+
+    await installSnippet(
+      "suggests-skip",
+      { framework: "angular" },
+      { outDir },
+      tmpDir,
+      configPath,
+    );
+
+    expect(mockSelectWithSuggests).not.toHaveBeenCalled();
+    expect(
+      fs.readFileSync(path.join(outDir, "file.txt"), "utf-8"),
+    ).toBe("angular");
+  });
+
+  it("suggests + default の場合 defaultValue が渡される", async () => {
+    setupSnippet(
+      "suggests-default",
+      {
+        name: "suggests-default",
+        variables: {
+          framework: {
+            suggests: ["react", "vue"],
+            schema: { type: "string", default: "react" },
+          },
+        },
+      },
+      { "file.txt": "{{ framework }}" },
+    );
+
+    mockSelectWithSuggests.mockResolvedValueOnce("react");
+
+    await installSnippet(
+      "suggests-default",
+      {},
+      { outDir },
+      tmpDir,
+      configPath,
+    );
+
+    expect(mockSelectWithSuggests).toHaveBeenCalledWith({
+      question: "framework (framework)",
+      suggests: ["react", "vue"],
+      allowManualInput: true,
+      defaultValue: "react",
+    });
+  });
+
+  it("boolean 型 + suggests の場合 allowManualInput=false", async () => {
+    setupSnippet(
+      "suggests-bool",
+      {
+        name: "suggests-bool",
+        variables: {
+          useTs: {
+            description: "TypeScript",
+            suggests: ["true", "false"],
+            schema: { type: "boolean" },
+          },
+        },
+      },
+      { "file.txt": "{{ useTs }}" },
+    );
+
+    mockSelectWithSuggests.mockResolvedValueOnce("true");
+
+    await installSnippet(
+      "suggests-bool",
+      {},
+      { outDir },
+      tmpDir,
+      configPath,
+    );
+
+    expect(mockSelectWithSuggests).toHaveBeenCalledWith(
+      expect.objectContaining({ allowManualInput: false }),
+    );
+  });
+
+  it("インストール完了メッセージとファイル一覧を表示する", async () => {
+    setupSnippet("simple-msg", { name: "simple-msg" }, {
+      "index.ts": "hello",
+    });
+
+    await installSnippet("simple-msg", {}, { outDir }, tmpDir, configPath);
+
+    expect(mockSuccess).toHaveBeenCalledWith(
+      'Snippet "simple-msg" をインストールしました',
+    );
+    expect(mockFileItem).toHaveBeenCalled();
+  });
+});
+
+describe("parseVariableArgs", () => {
+  it("--key=value 形式をパースする", () => {
+    expect(parseVariableArgs(["--name=MyComponent", "--ext=tsx"])).toEqual({
+      name: "MyComponent",
+      ext: "tsx",
+    });
+  });
+
+  it("不正な形式を無視する", () => {
+    expect(parseVariableArgs(["--name=test", "invalid", "--foo"])).toEqual({
+      name: "test",
+    });
+  });
+
+  it("空配列で空オブジェクトを返す", () => {
+    expect(parseVariableArgs([])).toEqual({});
+  });
+});

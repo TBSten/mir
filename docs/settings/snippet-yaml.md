@@ -41,6 +41,7 @@ variables:
   <variable-name>:
     name: string          # 表示名。省略時はキー名を使用
     description: string   # 変数の説明
+    suggests: string[]    # 入力時に表示するサジェスト選択肢
     schema:               # JSON Schema による型定義
       type: string        # "string" | "number" | "boolean"
       default: any        # デフォルト値
@@ -90,6 +91,38 @@ variables:
       type: boolean
       default: true
 ```
+
+#### suggests（任意）
+
+変数入力時に番号選択式のサジェスト選択肢を表示する。`string[]` で指定する。
+
+```yaml
+variables:
+  framework:
+    description: "フレームワーク"
+    suggests:
+      - react
+      - vue
+      - svelte
+    schema:
+      type: string
+```
+
+インストール時の表示:
+
+```
+? フレームワーク (framework):
+  1) react
+  2) vue
+  3) svelte
+  0) その他 (手動入力)
+選択: 1
+```
+
+- `string` 型（または型未指定）の場合、「その他 (手動入力)」で任意の値を入力可能
+- `boolean` / `number` 型の場合、suggests の中からのみ選択可能
+- `schema.default` と併用すると、該当する選択肢に `(default)` マークが付き、Enter のみで default 値を使用可能
+- CLI 引数（`--key=value`）で値が指定済みの場合、suggests はスキップされる
 
 #### 変数スキーマ（variableSchema）
 

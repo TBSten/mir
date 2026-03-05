@@ -59,6 +59,11 @@
           "type": "string",
           "description": "変数の説明"
         },
+        "suggests": {
+          "type": "array",
+          "description": "入力時に表示するサジェスト選択肢",
+          "items": { "type": "string" }
+        },
         "schema": {
           "$ref": "#/$defs/variableSchema"
         }

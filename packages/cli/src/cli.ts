@@ -1,5 +1,22 @@
-import { run } from "./commands/run.js";
+import { Command } from "commander";
+import { registerCreateCommand } from "./commands/create.js";
+import { registerPublishCommand } from "./commands/publish.js";
+import { registerInstallCommand } from "./commands/install.js";
+import { MirError } from "./lib/errors.js";
+import * as logger from "./lib/logger.js";
 
-const args = process.argv.slice(2);
+const program = new Command();
 
-run(args);
+program.name("mir").description("スニペットを配布・取得する CLI ツール").version("0.0.1");
+
+registerCreateCommand(program);
+registerPublishCommand(program);
+registerInstallCommand(program);
+
+program.parseAsync().catch((err) => {
+  if (err instanceof MirError) {
+    logger.error(err.message);
+    process.exit(1);
+  }
+  throw err;
+});
