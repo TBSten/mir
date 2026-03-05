@@ -1,5 +1,5 @@
 {
-  "name": "@mir/web",
+  "name": "@mir/official-registry",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@mir/registry-sdk": "*",
     "hono": "^4.12.5",
     "honox": "^0.1.54"
   },
