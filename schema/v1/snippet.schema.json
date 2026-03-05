@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema#",
-  "$id": "https://github.com/tbsten/mir/blob/main/schema/snippet.schema.json",
+  "$id": "https://github.com/tbsten/mir/blob/main/schema/v1/snippet.schema.json",
   "title": "mir snippet definition",
   "description": "snippet の設定・変数・hooks を定義する YAML ファイルのスキーマ",
   "type": "object",

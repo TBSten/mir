@@ -10,12 +10,12 @@ snippet の設定・変数・hooks を定義する YAML ファイルの仕様。
 
 ## JSON Schema
 
-スキーマファイル: [`../../schema/snippet.schema.json`](../../schema/snippet.schema.json)
+スキーマファイル: [`../../schema/v1/snippet.schema.json`](../../schema/v1/snippet.schema.json)
 
 エディタで補完を有効にするには、ファイル先頭に以下を追加する:
 
 ```yaml
-# yaml-language-server: $schema=../../schema/snippet.schema.json
+# yaml-language-server: $schema=../../schema/v1/snippet.schema.json
 ```
 
 ## フィールド一覧
@@ -247,7 +247,7 @@ export function {{ name }}() {
 
 ## 関連
 
-- [JSON Schema](../../schema/snippet.schema.json) - バリデーション用スキーマ
+- [JSON Schema](../../schema/v1/snippet.schema.json) - バリデーション用スキーマ
 - [mirconfig.yaml 仕様](./mirconfig-yaml.md) - グローバル設定ファイル
 - [mir create](../command/create.md) - snippet の雛形を作成
 - [mir publish](../command/publish.md) - snippet をローカル registry に登録
