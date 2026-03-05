@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "tailwindcss -i app/styles.css -o dist/static/styles.css --minify && vite build",
     "deploy": "wrangler pages deploy dist",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
@@ -22,6 +22,9 @@
     "@hono/vite-build": "^1.10.0",
     "@hono/vite-dev-server": "^0.25.0",
     "@playwright/test": "^1.49.0",
+    "@tailwindcss/cli": "^4.2.1",
+    "@tailwindcss/vite": "^4.2.1",
+    "tailwindcss": "^4.2.1",
     "typescript": "^5",
     "vite": "^6",
     "vitest": "^3",
