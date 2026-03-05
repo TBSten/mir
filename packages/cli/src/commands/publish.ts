@@ -19,6 +19,7 @@ import {
 } from "../lib/errors.js";
 import { confirm } from "../lib/prompt.js";
 import { listLocalSnippets, selectSnippet } from "../lib/snippet-list.js";
+import { t } from "../lib/i18n/index.js";
 import * as logger from "../lib/logger.js";
 
 export interface PublishOptions {
@@ -57,10 +58,10 @@ export async function publishSnippet(
       removeSnippetFromRegistry(registryPath, name);
     } else if (opts.interactive !== false) {
       const shouldOverwrite = await confirm(
-        `Snippet "${name}" は既に存在します。上書きしますか？`,
+        t("publish.confirm-overwrite", { name }),
       );
       if (!shouldOverwrite) {
-        logger.info("publish をキャンセルしました");
+        logger.info(t("publish.cancelled"));
         return;
       }
       removeSnippetFromRegistry(registryPath, name);
@@ -71,7 +72,7 @@ export async function publishSnippet(
 
   copySnippetToRegistry(dirPath, yamlPath, registryPath, name);
 
-  logger.success(`Snippet "${name}" を registry に登録しました`);
+  logger.success(t("publish.success", { name }));
 }
 
 export function registerPublishCommand(program: Command): void {

@@ -16,6 +16,12 @@
         { "path": "~/.mir/registry" }
       ]
     },
+    "locale": {
+      "type": "string",
+      "description": "CLI の表示言語",
+      "enum": ["ja", "en"],
+      "default": "ja"
+    },
     "defaults": {
       "type": "object",
       "description": "snippet 作成時のデフォルト値",

@@ -1,11 +1,12 @@
 import { MirError } from "./errors.js";
 import { expandTemplate } from "./template-engine.js";
+import { t } from "./i18n/index.js";
 import * as logger from "./logger.js";
 import type { Action } from "./snippet-schema.js";
 
 export class ExitHookError extends MirError {
   constructor() {
-    super("install が中止されました");
+    super(t("error.exit-hook"));
     this.name = "ExitHookError";
   }
 }
@@ -34,8 +35,6 @@ export function executeHooks(
     }
 
     if (action.input !== undefined) {
-      // TODO: interactive mode でのプロンプト入力
-      // 当面は default 値を使用。default がなければエラー
       for (const [, inputDef] of Object.entries(action.input)) {
         const answerTo = inputDef["answer-to"];
         if (!answerTo) continue;
@@ -44,7 +43,7 @@ export function executeHooks(
           vars[answerTo] = inputDef.schema.default;
         } else {
           throw new MirError(
-            `変数 "${answerTo}" の入力が必要ですが、interactive mode は未対応です。default 値を指定してください`,
+            t("error.hook-input-required", { key: answerTo }),
           );
         }
       }

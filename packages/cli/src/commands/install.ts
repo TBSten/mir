@@ -22,6 +22,7 @@ import {
 } from "../lib/errors.js";
 import { prompt, selectWithSuggests, confirmOverwrite } from "../lib/prompt.js";
 import { selectSnippet } from "../lib/snippet-list.js";
+import { t } from "../lib/i18n/index.js";
 import * as logger from "../lib/logger.js";
 import type { SnippetDefinition, VariableDefinition } from "../lib/snippet-schema.js";
 
@@ -133,7 +134,7 @@ export async function installSnippet(
       } else if (interactive) {
         const choice = await confirmOverwrite(filePath);
         if (choice === "no") {
-          logger.warn(`スキップ: ${filePath}`);
+          logger.warn(t("install.skip", { path: filePath }));
           continue;
         }
         if (choice === "all") {
@@ -152,7 +153,7 @@ export async function installSnippet(
     executeHooks(definition.hooks["after-install"], variables);
   }
 
-  logger.success(`Snippet "${name}" をインストールしました`);
+  logger.success(t("install.success", { name }));
   for (const filePath of expandedFiles.keys()) {
     const displayPath = opts.outDir
       ? path.join(opts.outDir, filePath)
@@ -178,7 +179,7 @@ function logVariableSummary(
     const value = String(variables[key]);
     const isDefault =
       !(key in variableArgs) && def.schema?.default !== undefined;
-    const suffix = isDefault ? " (default)" : "";
+    const suffix = isDefault ? ` ${t("general.default")}` : "";
     logger.label(key, `${value}${suffix}`);
   }
 }
@@ -214,7 +215,7 @@ async function resolveVariables(
       const answer = await prompt(`${description} (${key}): `);
       if (answer === "") {
         throw new MirError(
-          `変数 "${key}" の値が入力されませんでした`,
+          t("error.variable-empty", { key }),
         );
       }
       variables[key] = coerceValue(answer, def.schema?.type);

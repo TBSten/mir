@@ -19,6 +19,7 @@ export interface MirConfig {
   defaults?: {
     author?: string;
   };
+  locale?: "ja" | "en";
 }
 
 const DEFAULT_CONFIG: MirConfig = {
@@ -52,6 +53,7 @@ export function loadSingleConfig(filePath: string): MirConfig {
   return {
     registries: parsed.registries ?? DEFAULT_CONFIG.registries,
     defaults: parsed.defaults,
+    locale: parsed.locale,
   };
 }
 
@@ -81,6 +83,7 @@ export function mergeConfigs(
   return {
     registries: mergedRegistries,
     defaults: Object.keys(mergedDefaults).length > 0 ? mergedDefaults : undefined,
+    locale: local.locale ?? global.locale,
   };
 }
 

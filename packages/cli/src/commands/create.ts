@@ -6,6 +6,7 @@ import { snippetYamlPath, snippetDirPath, snippetsBasePath } from "../lib/paths.
 import { serializeSnippetYaml, type SnippetDefinition } from "../lib/snippet-schema.js";
 import { SnippetAlreadyExistsError } from "../lib/errors.js";
 import { prompt } from "../lib/prompt.js";
+import { t } from "../lib/i18n/index.js";
 import * as logger from "../lib/logger.js";
 
 export interface CreateOptions {
@@ -42,7 +43,7 @@ export function createSnippet(
   const dirPath = snippetDirPath(cwd, name);
   fs.mkdirSync(dirPath, { recursive: true });
 
-  logger.success(`Snippet "${name}" を作成しました`);
+  logger.success(t("create.success", { name }));
   logger.fileItem(path.relative(cwd, yamlPath));
   logger.dirItem(`${path.relative(cwd, dirPath)}/`);
 }
@@ -53,7 +54,7 @@ export function registerCreateCommand(program: Command): void {
     .description("snippet の雛形を作成する")
     .option("-d, --description <description>", "snippet の説明文", "")
     .action(async (name: string | undefined, opts: CreateOptions) => {
-      const snippetName = name ?? await prompt("snippet 名: ");
+      const snippetName = name ?? await prompt(t("prompt.snippet-name"));
       createSnippet(snippetName, opts);
     });
 }

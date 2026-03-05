@@ -9,6 +9,7 @@ import {
 import { extractVariablesFromDirectory } from "../lib/template-engine.js";
 import { SnippetNotFoundError } from "../lib/errors.js";
 import { listLocalSnippets, selectSnippet } from "../lib/snippet-list.js";
+import { t } from "../lib/i18n/index.js";
 import * as logger from "../lib/logger.js";
 
 export function syncSnippet(
@@ -31,7 +32,7 @@ export function syncSnippet(
 
   const newVars = templateVars.filter((v) => !existingVars.includes(v));
   if (newVars.length === 0) {
-    logger.info("追加する変数はありません");
+    logger.info(t("sync.no-new-vars"));
     return;
   }
 
@@ -47,7 +48,7 @@ export function syncSnippet(
 
   fs.writeFileSync(yamlPath, serializeSnippetYaml(definition), "utf-8");
 
-  logger.success(`${newVars.length} 件の変数を追加しました`);
+  logger.success(t("sync.success", { count: newVars.length }));
   for (const varName of newVars) {
     logger.label(varName, "string");
   }
