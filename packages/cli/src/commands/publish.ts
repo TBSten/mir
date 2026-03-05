@@ -17,20 +17,22 @@ import {
   SnippetNotFoundError,
   SnippetAlreadyExistsError,
 } from "../lib/errors.js";
+import { confirm } from "../lib/prompt.js";
 import { listLocalSnippets, selectSnippet } from "../lib/snippet-list.js";
 import * as logger from "../lib/logger.js";
 
 export interface PublishOptions {
   registry?: string;
   force?: boolean;
+  interactive?: boolean;
 }
 
-export function publishSnippet(
+export async function publishSnippet(
   name: string,
   opts: PublishOptions = {},
   cwd: string = process.cwd(),
   configPath?: string,
-): void {
+): Promise<void> {
   validateSnippetName(name);
 
   const yamlPath = snippetYamlPath(cwd, name);
@@ -51,10 +53,20 @@ export function publishSnippet(
   const registryPath = resolveRegistryPath(registryEntry);
 
   if (snippetExistsInRegistry(registryPath, name)) {
-    if (!opts.force) {
+    if (opts.force) {
+      removeSnippetFromRegistry(registryPath, name);
+    } else if (opts.interactive !== false) {
+      const shouldOverwrite = await confirm(
+        `Snippet "${name}" は既に存在します。上書きしますか？`,
+      );
+      if (!shouldOverwrite) {
+        logger.info("publish をキャンセルしました");
+        return;
+      }
+      removeSnippetFromRegistry(registryPath, name);
+    } else {
       throw new SnippetAlreadyExistsError(name);
     }
-    removeSnippetFromRegistry(registryPath, name);
   }
 
   copySnippetToRegistry(dirPath, yamlPath, registryPath, name);
@@ -68,12 +80,13 @@ export function registerPublishCommand(program: Command): void {
     .description("snippet をローカル registry に登録する")
     .option("-r, --registry <name>", "登録先 registry の名前")
     .option("-f, --force", "既存の snippet を上書き", false)
+    .option("--no-interactive", "対話的な確認を無効化する")
     .action(async (name: string | undefined, opts: PublishOptions) => {
       let snippetName = name;
       if (!snippetName) {
         const snippets = listLocalSnippets(process.cwd());
         snippetName = await selectSnippet(snippets);
       }
-      publishSnippet(snippetName, opts);
+      await publishSnippet(snippetName, opts);
     });
 }

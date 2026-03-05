@@ -22,6 +22,16 @@ vi.mock("../../lib/logger.js", () => ({
   dirItem: vi.fn(),
 }));
 
+vi.mock("../../lib/prompt.js", () => ({
+  prompt: vi.fn(),
+  confirm: vi.fn(),
+  selectWithSuggests: vi.fn(),
+  confirmOverwrite: vi.fn(),
+}));
+import { confirm } from "../../lib/prompt.js";
+const mockConfirm = vi.mocked(confirm);
+import * as logger from "../../lib/logger.js";
+
 let tmpDir: string;
 let registryDir: string;
 let configPath: string;
@@ -37,6 +47,8 @@ beforeEach(() => {
     yaml.dump({ registries: [{ name: "default", path: registryDir }] }),
     "utf-8",
   );
+
+  mockConfirm.mockReset();
 });
 
 afterEach(() => {
@@ -44,10 +56,10 @@ afterEach(() => {
 });
 
 describe("publishSnippet", () => {
-  it("snippet を registry にコピーする", () => {
+  it("snippet を registry にコピーする", async () => {
     createSnippet("my-comp", {}, tmpDir);
 
-    publishSnippet("my-comp", {}, tmpDir, configPath);
+    await publishSnippet("my-comp", {}, tmpDir, configPath);
 
     expect(
       fs.existsSync(path.join(registryDir, "my-comp.yaml")),
@@ -57,7 +69,7 @@ describe("publishSnippet", () => {
     ).toBe(true);
   });
 
-  it("テンプレートファイルの内容が一致する", () => {
+  it("テンプレートファイルの内容が一致する", async () => {
     createSnippet("my-comp", {}, tmpDir);
 
     const templateDir = path.join(tmpDir, ".mir/snippets/my-comp");
@@ -67,7 +79,7 @@ describe("publishSnippet", () => {
       "utf-8",
     );
 
-    publishSnippet("my-comp", {}, tmpDir, configPath);
+    await publishSnippet("my-comp", {}, tmpDir, configPath);
 
     const copiedContent = fs.readFileSync(
       path.join(registryDir, "my-comp", "index.ts"),
@@ -76,13 +88,13 @@ describe("publishSnippet", () => {
     expect(copiedContent).toBe("export const x = 1;");
   });
 
-  it("ソースが存在しない場合にエラー", () => {
-    expect(() =>
+  it("ソースが存在しない場合にエラー", async () => {
+    await expect(
       publishSnippet("nonexistent", {}, tmpDir, configPath),
-    ).toThrow(SnippetNotFoundError);
+    ).rejects.toThrow(SnippetNotFoundError);
   });
 
-  it("YAML バリデーション失敗でエラー", () => {
+  it("YAML バリデーション失敗でエラー", async () => {
     const snippetsDir = path.join(tmpDir, ".mir/snippets");
     fs.mkdirSync(snippetsDir, { recursive: true });
 
@@ -93,26 +105,48 @@ describe("publishSnippet", () => {
     );
     fs.mkdirSync(path.join(snippetsDir, "bad"), { recursive: true });
 
-    expect(() => publishSnippet("bad", {}, tmpDir, configPath)).toThrow(
-      ValidationError,
-    );
+    await expect(
+      publishSnippet("bad", {}, tmpDir, configPath),
+    ).rejects.toThrow(ValidationError);
   });
 
-  it("重複時にエラーを投げる", () => {
+  it("--force で上書きできる", async () => {
     createSnippet("dup", {}, tmpDir);
-    publishSnippet("dup", {}, tmpDir, configPath);
+    await publishSnippet("dup", {}, tmpDir, configPath);
 
-    expect(() => publishSnippet("dup", {}, tmpDir, configPath)).toThrow(
-      SnippetAlreadyExistsError,
-    );
-  });
-
-  it("--force で上書きできる", () => {
-    createSnippet("dup", {}, tmpDir);
-    publishSnippet("dup", {}, tmpDir, configPath);
-
-    expect(() =>
+    await expect(
       publishSnippet("dup", { force: true }, tmpDir, configPath),
-    ).not.toThrow();
+    ).resolves.toBeUndefined();
+  });
+
+  it("interactive で確認して上書きできる", async () => {
+    createSnippet("dup-confirm", {}, tmpDir);
+    await publishSnippet("dup-confirm", {}, tmpDir, configPath);
+
+    mockConfirm.mockResolvedValueOnce(true);
+
+    await publishSnippet("dup-confirm", { interactive: true }, tmpDir, configPath);
+
+    expect(mockConfirm).toHaveBeenCalled();
+  });
+
+  it("interactive で確認してキャンセルできる", async () => {
+    createSnippet("dup-cancel", {}, tmpDir);
+    await publishSnippet("dup-cancel", {}, tmpDir, configPath);
+
+    mockConfirm.mockResolvedValueOnce(false);
+
+    await publishSnippet("dup-cancel", { interactive: true }, tmpDir, configPath);
+
+    expect(vi.mocked(logger.info)).toHaveBeenCalledWith("publish をキャンセルしました");
+  });
+
+  it("non-interactive で重複時にエラー", async () => {
+    createSnippet("dup-error", {}, tmpDir);
+    await publishSnippet("dup-error", {}, tmpDir, configPath);
+
+    await expect(
+      publishSnippet("dup-error", { interactive: false }, tmpDir, configPath),
+    ).rejects.toThrow(SnippetAlreadyExistsError);
   });
 });
