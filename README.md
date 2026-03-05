@@ -90,17 +90,25 @@ mir publish <name>
 
 ### パッケージ構成
 
-| パッケージ | 説明 |
-|---|---|
-| `packages/cli` | CLI ツール (`npx mir`) |
-| `packages/web` | Web アプリ (Next.js) |
+| パッケージ | 説明 | デプロイ先 |
+|---|---|---|
+| `packages/cli` | CLI ツール (`npx mir`) | npm |
+| `packages/web` | Web アプリ (HonoX) | Cloudflare Pages |
 
 ### コマンド
 
 ```bash
-pnpm install
-pnpm dev        # 全パッケージを watch モードで起動
-pnpm build      # 全パッケージをビルド
-pnpm test       # 全パッケージのテスト実行
-pnpm typecheck  # 型チェック
+npm install
+npm run dev        # 全パッケージを watch モードで起動
+npm run build      # 全パッケージをビルド
+npm test           # 全パッケージのテスト実行
+npm run typecheck  # 型チェック
+```
+
+### デプロイ
+
+#### packages/web (Cloudflare Pages)
+
+```bash
+npm run deploy -w packages/web
 ```
