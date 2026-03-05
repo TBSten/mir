@@ -6,17 +6,15 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "registry": {
-      "type": "object",
-      "description": "registry に関する設定",
-      "additionalProperties": false,
-      "properties": {
-        "path": {
-          "type": "string",
-          "description": "ローカル registry のパス",
-          "default": "~/.mir/registry"
-        }
-      }
+    "registries": {
+      "type": "array",
+      "description": "registry の一覧。定義順に検索される",
+      "items": {
+        "$ref": "#/$defs/registryEntry"
+      },
+      "default": [
+        { "path": "~/.mir/registry" }
+      ]
     },
     "defaults": {
       "type": "object",
@@ -28,6 +26,39 @@
           "description": "snippet 作成時のデフォルト author"
         }
       }
+    }
+  },
+  "$defs": {
+    "registryEntry": {
+      "type": "object",
+      "description": "registry の定義。path（ローカル）または url（リモート）のいずれかを指定する",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "registry の識別名。--registry オプションで指定する際に使用"
+        },
+        "path": {
+          "type": "string",
+          "description": "ローカル registry のディレクトリパス。url と排他"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "リモート registry の URL。path と排他。読み取り専用",
+          "pattern": "^https?://"
+        }
+      },
+      "oneOf": [
+        {
+          "required": ["path"],
+          "not": { "required": ["url"] }
+        },
+        {
+          "required": ["url"],
+          "not": { "required": ["path"] }
+        }
+      ]
     }
   }
 }

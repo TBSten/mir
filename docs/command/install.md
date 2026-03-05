@@ -1,11 +1,11 @@
 # mir install
 
-snippet をローカル registry からインストール（指定ディレクトリにコピー）するコマンド。
+snippet を registry からインストール（指定ディレクトリにコピー）するコマンド。ローカル・リモート両方の registry に対応。
 
 ## Usage
 
 ```shell
-mir install <name> [--out-dir=<path>] [--<variable>=<value> ...]
+mir install <name> [--registry=<name>] [--out-dir=<path>] [--<variable>=<value> ...]
 ```
 
 エイリアス: `mir i`
@@ -20,6 +20,7 @@ mir install <name> [--out-dir=<path>] [--<variable>=<value> ...]
 
 | オプション | 説明 | デフォルト |
 |---|---|---|
+| `--registry`, `-r` | 検索対象の registry 名（`mirconfig.yaml` の `registries[].name`） | 全 registry を順に検索 |
 | `--out-dir`, `-o` | ファイルの出力先ディレクトリ | `.`（カレントディレクトリ） |
 | `--<variable>=<value>` | snippet で定義された変数の値を指定 | - |
 | `--no-interactive` | インタラクティブモードを無効化。未指定の必須変数がある場合エラーにする | `false` |
@@ -29,8 +30,9 @@ mir install <name> [--out-dir=<path>] [--<variable>=<value> ...]
 
 ### 1. snippet の解決
 
-1. ローカル registry（`~/.mir/registry/`）から `<name>` に一致する snippet を検索
-2. 見つからない場合はエラーを返す
+1. `--registry` 指定時: 該当 registry のみを検索
+2. 未指定時: `registries` を定義順に検索し、最初にマッチした snippet を使用
+3. どの registry にも見つからない場合はエラーを返す
 
 ### 2. 変数の解決
 
@@ -80,6 +82,18 @@ mir install react-hook --name=useAuth --description="認証用カスタムフッ
 
 ```shell
 mir install react-hook --name=useAuth --dry-run
+```
+
+### 特定の registry から検索（ローカル）
+
+```shell
+mir install react-hook --name=useAuth --registry=team
+```
+
+### リモート registry から検索
+
+```shell
+mir install react-hook --name=useAuth --registry=community
 ```
 
 ### 出力先ディレクトリを指定
