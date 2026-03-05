@@ -7,7 +7,14 @@
     "build": "npm run build --workspaces --if-present",
     "dev": "npm run dev --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present"
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "dev:cli": "npm run dev -w packages/cli",
+    "dev:web": "npm run dev -w packages/official-registry",
+    "build:cli": "npm run build -w packages/cli",
+    "build:web": "npm run build -w packages/official-registry",
+    "test:cli": "npm test -w packages/cli",
+    "test:web": "npm test -w packages/official-registry",
+    "mir": "node packages/cli/dist/cli.js"
   },
   "engines": {
     "node": ">=18"
