@@ -1,4 +1,5 @@
 import Handlebars from "handlebars";
+import fs from "node:fs";
 import path from "node:path";
 import {
   listTemplateFiles,
@@ -20,6 +21,78 @@ export function expandPath(
   const expanded = expandTemplate(pathTemplate, variables);
   // 展開後のパスを正規化（空セグメント除去、区切り文字統一）
   return path.normalize(expanded);
+}
+
+export function extractVariables(template: string): string[] {
+  const ast = Handlebars.parse(template);
+  const vars = new Set<string>();
+
+  function visitExpression(expr: hbs.AST.Expression): void {
+    if (expr.type === "PathExpression") {
+      const pathExpr = expr as hbs.AST.PathExpression;
+      vars.add(pathExpr.parts[0]);
+    }
+  }
+
+  function visit(node: hbs.AST.Node): void {
+    if (node.type === "MustacheStatement") {
+      const stmt = node as hbs.AST.MustacheStatement;
+      if (stmt.path) visitExpression(stmt.path);
+      if (stmt.params) {
+        for (const param of stmt.params) visitExpression(param);
+      }
+    }
+    if (node.type === "BlockStatement") {
+      const block = node as hbs.AST.BlockStatement;
+      // #if, #unless, #each 等のパラメータから変数を抽出
+      if (block.params) {
+        for (const param of block.params) visitExpression(param);
+      }
+      if (block.program) visit(block.program);
+      if (block.inverse) visit(block.inverse);
+    }
+    if ("body" in node && Array.isArray((node as hbs.AST.Program).body)) {
+      for (const child of (node as hbs.AST.Program).body) {
+        visit(child);
+      }
+    }
+  }
+
+  visit(ast);
+  return [...vars];
+}
+
+export function extractVariablesFromDirectory(dirPath: string): string[] {
+  const allVars = new Set<string>();
+
+  function walkDir(currentPath: string): void {
+    const entries = fs.readdirSync(currentPath, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(currentPath, entry.name);
+      if (entry.isDirectory()) {
+        // ディレクトリ名からも変数を抽出
+        for (const v of extractVariables(entry.name)) {
+          allVars.add(v);
+        }
+        walkDir(fullPath);
+      } else {
+        // ファイル名から変数を抽出
+        for (const v of extractVariables(entry.name)) {
+          allVars.add(v);
+        }
+        // ファイル内容から変数を抽出
+        const content = fs.readFileSync(fullPath, "utf-8");
+        for (const v of extractVariables(content)) {
+          allVars.add(v);
+        }
+      }
+    }
+  }
+
+  if (fs.existsSync(dirPath)) {
+    walkDir(dirPath);
+  }
+  return [...allVars];
 }
 
 export function expandTemplateDirectory(

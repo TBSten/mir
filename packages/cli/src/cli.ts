@@ -2,6 +2,7 @@ import { Command } from "commander";
 import { registerCreateCommand } from "./commands/create.js";
 import { registerPublishCommand } from "./commands/publish.js";
 import { registerInstallCommand } from "./commands/install.js";
+import { registerSyncCommand } from "./commands/sync.js";
 import { MirError } from "./lib/errors.js";
 import * as logger from "./lib/logger.js";
 
@@ -16,6 +17,7 @@ program
 registerCreateCommand(program);
 registerPublishCommand(program);
 registerInstallCommand(program);
+registerSyncCommand(program);
 
 program.parseAsync().catch((err) => {
   if (err instanceof MirError) {

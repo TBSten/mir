@@ -6,6 +6,8 @@ import {
   expandTemplate,
   expandPath,
   expandTemplateDirectory,
+  extractVariables,
+  extractVariablesFromDirectory,
 } from "../../lib/template-engine.js";
 
 describe("expandTemplate", () => {
@@ -74,6 +76,59 @@ describe("expandPath", () => {
       baseDir: "src/components",
     });
     expect(result).toBe(path.join("src", "components", "file.ts"));
+  });
+});
+
+describe("extractVariables", () => {
+  it("単純な変数を抽出する", () => {
+    const result = extractVariables("Hello {{ name }}");
+    expect(result).toEqual(["name"]);
+  });
+
+  it("複数の変数を抽出する", () => {
+    const result = extractVariables("{{ greeting }} {{ name }}!");
+    expect(result).toContain("greeting");
+    expect(result).toContain("name");
+  });
+
+  it("#if ブロックの変数を抽出する", () => {
+    const result = extractVariables("{{#if useTs}}TypeScript{{/if}}");
+    expect(result).toContain("useTs");
+  });
+
+  it("重複を除去する", () => {
+    const result = extractVariables("{{ name }} {{ name }}");
+    expect(result).toEqual(["name"]);
+  });
+
+  it("変数がない場合は空配列を返す", () => {
+    expect(extractVariables("no variables here")).toEqual([]);
+  });
+});
+
+describe("extractVariablesFromDirectory", () => {
+  let extractTmpDir: string;
+
+  beforeEach(() => {
+    extractTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "mir-test-extract-"));
+  });
+
+  afterEach(() => {
+    fs.rmSync(extractTmpDir, { recursive: true, force: true });
+  });
+
+  it("ディレクトリ内の全ファイルから変数を抽出する", () => {
+    const dir = path.join(extractTmpDir, "extract-test");
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(path.join(dir, "{{ name }}.ts"), "{{ value }}", "utf-8");
+
+    const result = extractVariablesFromDirectory(dir);
+    expect(result).toContain("name");
+    expect(result).toContain("value");
+  });
+
+  it("存在しないディレクトリは空配列を返す", () => {
+    expect(extractVariablesFromDirectory("/nonexistent")).toEqual([]);
   });
 });
 
