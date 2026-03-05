@@ -11,7 +11,7 @@ import {
 
 // TODO: 現時点では理想の挙動をテストケースとして記述。後で有効化する。
 
-describe.skip("parseSnippetYaml", () => {
+describe("parseSnippetYaml", () => {
   it("最小限の YAML をパースできる", () => {
     const def = parseSnippetYaml("name: my-snippet\n");
     expect(def.name).toBe("my-snippet");
@@ -58,7 +58,7 @@ hooks:
   });
 });
 
-describe.skip("serializeSnippetYaml", () => {
+describe("serializeSnippetYaml", () => {
   it("SnippetDefinition を YAML 文字列に変換する", () => {
     const yaml = serializeSnippetYaml({ name: "test" });
     expect(yaml).toContain("name: test");
@@ -73,7 +73,7 @@ describe.skip("serializeSnippetYaml", () => {
   });
 });
 
-describe.skip("validateSnippetDefinition", () => {
+describe("validateSnippetDefinition", () => {
   it("最小限の定義はバリデーション通過", () => {
     expect(() => validateSnippetDefinition({ name: "valid" })).not.toThrow();
   });

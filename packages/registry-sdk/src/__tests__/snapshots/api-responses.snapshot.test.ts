@@ -39,7 +39,7 @@ const mockProvider: RegistryProvider = {
   },
 };
 
-describe.skip("API レスポンス snapshot", () => {
+describe("API レスポンス snapshot", () => {
   it("GET /api/snippets レスポンス", async () => {
     const app = createRegistryRoutes(mockProvider);
     const res = await app.request("/api/snippets");

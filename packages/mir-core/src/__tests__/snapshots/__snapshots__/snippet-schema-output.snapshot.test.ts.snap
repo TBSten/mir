@@ -1,0 +1,78 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`snippet スキーマ snapshot > hooks 付き snippet 定義の YAML 出力 1`] = `
+"name: with-hooks
+hooks:
+  before-install:
+    - echo: インストールを開始します
+    - input:
+        confirm:
+          description: 続行しますか？
+          answer-to: confirmed
+          schema:
+            type: boolean
+            default: true
+  after-install:
+    - echo: ✅ インストール完了
+"
+`;
+
+exports[`snippet スキーマ snapshot > suggests 付き変数の YAML 出力 1`] = `
+"name: css-setup
+variables:
+  framework:
+    description: CSSフレームワーク
+    suggests:
+      - tailwind
+      - vanilla-extract
+      - css-modules
+    schema:
+      type: string
+      default: tailwind
+"
+`;
+
+exports[`snippet スキーマ snapshot > フル構成 YAML のパース → シリアライズ往復 1`] = `
+"name: full-example
+description: フル構成のサンプル
+variables:
+  name:
+    description: コンポーネント名
+    schema:
+      type: string
+  framework:
+    description: フレームワーク
+    suggests:
+      - react
+      - vue
+    schema:
+      type: string
+      default: react
+hooks:
+  before-install:
+    - echo: セットアップ中...
+  after-install:
+    - echo: '完了: {{ name }}'
+"
+`;
+
+exports[`snippet スキーマ snapshot > 変数付き snippet 定義の YAML 出力 1`] = `
+"name: react-hook
+description: React カスタムフック雛形
+variables:
+  name:
+    description: フック名
+    schema:
+      type: string
+  description:
+    description: 説明文
+    schema:
+      type: string
+      default: ''
+"
+`;
+
+exports[`snippet スキーマ snapshot > 最小限の snippet 定義の YAML 出力 1`] = `
+"name: minimal
+"
+`;

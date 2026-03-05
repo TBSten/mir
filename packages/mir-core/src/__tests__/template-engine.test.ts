@@ -14,7 +14,7 @@ import {
 
 // TODO: 現時点では理想の挙動をテストケースとして記述。後で有効化する。
 
-describe.skip("expandTemplate", () => {
+describe("expandTemplate", () => {
   it("変数を展開する", () => {
     expect(expandTemplate("Hello, {{ name }}!", { name: "World" })).toBe(
       "Hello, World!",
@@ -54,7 +54,7 @@ describe.skip("expandTemplate", () => {
   });
 });
 
-describe.skip("expandPath", () => {
+describe("expandPath", () => {
   it("パス内の変数を展開する", () => {
     expect(expandPath("{{ name }}.ts", { name: "useAuth" })).toBe("useAuth.ts");
   });
@@ -73,7 +73,7 @@ describe.skip("expandPath", () => {
   });
 });
 
-describe.skip("extractVariables", () => {
+describe("extractVariables", () => {
   it("単一変数を抽出する", () => {
     expect(extractVariables("{{ name }}")).toContain("name");
   });
@@ -100,7 +100,7 @@ describe.skip("extractVariables", () => {
   });
 });
 
-describe.skip("extractVariablesFromDirectory", () => {
+describe("extractVariablesFromDirectory", () => {
   let tmpDir: string;
 
   beforeEach(() => {

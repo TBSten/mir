@@ -6,7 +6,7 @@ import { expandTemplate, expandPath } from "../../index.js";
 
 // TODO: 現時点では理想の挙動をテストケースとして記述。後で有効化する。
 
-describe.skip("テンプレート展開結果 snapshot", () => {
+describe("テンプレート展開結果 snapshot", () => {
   it("React コンポーネントテンプレート", () => {
     const template = `import React from "react";
 

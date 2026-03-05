@@ -1,0 +1,45 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`テンプレート展開結果 snapshot > React コンポーネントテンプレート 1`] = `
+"import React from "react";
+
+export interface ButtonProps {
+  children?: React.ReactNode;
+}
+
+export function Button({ children }: ButtonProps) {
+  return <div className="Button">{children}</div>;
+}"
+`;
+
+exports[`テンプレート展開結果 snapshot > React フックテンプレート 1`] = `
+"import { useState, useCallback } from "react";
+
+/**
+ * 認証フック
+ */
+export function useAuth() {
+  const [state, setState] = useState(null);
+  return { state, setState };
+}"
+`;
+
+exports[`テンプレート展開結果 snapshot > ネストしたディレクトリパス展開 1`] = `"src/features/auth/index.ts"`;
+
+exports[`テンプレート展開結果 snapshot > パス展開 1`] = `"hooks/useAuth.ts"`;
+
+exports[`テンプレート展開結果 snapshot > 条件分岐付きテンプレート 1`] = `
+"import type { FC } from "react";
+
+export const App = () => {
+  return <div>App</div>;
+};"
+`;
+
+exports[`テンプレート展開結果 snapshot > 条件分岐付きテンプレート 2`] = `
+"import React from "react";
+
+export const App = () => {
+  return <div>App</div>;
+};"
+`;

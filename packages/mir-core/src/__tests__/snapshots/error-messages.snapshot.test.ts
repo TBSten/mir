@@ -15,7 +15,7 @@ import {
 
 // TODO: 現時点では理想の挙動をテストケースとして記述。後で有効化する。
 
-describe.skip("エラーメッセージ snapshot (日本語)", () => {
+describe("エラーメッセージ snapshot (日本語)", () => {
   beforeEach(() => setLocale("ja"));
 
   it("SnippetNotFoundError", () => {
@@ -47,7 +47,7 @@ describe.skip("エラーメッセージ snapshot (日本語)", () => {
   });
 });
 
-describe.skip("エラーメッセージ snapshot (英語)", () => {
+describe("エラーメッセージ snapshot (英語)", () => {
   beforeEach(() => setLocale("en"));
 
   it("SnippetNotFoundError", () => {

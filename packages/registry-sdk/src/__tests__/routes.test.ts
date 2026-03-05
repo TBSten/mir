@@ -82,7 +82,7 @@ const testSnippets = [
   },
 ];
 
-describe.skip("GET /api/snippets", () => {
+describe("GET /api/snippets", () => {
   it("全 snippet の一覧を返す", async () => {
     const app = createRegistryRoutes(createMockProvider(testSnippets));
     const res = await app.request("/api/snippets");
@@ -102,7 +102,7 @@ describe.skip("GET /api/snippets", () => {
   });
 });
 
-describe.skip("GET /api/snippets/:name", () => {
+describe("GET /api/snippets/:name", () => {
   it("存在する snippet の詳細を返す", async () => {
     const app = createRegistryRoutes(createMockProvider(testSnippets));
     const res = await app.request("/api/snippets/react-hook");
@@ -122,7 +122,7 @@ describe.skip("GET /api/snippets/:name", () => {
   });
 });
 
-describe.skip("GET /api/snippets/:name/files/*", () => {
+describe("GET /api/snippets/:name/files/*", () => {
   it("テンプレートファイルの内容を返す", async () => {
     const app = createRegistryRoutes(createMockProvider(testSnippets));
     const res = await app.request(
@@ -148,7 +148,7 @@ describe.skip("GET /api/snippets/:name/files/*", () => {
   });
 });
 
-describe.skip("GET /api/search", () => {
+describe("GET /api/search", () => {
   it("クエリに一致する snippet を返す", async () => {
     const app = createRegistryRoutes(createMockProvider(testSnippets));
     const res = await app.request("/api/search?q=react");
@@ -185,7 +185,7 @@ describe.skip("GET /api/search", () => {
   });
 });
 
-describe.skip("search 未実装の provider", () => {
+describe("search 未実装の provider", () => {
   it("list からフィルタして返す", async () => {
     const providerWithoutSearch: RegistryProvider = {
       async list() {

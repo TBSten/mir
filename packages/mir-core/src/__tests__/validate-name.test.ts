@@ -6,7 +6,7 @@ import { validateSnippetName, ValidationError } from "../index.js";
 
 // TODO: 現時点では理想の挙動をテストケースとして記述。後で有効化する。
 
-describe.skip("validateSnippetName", () => {
+describe("validateSnippetName", () => {
   describe("正常系", () => {
     it("英小文字のみ", () => {
       expect(() => validateSnippetName("react")).not.toThrow();
