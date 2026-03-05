@@ -1,0 +1,10 @@
+{{#if useTs}}
+// TypeScript mode
+export const {{ name }} = {{ count }};
+{{else}}
+// JavaScript mode
+export const {{ name }} = {{ count }};
+{{/if}}
+
+// Framework: {{ framework }}
+// Project: {{ project-name }}

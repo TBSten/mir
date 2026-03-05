@@ -8,7 +8,7 @@ TBSten が管理する snippet を配布・取得するツール。
 npm i -g @tbsten/mir
 mir <options>
 
-# or 
+# or
 
 npx @tbsten/mir <options>
 ```
@@ -17,9 +17,7 @@ npx @tbsten/mir <options>
 
 ### Install snippet
 
-利用したいスニペットを {{TODO: Web アプリをデプロイしたらここのURLを入れる}} から検索します。
-
-公開されている snippet を現在のディレクトリにローカルにコピーするには install (or i) を使用します。
+registry に公開されている snippet を現在のディレクトリにインストールします。
 
 ```shell
 mir install <name> \
@@ -27,11 +25,13 @@ mir install <name> \
     --option-2=option2value
 ```
 
-snippet に必須の option が設定されているが コマンドで指定がない場合は interactive mode で入力を受け付けます (--no-interective を指定するとエラーにできます)。
+snippet に必須の変数が設定されているが コマンドで指定がない場合は interactive mode で入力を受け付けます (`--no-interactive` を指定するとエラーにできます)。
 
-### Create snippet and request publish
+snippet 名を省略すると、registry 内の snippet 一覧から選択できます。
 
-独自の snippet を公開したい場合は create (or c) コマンドを利用できます。
+### Create snippet
+
+独自の snippet を作成するには `create` コマンドを使用します。
 
 ```shell
 mir create <name>
@@ -40,51 +40,65 @@ mir create <name>
 実行すると snippet の設定ファイルが `.mir/snippets/<name>.yaml` に作成されます。
 
 次に snippet コードを `.mir/snippets/<name>/` ディレクトリ内に作成します。
+ファイル名・ファイル内容には [Handlebars](https://handlebarsjs.com/) テンプレートが使えます。
 
-- `-` と `-` で囲ったディレクトリ, ファイル内のテキストは option として扱われます。 {{TODO: template engine の仕組みに合わせる }}
-- snippet のファイルは {{TODO: 採用する template engine を決める}} の template として扱われます。
-
-変数は `.mir/snippets/<name>.yaml` の `variables` 内に JSON Schema などで定義ができます。(任意)
+変数は `.mir/snippets/<name>.yaml` の `variables` 内に JSON Schema で定義できます (任意)。
 
 ```yaml
 variables:
   my-option1:
-    name: my-option1 # default: キー名
     description: "..."
-    schema: # my-option1 の JSON Schema
+    schema:
       type: string
-  # ... other
+  count:
+    schema:
+      type: number
+      default: 3
 ```
 
-`.mir/snippets/<name>.yaml` の `hooks` に snippet の install 前後に実行したい処理を記載できます。
-現在は input, echo, exit をサポートしています。
+テンプレートで使用している変数を自動検出して `variables` に追加するには `sync` コマンドが便利です:
 
-```yaml
-hooks:
-  before-install:
-    - input:
-        agree-terms:
-          name: "Agree terms?"
-          description: "..."
-          schema: # json schema
-            type: boolean
-          answer-to: agree
-    - exit: true
-      if: "${{ agree }}"
-    - echo: "Hello mir from ${{ project-name }} !"
-    # ...
-  after-install:
-    # ...
+```shell
+mir sync <name>
 ```
 
-作成した snippet は他の公開されたコマンドと同じように install コマンドで利用できます。
+### Publish snippet
 
-作成した snippet を公開して他のユーザも利用できるようにしたい場合は `publish` コマンドを利用します。
-ログインが必要です (`mir login` で事前に認証してください)。
+作成した snippet を registry に公開するには `publish` コマンドを使用します。
 
 ```shell
 mir publish <name>
 ```
+
+既に同名の snippet が存在する場合は上書き確認が表示されます。`--force` で確認をスキップできます。
+
+### Hooks
+
+`.mir/snippets/<name>.yaml` の `hooks` で install 前後の処理を定義できます。
+
+```yaml
+hooks:
+  before-install:
+    - echo: "Installing {{ name }}..."
+    - input:
+        agree-terms:
+          name: "Agree terms?"
+          schema:
+            type: boolean
+          answer-to: agree
+    - exit: true
+      if: "{{ agree }}"
+  after-install:
+    - echo: "Done!"
+```
+
+### 標準変数
+
+以下の変数はテンプレート内で自動的に使用できます:
+
+| 変数名 | 説明 |
+|---|---|
+| `project-name` | `package.json` の `name`、なければディレクトリ名 |
 
 ## 開発
 

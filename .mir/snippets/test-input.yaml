@@ -1,0 +1,42 @@
+name: test-input
+description: 各種変数タイプのテスト用 snippet
+variables:
+  name:
+    description: コンポーネント名
+    schema:
+      type: string
+  count:
+    description: カウント数
+    schema:
+      type: number
+      default: 3
+  useTs:
+    description: TypeScript を使用するか
+    suggests:
+      - "true"
+      - "false"
+    schema:
+      type: boolean
+      default: true
+  framework:
+    description: フレームワーク
+    suggests:
+      - react
+      - vue
+      - svelte
+    schema:
+      type: string
+  ext:
+    description: ファイル拡張子
+    suggests:
+      - ts
+      - tsx
+      - js
+    schema:
+      type: string
+      default: ts
+hooks:
+  before-install:
+    - echo: "Installing {{ name }} (count={{ count }}, useTs={{ useTs }})"
+  after-install:
+    - echo: "Done! Check the generated files."
