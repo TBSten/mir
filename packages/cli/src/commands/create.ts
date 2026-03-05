@@ -5,6 +5,7 @@ import { validateSnippetName } from "../lib/validate-name.js";
 import { snippetYamlPath, snippetDirPath, snippetsBasePath } from "../lib/paths.js";
 import { serializeSnippetYaml, type SnippetDefinition } from "../lib/snippet-schema.js";
 import { SnippetAlreadyExistsError } from "../lib/errors.js";
+import { prompt } from "../lib/prompt.js";
 import * as logger from "../lib/logger.js";
 
 export interface CreateOptions {
@@ -48,10 +49,11 @@ export function createSnippet(
 
 export function registerCreateCommand(program: Command): void {
   program
-    .command("create <name>")
+    .command("create [name]")
     .description("snippet の雛形を作成する")
     .option("-d, --description <description>", "snippet の説明文", "")
-    .action((name: string, opts: CreateOptions) => {
-      createSnippet(name, opts);
+    .action(async (name: string | undefined, opts: CreateOptions) => {
+      const snippetName = name ?? await prompt("snippet 名: ");
+      createSnippet(snippetName, opts);
     });
 }

@@ -10,11 +10,13 @@ import {
 import {
   snippetExistsInRegistry,
   readSnippetFromRegistry,
+  listRegistrySnippets,
 } from "../lib/registry.js";
 import { expandTemplateDirectory } from "../lib/template-engine.js";
 import { executeHooks } from "../lib/hooks.js";
 import { MirError, SnippetNotFoundError } from "../lib/errors.js";
 import { prompt, selectWithSuggests } from "../lib/prompt.js";
+import { selectSnippet } from "../lib/snippet-list.js";
 import * as logger from "../lib/logger.js";
 import type { SnippetDefinition, VariableDefinition } from "../lib/snippet-schema.js";
 
@@ -195,15 +197,32 @@ export function parseVariableArgs(args: string[]): Record<string, string> {
 
 export function registerInstallCommand(program: Command): void {
   program
-    .command("install <name>")
+    .command("install [name]")
     .alias("i")
     .description("snippet を registry からインストールする")
     .option("-r, --registry <name>", "検索対象 registry の名前")
     .option("-o, --out-dir <path>", "出力先ディレクトリ")
     .allowUnknownOption(true)
-    .action(async (name: string, opts: InstallOptions, cmd) => {
+    .action(async (name: string | undefined, opts: InstallOptions, cmd) => {
+      let snippetName = name;
+      if (!snippetName) {
+        const config = loadMirConfig({ cwd: process.cwd() });
+        const registries = resolveInstallRegistries(config, opts.registry);
+        const allSnippets: string[] = [];
+        for (const entry of registries) {
+          if (!entry.path) continue;
+          const regPath = resolveRegistryPath(entry);
+          const snippets = listRegistrySnippets(regPath);
+          for (const s of snippets) {
+            if (!allSnippets.includes(s)) {
+              allSnippets.push(s);
+            }
+          }
+        }
+        snippetName = await selectSnippet(allSnippets);
+      }
       const rawArgs: string[] = cmd.args.slice(0);
       const variableArgs = parseVariableArgs(rawArgs);
-      await installSnippet(name, variableArgs, opts);
+      await installSnippet(snippetName, variableArgs, opts);
     });
 }

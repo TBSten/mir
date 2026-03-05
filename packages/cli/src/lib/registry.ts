@@ -2,6 +2,16 @@ import fs from "node:fs";
 import path from "node:path";
 import { parseSnippetYaml, type SnippetDefinition } from "./snippet-schema.js";
 
+export function listRegistrySnippets(registryPath: string): string[] {
+  if (!fs.existsSync(registryPath)) {
+    return [];
+  }
+  const entries = fs.readdirSync(registryPath);
+  return entries
+    .filter((e) => e.endsWith(".yaml"))
+    .map((e) => e.replace(/\.yaml$/, ""));
+}
+
 export function snippetExistsInRegistry(
   registryPath: string,
   name: string,

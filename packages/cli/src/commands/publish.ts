@@ -17,6 +17,7 @@ import {
   SnippetNotFoundError,
   SnippetAlreadyExistsError,
 } from "../lib/errors.js";
+import { listLocalSnippets, selectSnippet } from "../lib/snippet-list.js";
 import * as logger from "../lib/logger.js";
 
 export interface PublishOptions {
@@ -63,11 +64,16 @@ export function publishSnippet(
 
 export function registerPublishCommand(program: Command): void {
   program
-    .command("publish <name>")
+    .command("publish [name]")
     .description("snippet をローカル registry に登録する")
     .option("-r, --registry <name>", "登録先 registry の名前")
     .option("-f, --force", "既存の snippet を上書き", false)
-    .action((name: string, opts: PublishOptions) => {
-      publishSnippet(name, opts);
+    .action(async (name: string | undefined, opts: PublishOptions) => {
+      let snippetName = name;
+      if (!snippetName) {
+        const snippets = listLocalSnippets(process.cwd());
+        snippetName = await selectSnippet(snippets);
+      }
+      publishSnippet(snippetName, opts);
     });
 }

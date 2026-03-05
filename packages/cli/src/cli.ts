@@ -7,7 +7,11 @@ import * as logger from "./lib/logger.js";
 
 const program = new Command();
 
-program.name("mir").description("スニペットを配布・取得する CLI ツール").version("0.0.1");
+program
+  .name("mir")
+  .description("スニペットを配布・取得する CLI ツール")
+  .version("0.0.1")
+  .showHelpAfterError(true);
 
 registerCreateCommand(program);
 registerPublishCommand(program);
