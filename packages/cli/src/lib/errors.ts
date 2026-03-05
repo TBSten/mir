@@ -33,6 +33,20 @@ export class RegistryNotFoundError extends MirError {
   }
 }
 
+export class PathTraversalError extends MirError {
+  constructor(filePath: string) {
+    super(`パス "${filePath}" は出力ディレクトリの外を参照しています`);
+    this.name = "PathTraversalError";
+  }
+}
+
+export class FileConflictError extends MirError {
+  constructor(filePath: string) {
+    super(`ファイル "${filePath}" は既に存在します`);
+    this.name = "FileConflictError";
+  }
+}
+
 export class RegistryRemoteError extends MirError {
   constructor(name?: string) {
     super(

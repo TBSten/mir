@@ -3,8 +3,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import yaml from "js-yaml";
-import { installSnippet, parseVariableArgs } from "../../commands/install.js";
-import { MirError, SnippetNotFoundError } from "../../lib/errors.js";
+import { installSnippet, parseVariableArgs, validateOutputPath } from "../../commands/install.js";
+import { MirError, SnippetNotFoundError, PathTraversalError, FileConflictError } from "../../lib/errors.js";
 import { ExitHookError } from "../../lib/hooks.js";
 import type { SnippetDefinition } from "../../lib/snippet-schema.js";
 
@@ -12,10 +12,12 @@ import type { SnippetDefinition } from "../../lib/snippet-schema.js";
 vi.mock("../../lib/prompt.js", () => ({
   prompt: vi.fn(),
   selectWithSuggests: vi.fn(),
+  confirmOverwrite: vi.fn(),
 }));
-import { prompt, selectWithSuggests } from "../../lib/prompt.js";
+import { prompt, selectWithSuggests, confirmOverwrite } from "../../lib/prompt.js";
 const mockPrompt = vi.mocked(prompt);
 const mockSelectWithSuggests = vi.mocked(selectWithSuggests);
+const mockConfirmOverwrite = vi.mocked(confirmOverwrite);
 
 // logger モジュールをモック
 vi.mock("../../lib/logger.js", () => ({
@@ -75,6 +77,7 @@ beforeEach(() => {
 
   mockPrompt.mockReset();
   mockSelectWithSuggests.mockReset();
+  mockConfirmOverwrite.mockReset();
   vi.mocked(logger.success).mockClear();
   vi.mocked(logger.info).mockClear();
   vi.mocked(logger.step).mockClear();
@@ -491,6 +494,77 @@ describe("installSnippet", () => {
       'Snippet "simple-msg" をインストールしました',
     );
     expect(mockFileItem).toHaveBeenCalled();
+  });
+});
+
+describe("validateOutputPath", () => {
+  it("正常なパスは通過する", () => {
+    expect(() => validateOutputPath("src/index.ts", "/out")).not.toThrow();
+  });
+
+  it("ディレクトリトラバーサルを検出する", () => {
+    expect(() => validateOutputPath("../secret.txt", "/out")).toThrow(PathTraversalError);
+  });
+
+  it("ネストされたトラバーサルを検出する", () => {
+    expect(() => validateOutputPath("foo/../../secret.txt", "/out")).toThrow(PathTraversalError);
+  });
+});
+
+describe("上書き保護", () => {
+  it("既存ファイルがあり interactive=true のとき confirmOverwrite が呼ばれる", async () => {
+    setupSnippet("overwrite-test", { name: "overwrite-test" }, {
+      "existing.txt": "new content",
+    });
+    fs.writeFileSync(path.join(outDir, "existing.txt"), "old content", "utf-8");
+
+    mockConfirmOverwrite.mockResolvedValueOnce("yes");
+
+    await installSnippet("overwrite-test", {}, { outDir, interactive: true }, tmpDir, configPath);
+
+    expect(mockConfirmOverwrite).toHaveBeenCalledWith("existing.txt");
+    expect(fs.readFileSync(path.join(outDir, "existing.txt"), "utf-8")).toBe("new content");
+  });
+
+  it("confirmOverwrite で no を選択するとスキップされる", async () => {
+    setupSnippet("overwrite-skip", { name: "overwrite-skip" }, {
+      "existing.txt": "new content",
+    });
+    fs.writeFileSync(path.join(outDir, "existing.txt"), "old content", "utf-8");
+
+    mockConfirmOverwrite.mockResolvedValueOnce("no");
+
+    await installSnippet("overwrite-skip", {}, { outDir, interactive: true }, tmpDir, configPath);
+
+    expect(fs.readFileSync(path.join(outDir, "existing.txt"), "utf-8")).toBe("old content");
+  });
+
+  it("non-interactive で既存ファイルがある場合エラー", async () => {
+    setupSnippet("overwrite-error", { name: "overwrite-error" }, {
+      "existing.txt": "new content",
+    });
+    fs.writeFileSync(path.join(outDir, "existing.txt"), "old content", "utf-8");
+
+    await expect(
+      installSnippet("overwrite-error", {}, { outDir, interactive: false }, tmpDir, configPath),
+    ).rejects.toThrow(FileConflictError);
+  });
+
+  it("confirmOverwrite で all を選択すると以降の確認をスキップする", async () => {
+    setupSnippet("overwrite-all", { name: "overwrite-all" }, {
+      "a.txt": "new-a",
+      "b.txt": "new-b",
+    });
+    fs.writeFileSync(path.join(outDir, "a.txt"), "old-a", "utf-8");
+    fs.writeFileSync(path.join(outDir, "b.txt"), "old-b", "utf-8");
+
+    mockConfirmOverwrite.mockResolvedValueOnce("all");
+
+    await installSnippet("overwrite-all", {}, { outDir, interactive: true }, tmpDir, configPath);
+
+    expect(mockConfirmOverwrite).toHaveBeenCalledTimes(1);
+    expect(fs.readFileSync(path.join(outDir, "a.txt"), "utf-8")).toBe("new-a");
+    expect(fs.readFileSync(path.join(outDir, "b.txt"), "utf-8")).toBe("new-b");
   });
 });
 

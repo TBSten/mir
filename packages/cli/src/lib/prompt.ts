@@ -23,6 +23,23 @@ export function prompt(question: string): Promise<string> {
   });
 }
 
+export async function confirm(message: string): Promise<boolean> {
+  const answer = await prompt(`${message} (y/N): `);
+  return answer.toLowerCase() === "y" || answer.toLowerCase() === "yes";
+}
+
+export type OverwriteChoice = "yes" | "no" | "all";
+
+export async function confirmOverwrite(filePath: string): Promise<OverwriteChoice> {
+  const answer = await prompt(
+    `ファイル "${filePath}" は既に存在します。上書きしますか？ (y/n/a): `,
+  );
+  const trimmed = answer.toLowerCase().trim();
+  if (trimmed === "a" || trimmed === "all") return "all";
+  if (trimmed === "y" || trimmed === "yes") return "yes";
+  return "no";
+}
+
 export interface SuggestsOptions {
   question: string;
   suggests: string[];

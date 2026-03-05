@@ -14,8 +14,13 @@ import {
 } from "../lib/registry.js";
 import { expandTemplateDirectory } from "../lib/template-engine.js";
 import { executeHooks } from "../lib/hooks.js";
-import { MirError, SnippetNotFoundError } from "../lib/errors.js";
-import { prompt, selectWithSuggests } from "../lib/prompt.js";
+import {
+  MirError,
+  SnippetNotFoundError,
+  PathTraversalError,
+  FileConflictError,
+} from "../lib/errors.js";
+import { prompt, selectWithSuggests, confirmOverwrite } from "../lib/prompt.js";
 import { selectSnippet } from "../lib/snippet-list.js";
 import * as logger from "../lib/logger.js";
 import type { SnippetDefinition, VariableDefinition } from "../lib/snippet-schema.js";
@@ -23,6 +28,15 @@ import type { SnippetDefinition, VariableDefinition } from "../lib/snippet-schem
 export interface InstallOptions {
   registry?: string;
   outDir?: string;
+  interactive?: boolean;
+}
+
+export function validateOutputPath(filePath: string, outDir: string): void {
+  const resolved = path.resolve(outDir, filePath);
+  const normalizedOutDir = path.resolve(outDir);
+  if (!resolved.startsWith(normalizedOutDir + path.sep) && resolved !== normalizedOutDir) {
+    throw new PathTraversalError(filePath);
+  }
 }
 
 export async function installSnippet(
@@ -81,8 +95,31 @@ export async function installSnippet(
     ? path.resolve(cwd, opts.outDir)
     : cwd;
 
+  const interactive = opts.interactive !== false;
+  let overwriteAll = false;
+
   for (const [filePath, content] of expandedFiles) {
+    validateOutputPath(filePath, outDir);
+
     const fullPath = path.join(outDir, filePath);
+
+    if (fs.existsSync(fullPath)) {
+      if (overwriteAll) {
+        // "all" が選択済みならそのまま上書き
+      } else if (interactive) {
+        const choice = await confirmOverwrite(filePath);
+        if (choice === "no") {
+          logger.warn(`スキップ: ${filePath}`);
+          continue;
+        }
+        if (choice === "all") {
+          overwriteAll = true;
+        }
+      } else {
+        throw new FileConflictError(filePath);
+      }
+    }
+
     fs.mkdirSync(path.dirname(fullPath), { recursive: true });
     fs.writeFileSync(fullPath, content, "utf-8");
   }
@@ -202,6 +239,7 @@ export function registerInstallCommand(program: Command): void {
     .description("snippet を registry からインストールする")
     .option("-r, --registry <name>", "検索対象 registry の名前")
     .option("-o, --out-dir <path>", "出力先ディレクトリ")
+    .option("--no-interactive", "対話的な確認を無効化する")
     .allowUnknownOption(true)
     .action(async (name: string | undefined, opts: InstallOptions, cmd) => {
       let snippetName = name;
