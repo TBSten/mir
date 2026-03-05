@@ -16,7 +16,7 @@ import {
 
 // TODO: 現時点では理想の挙動をテストケースとして記述。後で有効化する。
 
-describe.skip("エラークラス", () => {
+describe("エラークラス", () => {
   beforeEach(() => {
     setLocale("ja");
   });

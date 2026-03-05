@@ -7,7 +7,7 @@ import type { Action } from "../index.js";
 
 // TODO: 現時点では理想の挙動をテストケースとして記述。後で有効化する。
 
-describe.skip("executeHooks", () => {
+describe("executeHooks", () => {
   describe("echo アクション", () => {
     it("onEcho コールバックが呼ばれる", () => {
       const onEcho = vi.fn();

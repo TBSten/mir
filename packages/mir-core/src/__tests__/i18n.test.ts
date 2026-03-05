@@ -7,7 +7,7 @@ import type { Locale } from "../index.js";
 
 // TODO: 現時点では理想の挙動をテストケースとして記述。後で有効化する。
 
-describe.skip("i18n", () => {
+describe("i18n", () => {
   beforeEach(() => {
     setLocale("ja");
   });

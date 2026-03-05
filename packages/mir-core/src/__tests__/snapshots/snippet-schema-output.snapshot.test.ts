@@ -6,7 +6,7 @@ import { parseSnippetYaml, serializeSnippetYaml } from "../../index.js";
 
 // TODO: 現時点では理想の挙動をテストケースとして記述。後で有効化する。
 
-describe.skip("snippet スキーマ snapshot", () => {
+describe("snippet スキーマ snapshot", () => {
   it("最小限の snippet 定義の YAML 出力", () => {
     const yaml = serializeSnippetYaml({ name: "minimal" });
     expect(yaml).toMatchSnapshot();
