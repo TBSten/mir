@@ -1,13 +1,13 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { setLocale } from "../../lib/i18n/index.js";
 import {
+  setLocale,
   SnippetNotFoundError,
   SnippetAlreadyExistsError,
   RegistryNotFoundError,
   RegistryRemoteError,
   PathTraversalError,
   FileConflictError,
-} from "../../lib/errors.js";
+} from "@mir/core";
 
 afterEach(() => {
   setLocale("ja");

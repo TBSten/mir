@@ -9,7 +9,7 @@ import {
   SnippetNotFoundError,
   SnippetAlreadyExistsError,
   ValidationError,
-} from "../../lib/errors.js";
+} from "@mir/core";
 
 vi.mock("../../lib/logger.js", () => ({
   success: vi.fn(),

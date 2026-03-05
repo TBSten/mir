@@ -1,25 +1,23 @@
 import type { Command } from "commander";
 import fs from "node:fs";
-import { validateSnippetName } from "../lib/validate-name.js";
+import {
+  validateSnippetName,
+  parseSnippetYaml,
+  snippetExistsInRegistry,
+  copySnippetToRegistry,
+  removeSnippetFromRegistry,
+  SnippetNotFoundError,
+  SnippetAlreadyExistsError,
+  t,
+} from "@mir/core";
 import { snippetYamlPath, snippetDirPath } from "../lib/paths.js";
-import { parseSnippetYaml } from "../lib/snippet-schema.js";
 import {
   loadMirConfig,
   resolvePublishRegistry,
   resolveRegistryPath,
 } from "../lib/mirconfig.js";
-import {
-  snippetExistsInRegistry,
-  copySnippetToRegistry,
-  removeSnippetFromRegistry,
-} from "../lib/registry.js";
-import {
-  SnippetNotFoundError,
-  SnippetAlreadyExistsError,
-} from "../lib/errors.js";
 import { confirm } from "../lib/prompt.js";
 import { listLocalSnippets, selectSnippet } from "../lib/snippet-list.js";
-import { t } from "../lib/i18n/index.js";
 import * as logger from "../lib/logger.js";
 
 export interface PublishOptions {

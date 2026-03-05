@@ -4,9 +4,14 @@ import os from "node:os";
 import path from "node:path";
 import yaml from "js-yaml";
 import { installSnippet, parseVariableArgs, validateOutputPath, getBuiltinVariables } from "../../commands/install.js";
-import { MirError, SnippetNotFoundError, PathTraversalError, FileConflictError } from "../../lib/errors.js";
-import { ExitHookError } from "../../lib/hooks.js";
-import type { SnippetDefinition } from "../../lib/snippet-schema.js";
+import {
+  MirError,
+  SnippetNotFoundError,
+  PathTraversalError,
+  FileConflictError,
+  ExitHookError,
+  type SnippetDefinition,
+} from "@mir/core";
 
 // prompt モジュールをモック
 vi.mock("../../lib/prompt.js", () => ({

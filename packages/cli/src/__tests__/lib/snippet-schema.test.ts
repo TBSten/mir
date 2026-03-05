@@ -3,8 +3,8 @@ import {
   parseSnippetYaml,
   serializeSnippetYaml,
   validateSnippetDefinition,
-} from "../../lib/snippet-schema.js";
-import { ValidationError } from "../../lib/errors.js";
+  ValidationError,
+} from "@mir/core";
 
 describe("parseSnippetYaml", () => {
   it("最小限の YAML をパースする", () => {

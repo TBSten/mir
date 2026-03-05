@@ -8,7 +8,7 @@ import {
   expandTemplateDirectory,
   extractVariables,
   extractVariablesFromDirectory,
-} from "../../lib/template-engine.js";
+} from "@mir/core";
 
 describe("expandTemplate", () => {
   it("単純な変数を展開する", () => {

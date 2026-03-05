@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { t, setLocale, getLocale } from "../../lib/i18n/index.js";
+import { t, setLocale, getLocale } from "@mir/core";
 
 afterEach(() => {
   setLocale("ja");

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { serializeSnippetYaml, type SnippetDefinition } from "../../lib/snippet-schema.js";
+import { serializeSnippetYaml, type SnippetDefinition } from "@mir/core";
 
 describe("snippet YAML シリアライズ snapshot", () => {
   it("最小の snippet 定義", () => {

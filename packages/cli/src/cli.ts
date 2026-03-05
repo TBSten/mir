@@ -1,11 +1,10 @@
 import { Command } from "commander";
+import { MirError, setLocale, type Locale } from "@mir/core";
 import { registerCreateCommand } from "./commands/create.js";
 import { registerPublishCommand } from "./commands/publish.js";
 import { registerInstallCommand } from "./commands/install.js";
 import { registerSyncCommand } from "./commands/sync.js";
-import { MirError } from "./lib/errors.js";
 import { loadMirConfig } from "./lib/mirconfig.js";
-import { setLocale, type Locale } from "./lib/i18n/index.js";
 import * as logger from "./lib/logger.js";
 
 // config から locale を初期化

@@ -1,7 +1,6 @@
 import { MirError } from "./errors.js";
 import { expandTemplate } from "./template-engine.js";
 import { t } from "./i18n/index.js";
-import * as logger from "./logger.js";
 import type { Action } from "./snippet-schema.js";
 
 export class ExitHookError extends MirError {
@@ -11,16 +10,21 @@ export class ExitHookError extends MirError {
   }
 }
 
+export interface HookExecutionOptions {
+  onEcho?: (message: string) => void;
+}
+
 export function executeHooks(
   actions: Action[],
   variables: Record<string, unknown>,
+  options?: HookExecutionOptions,
 ): Record<string, unknown> {
   const vars = { ...variables };
 
   for (const action of actions) {
     if (action.echo !== undefined) {
       const message = expandTemplate(action.echo, vars);
-      logger.info(message);
+      options?.onEcho?.(message);
     }
 
     if (action.exit !== undefined) {

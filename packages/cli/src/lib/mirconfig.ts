@@ -1,12 +1,12 @@
 import fs from "node:fs";
 import yaml from "js-yaml";
+import { RegistryNotFoundError, RegistryRemoteError } from "@mir/core";
 import {
   expandTilde,
   globalConfigPath,
   localConfigPath,
   defaultRegistryPath,
 } from "./paths.js";
-import { RegistryNotFoundError, RegistryRemoteError } from "./errors.js";
 
 export interface RegistryEntry {
   name?: string;

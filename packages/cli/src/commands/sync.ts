@@ -1,15 +1,15 @@
 import type { Command } from "commander";
 import fs from "node:fs";
-import { validateSnippetName } from "../lib/validate-name.js";
-import { snippetYamlPath, snippetDirPath } from "../lib/paths.js";
 import {
+  validateSnippetName,
   parseSnippetYaml,
   serializeSnippetYaml,
-} from "../lib/snippet-schema.js";
-import { extractVariablesFromDirectory } from "../lib/template-engine.js";
-import { SnippetNotFoundError } from "../lib/errors.js";
+  extractVariablesFromDirectory,
+  SnippetNotFoundError,
+  t,
+} from "@mir/core";
+import { snippetYamlPath, snippetDirPath } from "../lib/paths.js";
 import { listLocalSnippets, selectSnippet } from "../lib/snippet-list.js";
-import { t } from "../lib/i18n/index.js";
 import * as logger from "../lib/logger.js";
 
 export function syncSnippet(

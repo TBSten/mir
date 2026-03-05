@@ -1,12 +1,15 @@
 import type { Command } from "commander";
 import fs from "node:fs";
 import path from "node:path";
-import { validateSnippetName } from "../lib/validate-name.js";
+import {
+  validateSnippetName,
+  serializeSnippetYaml,
+  SnippetAlreadyExistsError,
+  t,
+  type SnippetDefinition,
+} from "@mir/core";
 import { snippetYamlPath, snippetDirPath, snippetsBasePath } from "../lib/paths.js";
-import { serializeSnippetYaml, type SnippetDefinition } from "../lib/snippet-schema.js";
-import { SnippetAlreadyExistsError } from "../lib/errors.js";
 import { prompt } from "../lib/prompt.js";
-import { t } from "../lib/i18n/index.js";
 import * as logger from "../lib/logger.js";
 
 export interface CreateOptions {

@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
+import { t } from "@mir/core";
 import { snippetsBasePath } from "./paths.js";
 import { selectWithSuggests } from "./prompt.js";
-import { t } from "./i18n/index.js";
 
 export function listLocalSnippets(cwd: string): string[] {
   const basePath = snippetsBasePath(cwd);

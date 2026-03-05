@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { expandTemplate, expandPath, expandTemplateDirectory } from "../../lib/template-engine.js";
+import { expandTemplate, expandPath, expandTemplateDirectory } from "@mir/core";
 
 describe("テンプレート展開 snapshot", () => {
   it("単純な変数展開", () => {

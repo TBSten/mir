@@ -1,30 +1,29 @@
 import type { Command } from "commander";
 import fs from "node:fs";
 import path from "node:path";
-import { validateSnippetName } from "../lib/validate-name.js";
+import {
+  validateSnippetName,
+  snippetExistsInRegistry,
+  readSnippetFromRegistry,
+  listRegistrySnippets,
+  expandTemplateDirectory,
+  executeHooks,
+  MirError,
+  SnippetNotFoundError,
+  PathTraversalError,
+  FileConflictError,
+  t,
+  type SnippetDefinition,
+  type VariableDefinition,
+} from "@mir/core";
 import {
   loadMirConfig,
   resolveInstallRegistries,
   resolveRegistryPath,
 } from "../lib/mirconfig.js";
-import {
-  snippetExistsInRegistry,
-  readSnippetFromRegistry,
-  listRegistrySnippets,
-} from "../lib/registry.js";
-import { expandTemplateDirectory } from "../lib/template-engine.js";
-import { executeHooks } from "../lib/hooks.js";
-import {
-  MirError,
-  SnippetNotFoundError,
-  PathTraversalError,
-  FileConflictError,
-} from "../lib/errors.js";
 import { prompt, selectWithSuggests, confirmOverwrite } from "../lib/prompt.js";
 import { selectSnippet } from "../lib/snippet-list.js";
-import { t } from "../lib/i18n/index.js";
 import * as logger from "../lib/logger.js";
-import type { SnippetDefinition, VariableDefinition } from "../lib/snippet-schema.js";
 
 export interface InstallOptions {
   registry?: string;
@@ -106,6 +105,7 @@ export async function installSnippet(
     const updatedVars = executeHooks(
       definition.hooks["before-install"],
       variables,
+      { onEcho: logger.info },
     );
     Object.assign(variables, updatedVars);
   }
@@ -150,7 +150,7 @@ export async function installSnippet(
   }
 
   if (definition.hooks?.["after-install"]?.length) {
-    executeHooks(definition.hooks["after-install"], variables);
+    executeHooks(definition.hooks["after-install"], variables, { onEcho: logger.info });
   }
 
   logger.success(t("install.success", { name }));

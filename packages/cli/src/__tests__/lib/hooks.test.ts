@@ -1,24 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
-import { executeHooks, ExitHookError } from "../../lib/hooks.js";
-import { MirError } from "../../lib/errors.js";
-
-vi.mock("../../lib/logger.js", () => ({
-  success: vi.fn(),
-  info: vi.fn(),
-  warn: vi.fn(),
-  error: vi.fn(),
-  step: vi.fn(),
-  label: vi.fn(),
-  fileItem: vi.fn(),
-  dirItem: vi.fn(),
-}));
-import * as logger from "../../lib/logger.js";
-const mockInfo = vi.mocked(logger.info);
+import { executeHooks, ExitHookError, MirError } from "@mir/core";
 
 describe("executeHooks", () => {
   it("echo アクションでメッセージを表示する", () => {
-    executeHooks([{ echo: "Hello {{ name }}" }], { name: "World" });
-    expect(mockInfo).toHaveBeenCalledWith("Hello World");
+    const onEcho = vi.fn();
+    executeHooks([{ echo: "Hello {{ name }}" }], { name: "World" }, { onEcho });
+    expect(onEcho).toHaveBeenCalledWith("Hello World");
   });
 
   it("exit アクションで例外を投げる", () => {

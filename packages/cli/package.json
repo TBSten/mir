@@ -32,8 +32,8 @@
     "vitest": "^3"
   },
   "dependencies": {
+    "@mir/core": "*",
     "commander": "^12.1.0",
-    "handlebars": "^4.7.8",
     "js-yaml": "^4.1.1"
   }
 }

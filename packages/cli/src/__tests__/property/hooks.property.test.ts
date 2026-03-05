@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import fc from "fast-check";
-import { executeHooks, ExitHookError } from "../../lib/hooks.js";
-import type { Action } from "../../lib/snippet-schema.js";
+import { executeHooks, ExitHookError, type Action } from "@mir/core";
 
 describe("executeHooks property-based", () => {
   it("echo アクションを渡しても変数は変更されない", () => {

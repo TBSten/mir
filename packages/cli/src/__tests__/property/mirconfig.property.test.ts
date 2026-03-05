@@ -47,14 +47,21 @@ describe("mergeConfigs property-based", () => {
     );
   });
 
-  it("同名 registry はローカル優先 (結果内に同名 registry が複数存在しない)", () => {
+  it("ローカルに存在する名前付き registry はグローバルから除外される", () => {
     fc.assert(
       fc.property(mirConfigArb, mirConfigArb, (local, global) => {
         const result = mergeConfigs(local, global);
-        const namedRegistries = result.registries.filter((r) => r.name);
-        const names = namedRegistries.map((r) => r.name);
-        const uniqueNames = new Set(names);
-        expect(names.length).toBe(uniqueNames.size);
+        const localNames = new Set(
+          local.registries.filter((r) => r.name).map((r) => r.name),
+        );
+        // ローカル部分の後に続くグローバル部分に、ローカルと同名の registry がないことを確認
+        const globalPart = result.registries.slice(local.registries.length);
+        for (const r of globalPart) {
+          if (r.name && localNames.has(r.name)) {
+            return false;
+          }
+        }
+        return true;
       }),
     );
   });

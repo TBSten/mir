@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import fc from "fast-check";
-import { validateSnippetName } from "../../lib/validate-name.js";
-import { ValidationError } from "../../lib/errors.js";
+import { validateSnippetName, ValidationError } from "@mir/core";
 
 const VALID_NAME_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9-]*$/;
 

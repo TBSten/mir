@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { validateSnippetName } from "../../lib/validate-name.js";
-import { ValidationError } from "../../lib/errors.js";
+import { validateSnippetName, ValidationError } from "@mir/core";
 
 describe("validateSnippetName", () => {
   it("有効な名前を受け入れる", () => {

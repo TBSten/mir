@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import fc from "fast-check";
-import { expandTemplate, expandPath, extractVariables } from "../../lib/template-engine.js";
+import { expandTemplate, expandPath, extractVariables } from "@mir/core";
 
 describe("expandTemplate property-based", () => {
   it("空テンプレートは空文字を返す", () => {

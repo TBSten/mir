@@ -1,0 +1,33 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Story 1: 新規 snippet 作成 > create の成功メッセージとファイル構造 1`] = `
+"name: react-hook
+description: ''
+variables: {}
+hooks:
+  before-install: []
+  after-install: []
+"
+`;
+
+exports[`Story 2: 無効な snippet 名 > エラーメッセージに名前が含まれる 1`] = `"不正な snippet 名 "my_comp" です。英数字とハイフンのみ使用可能で、先頭は英数字にしてください"`;
+
+exports[`Story 3: 同名 snippet 既存 > エラーメッセージに名前が含まれる 1`] = `"Snippet "react-hook" は既に存在します"`;
+
+exports[`Story 6: リモート registry への publish > エラーメッセージ snapshot 1`] = `"Registry "team-remote" はリモート registry のため publish できません"`;
+
+exports[`Story 7: 変数付き install > CLI 引数で変数を渡して install 1`] = `"export function useAuth() {}"`;
+
+exports[`Story 9: 存在しない snippet の install > エラーメッセージ snapshot 1`] = `"Snippet "nonexistent" が見つかりません"`;
+
+exports[`Story 10: 変数未入力 (空Enter) > エラーメッセージに変数名が含まれる 1`] = `"変数 "name" の値が入力されませんでした"`;
+
+exports[`Story 13: 新規変数の sync > sync 結果のログ出力 snapshot 1`] = `
+[
+  [
+    "2 件の変数を追加しました",
+  ],
+]
+`;
+
+exports[`Story 14: 存在しない snippet の sync > エラーメッセージ snapshot 1`] = `"Snippet "nonexistent" が見つかりません"`;

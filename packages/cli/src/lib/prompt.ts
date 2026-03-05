@@ -1,5 +1,5 @@
 import readline from "node:readline";
-import { t } from "./i18n/index.js";
+import { t } from "@mir/core";
 
 const yellow = "\x1b[33m";
 const bold = "\x1b[1m";

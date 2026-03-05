@@ -4,9 +4,9 @@ import {
   serializeSnippetYaml,
   parseSnippetYaml,
   validateSnippetDefinition,
+  ValidationError,
   type SnippetDefinition,
-} from "../../lib/snippet-schema.js";
-import { ValidationError } from "../../lib/errors.js";
+} from "@mir/core";
 
 const alphaNumChar = fc.constantFrom(..."abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 const alphaNumHyphenChar = fc.constantFrom(..."abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-");

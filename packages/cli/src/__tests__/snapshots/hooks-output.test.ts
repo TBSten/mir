@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { executeHooks } from "../../lib/hooks.js";
-import type { Action } from "../../lib/snippet-schema.js";
+import { executeHooks, type Action } from "@mir/core";
 
 describe("executeHooks snapshot", () => {
   it("echo アクションの変数返却値", () => {

@@ -4,8 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import yaml from "js-yaml";
 import { syncSnippet } from "../../commands/sync.js";
-import { SnippetNotFoundError } from "../../lib/errors.js";
-import type { SnippetDefinition } from "../../lib/snippet-schema.js";
+import { SnippetNotFoundError, type SnippetDefinition } from "@mir/core";
 
 vi.mock("../../lib/logger.js", () => ({
   success: vi.fn(),
