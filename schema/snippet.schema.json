@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/tbsten/mir/blob/main/schema/snippet.schema.json",
+  "title": "mir snippet definition",
+  "description": "snippet の設定・変数・hooks を定義する YAML ファイルのスキーマ",
+  "type": "object",
+  "required": ["name"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "snippet の識別名。英数字・ハイフンのみ使用可能",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
+    },
+    "description": {
+      "type": "string",
+      "description": "snippet の説明文",
+      "default": ""
+    },
+    "variables": {
+      "type": "object",
+      "description": "snippet で使用する変数の定義",
+      "additionalProperties": {
+        "$ref": "#/$defs/variableDefinition"
+      }
+    },
+    "hooks": {
+      "type": "object",
+      "description": "install 前後に実行するアクション",
+      "additionalProperties": false,
+      "properties": {
+        "before-install": {
+          "type": "array",
+          "description": "install 前に実行するアクション",
+          "items": {
+            "$ref": "#/$defs/action"
+          }
+        },
+        "after-install": {
+          "type": "array",
+          "description": "install 後に実行するアクション",
+          "items": {
+            "$ref": "#/$defs/action"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "variableDefinition": {
+      "type": "object",
+      "description": "変数の定義",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "表示名。省略時はキー名を使用"
+        },
+        "description": {
+          "type": "string",
+          "description": "変数の説明"
+        },
+        "schema": {
+          "$ref": "#/$defs/variableSchema"
+        }
+      }
+    },
+    "variableSchema": {
+      "type": "object",
+      "description": "JSON Schema のサブセットによる型定義",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "変数の型",
+          "enum": ["string", "number", "boolean"]
+        },
+        "default": {
+          "description": "デフォルト値"
+        },
+        "enum": {
+          "type": "array",
+          "description": "選択肢"
+        }
+      }
+    },
+    "action": {
+      "description": "hooks で実行可能なアクション",
+      "oneOf": [
+        { "$ref": "#/$defs/inputAction" },
+        { "$ref": "#/$defs/echoAction" },
+        { "$ref": "#/$defs/exitAction" }
+      ]
+    },
+    "inputAction": {
+      "type": "object",
+      "description": "ユーザに追加の入力を求めるアクション",
+      "required": ["input"],
+      "additionalProperties": false,
+      "properties": {
+        "input": {
+          "type": "object",
+          "description": "入力を求める変数の定義",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "表示名"
+              },
+              "description": {
+                "type": "string",
+                "description": "説明"
+              },
+              "schema": {
+                "$ref": "#/$defs/variableSchema"
+              },
+              "answer-to": {
+                "type": "string",
+                "description": "回答を格納する変数名"
+              }
+            }
+          }
+        }
+      }
+    },
+    "echoAction": {
+      "type": "object",
+      "description": "メッセージを表示するアクション",
+      "required": ["echo"],
+      "additionalProperties": false,
+      "properties": {
+        "echo": {
+          "type": "string",
+          "description": "表示するメッセージ。Handlebars テンプレートで変数展開可能"
+        }
+      }
+    },
+    "exitAction": {
+      "type": "object",
+      "description": "条件に基づいてインストールを中止するアクション",
+      "required": ["exit"],
+      "additionalProperties": false,
+      "properties": {
+        "exit": {
+          "type": "boolean",
+          "description": "true の場合、if 条件が truthy ならインストールを中止"
+        },
+        "if": {
+          "type": "string",
+          "description": "Handlebars テンプレート。評価結果が truthy の場合に exit を実行"
+        }
+      }
+    }
+  }
+}

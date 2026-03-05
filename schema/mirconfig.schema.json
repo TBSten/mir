@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/tbsten/mir/blob/main/schema/mirconfig.schema.json",
+  "title": "mir global configuration",
+  "description": "mir のグローバル設定ファイル（~/.mir/mirconfig.yaml）のスキーマ",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "registry": {
+      "type": "object",
+      "description": "registry に関する設定",
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "ローカル registry のパス",
+          "default": "~/.mir/registry"
+        }
+      }
+    },
+    "defaults": {
+      "type": "object",
+      "description": "snippet 作成時のデフォルト値",
+      "additionalProperties": false,
+      "properties": {
+        "author": {
+          "type": "string",
+          "description": "snippet 作成時のデフォルト author"
+        }
+      }
+    }
+  }
+}
