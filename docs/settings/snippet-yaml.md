@@ -25,6 +25,7 @@ snippet の設定・変数・hooks を定義する YAML ファイルの仕様。
 | `name` | `string` | Yes | - | snippet の識別名 |
 | `description` | `string` | No | `""` | snippet の説明文 |
 | `variables` | `object` | No | `{}` | 変数定義 |
+| `dependencies` | `string[]` | No | `[]` | 依存する他の snippet |
 | `hooks` | `object` | No | `{}` | install 前後のアクション |
 
 ## スキーマ概要
@@ -46,6 +47,9 @@ variables:
       type: string        # "string" | "number" | "boolean"
       default: any        # デフォルト値
       enum: any[]         # 選択肢
+
+# 依存関係（任意）
+dependencies: string[]    # 依存する他の snippet 名一覧
 
 # hooks（任意）
 hooks:
@@ -137,6 +141,23 @@ variables:
 - テンプレートファイル内での Handlebars 展開（`{{ component-name }}`）
 - ファイル名・ディレクトリ名での Handlebars 展開
 - hooks 内でのテンプレート展開
+
+### dependencies（任意）
+
+依存する他の snippet を一覧で指定する。
+
+```yaml
+dependencies:
+  - react-common
+  - typescript-utils
+```
+
+| 説明 |
+|---|
+| 型: 文字列配列（省略可能） |
+| デフォルト: `[]` |
+
+`mir install` でこの snippet をインストールする際、依存する snippet も合わせてインストールされます（予定）。
 
 ### hooks（任意）
 
