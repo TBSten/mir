@@ -8,6 +8,8 @@ export {
   RegistryRemoteError,
   PathTraversalError,
   FileConflictError,
+  RemoteRegistryFetchError,
+  InvalidManifestError,
 } from "./errors.js";
 
 // snippet-schema
@@ -49,6 +51,17 @@ export {
   copySnippetToRegistry,
   removeSnippetFromRegistry,
 } from "./registry.js";
+
+// remote-registry
+export {
+  fetchRegistryManifest,
+  listRemoteSnippets,
+  fetchSnippetDefinition,
+  fetchRemoteFiles,
+  fetchRemoteSnippet,
+  expandRemoteTemplateFiles,
+} from "./remote-registry.js";
+export type { RegistryManifest, RemoteSnippet } from "./remote-registry.js";
 
 // i18n
 export { setLocale, getLocale, t } from "./i18n/index.js";

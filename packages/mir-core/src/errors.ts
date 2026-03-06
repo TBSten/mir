@@ -59,3 +59,21 @@ export class FileConflictError extends MirError {
     this.name = "FileConflictError";
   }
 }
+
+export class RemoteRegistryFetchError extends MirError {
+  constructor(url: string, status?: number) {
+    super(
+      status
+        ? t("error.remote-fetch-status", { url, status })
+        : t("error.remote-fetch", { url }),
+    );
+    this.name = "RemoteRegistryFetchError";
+  }
+}
+
+export class InvalidManifestError extends MirError {
+  constructor(url: string) {
+    super(t("error.invalid-manifest", { url }));
+    this.name = "InvalidManifestError";
+  }
+}

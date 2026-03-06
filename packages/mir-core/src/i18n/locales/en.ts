@@ -15,6 +15,9 @@ export const en: MessageCatalog = {
   "error.exit-hook": "Installation was cancelled",
   "error.hook-input-required": "Variable \"{key}\" requires input, but interactive mode is not yet supported. Please specify a default value",
   "error.no-snippets": "No snippets available to select",
+  "error.remote-fetch": "Failed to fetch from remote registry: {url}",
+  "error.remote-fetch-status": "Failed to fetch from remote registry: {url} (HTTP {status})",
+  "error.invalid-manifest": "Invalid manifest from remote registry: {url}",
 
   // create
   "create.success": "Created snippet \"{name}\"",

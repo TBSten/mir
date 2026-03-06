@@ -13,6 +13,9 @@ export interface MessageCatalog {
   "error.exit-hook": string;
   "error.hook-input-required": string;
   "error.no-snippets": string;
+  "error.remote-fetch": string;
+  "error.remote-fetch-status": string;
+  "error.invalid-manifest": string;
 
   // create
   "create.success": string;
