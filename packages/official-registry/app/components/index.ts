@@ -9,3 +9,4 @@ export { SearchInput } from "./search-input.js";
 export { Breadcrumb } from "./breadcrumb.js";
 export { CodeBlock } from "./code-block.js";
 export { DirectoryTree } from "./directory-tree.js";
+export { SnippetComparisonTable } from "./snippet-comparison-table.js";

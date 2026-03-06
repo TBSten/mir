@@ -1,9 +1,15 @@
-import type { RegistryProvider, RegistrySnippetDetail, RegistrySnippetSummary } from "@mir/registry-sdk";
+import type {
+  RegistryProvider,
+  RegistrySnippetDetail,
+  RegistrySnippetSummary,
+  SnippetVersionEntry,
+} from "@mir/registry-sdk";
 
 const snippets: RegistrySnippetDetail[] = [
   {
     definition: {
       name: "react-hook",
+      version: "1.2.0",
       description: "A set of useful React hooks for common tasks",
       tags: ["react", "hooks", "typescript"],
       variables: {},
@@ -47,8 +53,10 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
   {
     definition: {
       name: "react-component",
+      version: "1.1.0",
       description: "React component boilerplate with TypeScript",
       tags: ["react", "component", "typescript"],
+      dependencies: ["react-hook"],
       variables: {
         name: {
           description: "Component name",
@@ -82,6 +90,7 @@ test("renders children", () => {
   {
     definition: {
       name: "express-router",
+      version: "2.0.0",
       description: "Express router with CRUD endpoints",
       tags: ["express", "api", "typescript"],
       variables: {
@@ -131,8 +140,10 @@ test("{{ method }} /{{ name }}", async () => {
   {
     definition: {
       name: "nextjs-page",
+      version: "1.0.0",
       description: "Next.js App Router page with layout",
       tags: ["nextjs", "react", "typescript"],
+      dependencies: ["react-hook"],
       variables: {
         name: {
           description: "Page name (used as route segment)",
@@ -172,6 +183,7 @@ test("{{ method }} /{{ name }}", async () => {
   {
     definition: {
       name: "vitest-setup",
+      version: "1.0.0",
       description: "Vitest configuration and test utilities",
       tags: ["vitest", "testing", "typescript"],
       variables: {},
@@ -210,8 +222,35 @@ afterAll(() => {
   },
 ];
 
+/**
+ * snippet ごとのバージョン履歴（静的データ）
+ * 実際の運用では KV や D1 に格納することを想定
+ */
+const versionHistories: Record<string, SnippetVersionEntry[]> = {
+  "react-hook": [
+    { version: "1.2.0", publishedAt: "2026-03-01", description: "Add useDebounce hook" },
+    { version: "1.1.0", publishedAt: "2026-02-01", description: "Add useLocalStorage hook" },
+    { version: "1.0.0", publishedAt: "2026-01-01", description: "Initial release" },
+  ],
+  "react-component": [
+    { version: "1.1.0", publishedAt: "2026-02-15", description: "Add test file template" },
+    { version: "1.0.0", publishedAt: "2026-01-15", description: "Initial release" },
+  ],
+  "express-router": [
+    { version: "2.0.0", publishedAt: "2026-02-20", description: "Add CRUD test template" },
+    { version: "1.0.0", publishedAt: "2026-01-10", description: "Initial release" },
+  ],
+  "nextjs-page": [
+    { version: "1.0.0", publishedAt: "2026-01-20", description: "Initial release" },
+  ],
+  "vitest-setup": [
+    { version: "1.0.0", publishedAt: "2026-01-05", description: "Initial release" },
+  ],
+};
+
 const summaries: RegistrySnippetSummary[] = snippets.map((s) => ({
   name: s.definition.name,
+  version: s.definition.version,
   description: s.definition.description,
 }));
 
@@ -229,5 +268,10 @@ export const staticProvider: RegistryProvider = {
         s.name.toLowerCase().includes(q) ||
         (s.description?.toLowerCase().includes(q) ?? false),
     );
+  },
+  async getVersionHistory(name) {
+    const snippet = snippets.find((s) => s.definition.name === name);
+    if (!snippet) return null;
+    return versionHistories[name] ?? [];
   },
 };

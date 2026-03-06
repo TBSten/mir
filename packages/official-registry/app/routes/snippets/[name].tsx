@@ -38,9 +38,21 @@ export default createRoute(async (c) => {
 
       {/* Title & Description */}
       <div class="flex flex-col gap-3">
-        <h1 class="font-mono text-2xl font-bold text-sky-900">
-          {definition.name}
-        </h1>
+        <div class="flex items-center gap-3 flex-wrap">
+          <h1 class="font-mono text-2xl font-bold text-sky-900">
+            {definition.name}
+          </h1>
+          {definition.version && (
+            <a
+              href={`/snippets/${encodeURIComponent(name)}/versions`}
+              class="font-mono text-sm text-sky-400 hover:text-sky-600 border border-sky-200 hover:border-sky-400 px-2 py-0.5"
+              title="View version history"
+            >
+              {`v${definition.version}`}
+            </a>
+          )}
+          <PopularityBadge name={name} />
+        </div>
         {definition.description && (
           <p class="font-body text-sm leading-relaxed text-sky-600">
             {`// ${definition.description}`}
@@ -67,6 +79,26 @@ export default createRoute(async (c) => {
     url: https://mir.tbsten.me/registry`}
         />
       </div>
+
+      {/* Dependencies */}
+      {definition.dependencies && definition.dependencies.length > 0 && (
+        <div class="flex flex-col gap-2" data-testid="dependencies-section">
+          <p class="font-mono text-sm font-bold text-sky-700">
+            Dependencies
+          </p>
+          <div class="flex flex-wrap gap-2">
+            {definition.dependencies.map((dep) => (
+              <a
+                key={dep}
+                href={`/snippets/${dep}`}
+                class="px-3 py-1 bg-sky-100 hover:bg-sky-200 text-sky-700 text-sm rounded font-mono transition-colors"
+              >
+                {dep}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Tags */}
       {definition.variables && Object.keys(definition.variables).length > 0 && (
@@ -144,9 +176,16 @@ export default createRoute(async (c) => {
         </div>
       </div>
     </div>,
-    { title: name },
+    {
+      title: name,
+      description:
+        definition.description || "Code snippet details and installation guide",
+      path: `/snippets/${name}`,
+    },
   );
 });
+
+// Note: The PopularityBadge is rendered server-side but stats are loaded client-side
 
 function buildTree(root: string, paths: string[]): string {
   const lines: string[] = [`${root}/`];
@@ -156,4 +195,31 @@ function buildTree(root: string, paths: string[]): string {
     lines.push(`  ${prefix}${path}`);
   });
   return lines.join("\n");
+}
+
+function PopularityBadge({ name }: { name: string }) {
+  return (
+    <>
+      <div
+        class="inline-block px-3 py-1 bg-sky-100 text-sky-700 text-xs font-mono rounded"
+        id={`popularity-badge-${name}`}
+      >
+        ↓ --
+      </div>
+      <script>{`
+(async () => {
+  try {
+    const res = await fetch('/api/stats/${name}');
+    const data = await res.json();
+    const badge = document.getElementById('popularity-badge-${name}');
+    if (badge) {
+      badge.textContent = \`↓ \${data.count}\`;
+    }
+  } catch (e) {
+    console.error('Failed to load stats:', e);
+  }
+})();
+`}</script>
+    </>
+  );
 }
