@@ -23,6 +23,8 @@ export const en: MessageCatalog = {
   "error.symlink-detected": "Symbolic link detected: {path}",
   "error.symlink-in-snippet": "Snippet contains symbolic links: {paths}",
   "error.safe-mode-overwrite": "Overwriting existing files is not allowed in safe mode: {path}",
+  "error.file-not-found": "File \"{path}\" not found",
+  "error.file-read-failed": "Failed to read file \"{path}\"",
 
   // create
   "create.success": "Created snippet \"{name}\"",
@@ -41,6 +43,7 @@ export const en: MessageCatalog = {
   "install.multiple-snippets": "Installing multiple snippets...",
   "install.snippet-n-of-m": "{current} / {total}: {name}",
   "install.completed-multiple": "Installed {count} snippet(s)",
+  "install.failed-multiple": "Failed to install {count} snippet(s)",
   "install.safe-mode-hooks-skipped": "[safe] Skipped hooks execution",
   "install.symlink-warning": "Symbolic link detected: {path}",
 

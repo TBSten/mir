@@ -23,6 +23,8 @@ export const ja: MessageCatalog = {
   "error.symlink-detected": "シンボリックリンクが検出されました: {path}",
   "error.symlink-in-snippet": "Snippet にシンボリックリンクが含まれています: {paths}",
   "error.safe-mode-overwrite": "safe モードでは既存ファイルの上書きは許可されていません: {path}",
+  "error.file-not-found": "ファイル \"{path}\" が見つかりません",
+  "error.file-read-failed": "ファイル \"{path}\" の読み込みに失敗しました",
 
   // create
   "create.success": "Snippet \"{name}\" を作成しました",
@@ -41,6 +43,7 @@ export const ja: MessageCatalog = {
   "install.multiple-snippets": "複数の snippet をインストール中...",
   "install.snippet-n-of-m": "{current} / {total}: {name}",
   "install.completed-multiple": "{count} 個の snippet をインストールしました",
+  "install.failed-multiple": "{count} 個の snippet のインストールに失敗しました",
   "install.safe-mode-hooks-skipped": "[safe] hooks の実行をスキップしました",
   "install.symlink-warning": "シンボリックリンクが検出されました: {path}",
 

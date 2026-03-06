@@ -7,6 +7,7 @@ import {
   installSnippet,
   parseVariableArgs,
   parseSnippetNames,
+  parseSnippetNamesFromFile,
   runBatchInstall,
   type InstallOptions,
 } from "../../commands/install.js";
@@ -476,6 +477,91 @@ describe("parseSnippetNames", () => {
 });
 
 // =========================================
+// parseSnippetNamesFromFile
+// =========================================
+describe("parseSnippetNamesFromFile", () => {
+  it("ファイルから改行区切りで snippet 名を読み込む", () => {
+    const filePath = path.join(tmpDir, "snippets.txt");
+    fs.writeFileSync(
+      filePath,
+      "snippet-a\nsnippet-b\nsnippet-c\n",
+      "utf-8",
+    );
+
+    expect(parseSnippetNamesFromFile(filePath)).toEqual([
+      "snippet-a",
+      "snippet-b",
+      "snippet-c",
+    ]);
+  });
+
+  it("ファイルからカンマ区切りで snippet 名を読み込む", () => {
+    const filePath = path.join(tmpDir, "snippets-comma.txt");
+    fs.writeFileSync(
+      filePath,
+      "snippet-a,snippet-b,snippet-c",
+      "utf-8",
+    );
+
+    expect(parseSnippetNamesFromFile(filePath)).toEqual([
+      "snippet-a",
+      "snippet-b",
+      "snippet-c",
+    ]);
+  });
+
+  it("混合区切り（改行とカンマ）に対応", () => {
+    const filePath = path.join(tmpDir, "snippets-mixed.txt");
+    fs.writeFileSync(
+      filePath,
+      "snippet-a,snippet-b\nsnippet-c,snippet-d\n",
+      "utf-8",
+    );
+
+    expect(parseSnippetNamesFromFile(filePath)).toEqual([
+      "snippet-a",
+      "snippet-b",
+      "snippet-c",
+      "snippet-d",
+    ]);
+  });
+
+  it("コメント行（#で始まる行）をスキップ", () => {
+    const filePath = path.join(tmpDir, "snippets-comment.txt");
+    fs.writeFileSync(
+      filePath,
+      "# This is a comment\nsnippet-a\n# Another comment\nsnippet-b",
+      "utf-8",
+    );
+
+    expect(parseSnippetNamesFromFile(filePath)).toEqual([
+      "snippet-a",
+      "snippet-b",
+    ]);
+  });
+
+  it("空行と空白をトリム", () => {
+    const filePath = path.join(tmpDir, "snippets-whitespace.txt");
+    fs.writeFileSync(
+      filePath,
+      "  snippet-a  \n\n  snippet-b  \n",
+      "utf-8",
+    );
+
+    expect(parseSnippetNamesFromFile(filePath)).toEqual([
+      "snippet-a",
+      "snippet-b",
+    ]);
+  });
+
+  it("ファイルが存在しない場合エラーをスロー", () => {
+    const filePath = path.join(tmpDir, "nonexistent.txt");
+
+    expect(() => parseSnippetNamesFromFile(filePath)).toThrow();
+  });
+});
+
+// =========================================
 // タイムアウトオプション
 // =========================================
 describe("タイムアウトオプション", () => {
@@ -494,5 +580,106 @@ describe("タイムアウトオプション", () => {
     );
 
     expect(result.success).toBe(true);
+  });
+});
+
+// =========================================
+// --skip-errors オプション
+// =========================================
+describe("--skip-errors オプション", () => {
+  it("skipErrors=true で一部失敗しても続行する", async () => {
+    setupSnippet("skip-exists", { name: "skip-exists" }, {
+      "exists.txt": "content",
+    });
+    setupSnippet("skip-exists2", { name: "skip-exists2" }, {
+      "exists2.txt": "content2",
+    });
+
+    // skipErrors=true でエラーをスキップ
+    await runBatchInstall(
+      ["skip-exists", "skip-nonexistent", "skip-exists2"],
+      {},
+      { outDir, skipErrors: true },
+      tmpDir,
+      configPath,
+    );
+
+    // 存在するスニペットはインストールされる
+    expect(fs.existsSync(path.join(outDir, "exists.txt"))).toBe(true);
+    expect(fs.existsSync(path.join(outDir, "exists2.txt"))).toBe(true);
+  });
+
+  it("skipErrors=false（デフォルト）で最初のエラーで停止", async () => {
+    setupSnippet("skip-first", { name: "skip-first" }, {
+      "first.txt": "content",
+    });
+
+    // skipErrors を指定しない場合、最初のエラーで process.exit(1) が呼ばれる
+    // mockProcessExit が呼ばれるため promise は resolve される（exit() が呼ばれるため）
+    await runBatchInstall(
+      ["skip-first", "skip-nonexistent"],
+      {},
+      { outDir },
+      tmpDir,
+      configPath,
+    );
+
+    // 最初のスニペットはインストールされる
+    expect(fs.existsSync(path.join(outDir, "first.txt"))).toBe(true);
+    // process.exit(1) が呼ばれる
+    expect(mockProcessExit).toHaveBeenCalledWith(1);
+  });
+});
+
+// =========================================
+// --file オプション連携テスト
+// =========================================
+describe("--file オプション連携", () => {
+  it("--file で指定されたファイルから snippet 名を読み込んでインストール", async () => {
+    setupSnippet("file-a", { name: "file-a" }, {
+      "a.txt": "content-a",
+    });
+    setupSnippet("file-b", { name: "file-b" }, {
+      "b.txt": "content-b",
+    });
+
+    const snippetsFile = path.join(tmpDir, "snippets.txt");
+    fs.writeFileSync(
+      snippetsFile,
+      "file-a\nfile-b",
+      "utf-8",
+    );
+
+    await runBatchInstall(
+      parseSnippetNamesFromFile(snippetsFile),
+      {},
+      { outDir },
+      tmpDir,
+      configPath,
+    );
+
+    expect(fs.existsSync(path.join(outDir, "a.txt"))).toBe(true);
+    expect(fs.existsSync(path.join(outDir, "b.txt"))).toBe(true);
+  });
+
+  it("CLI 引数と --file オプションをマージ", async () => {
+    setupSnippet("cli-snippet", { name: "cli-snippet" }, {
+      "cli.txt": "from-cli",
+    });
+    setupSnippet("file-snippet", { name: "file-snippet" }, {
+      "file.txt": "from-file",
+    });
+
+    const snippetsFile = path.join(tmpDir, "snippets.txt");
+    fs.writeFileSync(snippetsFile, "file-snippet", "utf-8");
+
+    const cliNames = parseSnippetNames(["cli-snippet"]);
+    const fileNames = parseSnippetNamesFromFile(snippetsFile);
+    const merged = [...cliNames, ...fileNames];
+
+    await runBatchInstall(merged, {}, { outDir }, tmpDir, configPath);
+
+    expect(fs.existsSync(path.join(outDir, "cli.txt"))).toBe(true);
+    expect(fs.existsSync(path.join(outDir, "file.txt"))).toBe(true);
   });
 });

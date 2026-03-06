@@ -21,6 +21,8 @@ export interface MessageCatalog {
   "error.symlink-detected": string;
   "error.symlink-in-snippet": string;
   "error.safe-mode-overwrite": string;
+  "error.file-not-found": string;
+  "error.file-read-failed": string;
 
   // create
   "create.success": string;
@@ -39,6 +41,7 @@ export interface MessageCatalog {
   "install.multiple-snippets": string;
   "install.snippet-n-of-m": string;
   "install.completed-multiple": string;
+  "install.failed-multiple": string;
   "install.safe-mode-hooks-skipped": string;
   "install.symlink-warning": string;
 
