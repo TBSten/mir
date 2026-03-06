@@ -44,6 +44,8 @@ export interface InstallOptions {
   quiet?: boolean;
   /** リモート registry へのタイムアウト秒数 */
   timeout?: number;
+  /** バッチインストール時、エラーが発生しても続行する */
+  skipErrors?: boolean;
 }
 
 /** install コマンドの実行結果 */
@@ -427,6 +429,16 @@ export function parseSnippetNames(args: string[]): string[] {
   return args.filter((arg) => !arg.startsWith("--") && arg.trim() !== "");
 }
 
+/** ファイルからスニペット名を読み込む（改行またはカンマ区切り） */
+export function parseSnippetNamesFromFile(filePath: string): string[] {
+  const content = fs.readFileSync(filePath, "utf-8");
+  const names = content
+    .split(/[\n,]/)
+    .map((line) => line.trim())
+    .filter((line) => line !== "" && !line.startsWith("#"));
+  return names;
+}
+
 /** 単一スニペットのインストールを実行し、json/quiet に応じて出力を制御する */
 export async function runInstallWithOutput(
   name: string,
@@ -466,6 +478,7 @@ export async function runBatchInstall(
 ): Promise<void> {
   const isJson = opts.json ?? false;
   const quiet = opts.quiet ?? false;
+  const skipErrors = opts.skipErrors ?? false;
   const total = snippetNames.length;
   const results: InstallResult[] = [];
 
@@ -496,6 +509,22 @@ export async function runBatchInstall(
       if (!quiet && !isJson) {
         logger.error(err instanceof Error ? err.message : String(err));
       }
+
+      // skipErrors が false の場合はここで中断
+      if (!skipErrors) {
+        if (isJson) {
+          process.stdout.write(
+            JSON.stringify({
+              success: false,
+              total,
+              successCount: results.filter((r) => r.success).length,
+              failCount: results.filter((r) => !r.success).length,
+              results,
+            }) + "\n",
+          );
+        }
+        process.exit(1);
+      }
     }
   }
 
@@ -518,7 +547,7 @@ export async function runBatchInstall(
   } else if (!quiet) {
     logger.success(t("install.completed-multiple", { count: successCount }));
     if (failCount > 0) {
-      logger.error(`${failCount} 個の snippet のインストールに失敗しました`);
+      logger.error(t("install.failed-multiple", { count: failCount }));
       process.exit(1);
     }
   }
@@ -536,19 +565,39 @@ export function registerInstallCommand(program: Command): void {
     .option("--safe", "safe モード: hooks・上書き・対話を無効化する")
     .option("--json", "結果を JSON 形式で出力する")
     .option("--quiet", "進捗ログを抑制する（エラーのみ出力）")
+    .option("--skip-errors", "バッチインストール時、エラーが発生しても続行する")
+    .option("--file <path>", "スニペット名を列挙したファイルを読み込む")
     .option("--timeout <seconds>", "リモート registry へのタイムアウト秒数", parseInt)
     .allowUnknownOption(true)
     .addHelpText("after", `
 Examples:
   mir install react-hook
+  mir install react-hook react-form
   mir install react-hook --out-dir ./src
   mir install react-hook --dry-run
+  mir install react-hook --file snippets.txt
   mir install react-hook --registry custom --no-interactive
   mir install react-hook --framework=react --version=3.0`)
-    .action(async (names: string[], opts: InstallOptions, cmd) => {
+    .action(async (names: string[], opts: InstallOptions & { file?: string }, cmd) => {
       const rawArgs: string[] = cmd.args.slice(0);
       const variableArgs = parseVariableArgs(rawArgs);
-      const snippetNames = parseSnippetNames(names);
+      let snippetNames = parseSnippetNames(names);
+
+      // --file オプションで指定されたファイルからスニペット名を読み込む
+      if (opts.file) {
+        try {
+          const fileNames = parseSnippetNamesFromFile(opts.file);
+          // CLI 引数で指定されたスニペット名と --file から読み込んだ名前をマージ
+          snippetNames = [...snippetNames, ...fileNames];
+        } catch (err) {
+          if (err instanceof Error && "code" in err && err.code === "ENOENT") {
+            logger.error(t("error.file-not-found", { path: opts.file }));
+          } else {
+            logger.error(t("error.file-read-failed", { path: opts.file }));
+          }
+          process.exit(1);
+        }
+      }
 
       // スニペット名が指定されていない場合は interactive に選択
       if (snippetNames.length === 0) {
