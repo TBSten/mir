@@ -4,6 +4,9 @@ import { staticProvider } from "./lib/provider.js";
 
 const app = createApp();
 
+// ヘルスチェック
+app.get("/health", (c) => c.json({ status: "ok" }));
+
 // API ルート (registry-sdk)
 app.route("/", createRegistryRoutes(staticProvider));
 

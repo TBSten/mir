@@ -5,6 +5,9 @@ import { DirectoryTree } from "../../components/directory-tree.js";
 import { Tag } from "../../components/tag.js";
 import { NotFoundError, renderError } from "../../lib/errors.js";
 import { staticProvider } from "../../lib/provider.js";
+import { serializeSnippetYaml } from "@mir/core";
+import { GITHUB_ISSUES_URL } from "../../lib/constants.js";
+import yaml from "js-yaml";
 
 export default createRoute(async (c) => {
   const name = c.req.param("name") ?? "";
@@ -45,6 +48,26 @@ export default createRoute(async (c) => {
         )}
       </div>
 
+      {/* Install Section */}
+      <div class="flex flex-col gap-3 p-4 bg-sky-50 rounded border border-sky-200">
+        <p class="font-mono text-sm font-bold text-sky-700">
+          $ Installation
+        </p>
+        <CodeBlock
+          fileName="terminal"
+          code={`npx @tbsten/mir install ${name} --registry=official`}
+        />
+        <p class="font-mono text-xs text-sky-600">
+          // Add to your mirconfig.yaml
+        </p>
+        <CodeBlock
+          fileName="mirconfig.yaml"
+          code={`registries:
+  - name: official
+    url: https://mir.tbsten.me/registry`}
+        />
+      </div>
+
       {/* Tags */}
       {definition.variables && Object.keys(definition.variables).length > 0 && (
         <div class="flex flex-wrap gap-2" data-testid="variables-section">
@@ -63,7 +86,61 @@ export default createRoute(async (c) => {
 
         {/* Right: Code Viewer */}
         <div class="flex-1">
-          <CodeBlock fileName={firstFileName} code={firstFileContent} />
+          <div class="flex flex-col gap-4">
+            {/* Tabs */}
+            <div class="flex gap-2 border-b border-sky-200">
+              <button class="px-4 py-2 border-b-2 border-sky-400 text-sky-700 font-mono text-sm">
+                Files
+              </button>
+              <button class="px-4 py-2 border-b-2 border-transparent text-sky-400 hover:text-sky-600 font-mono text-sm">
+                snippet.yaml
+              </button>
+              {definition.hooks && (
+                <button class="px-4 py-2 border-b-2 border-transparent text-sky-400 hover:text-sky-600 font-mono text-sm">
+                  Hooks
+                </button>
+              )}
+            </div>
+
+            {/* File Content */}
+            <CodeBlock fileName={firstFileName} code={firstFileContent} />
+
+            {/* YAML Preview */}
+            <div class="hidden">
+              <CodeBlock
+                fileName="snippet.yaml"
+                code={serializeSnippetYaml(definition)}
+              />
+            </div>
+
+            {/* Hooks Display */}
+            {definition.hooks && (
+              <div class="hidden flex flex-col gap-4">
+                {definition.hooks["before-install"] && (
+                  <div>
+                    <h3 class="font-mono text-sm font-bold text-sky-700 mb-2">
+                      before-install
+                    </h3>
+                    <CodeBlock
+                      fileName="hook"
+                      code={yaml.dump(definition.hooks["before-install"])}
+                    />
+                  </div>
+                )}
+                {definition.hooks["after-install"] && (
+                  <div>
+                    <h3 class="font-mono text-sm font-bold text-sky-700 mb-2">
+                      after-install
+                    </h3>
+                    <CodeBlock
+                      fileName="hook"
+                      code={yaml.dump(definition.hooks["after-install"])}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>,
