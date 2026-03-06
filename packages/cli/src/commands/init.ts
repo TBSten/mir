@@ -1,0 +1,141 @@
+import type { Command } from "commander";
+import fs from "node:fs";
+import path from "node:path";
+import { MirError, t } from "@mir/core";
+import * as logger from "../lib/logger.js";
+
+const SNIPPETS_DIR = ".mir/snippets";
+const CONFIG_FILE = ".mir/mirconfig.yaml";
+const README_FILE = ".mir/README.md";
+
+const SAMPLE_SNIPPET_YAML = `name: hello-world
+description: シンプルな Hello World スニペット
+
+variables:
+  name:
+    name: プロジェクト名
+    description: あなたのプロジェクト名を入力してください
+`;
+
+const SAMPLE_SNIPPET_FILES = {
+  "hello.txt": "Hello {{name}}!",
+  "index.js": "console.log('Hello {{name}}!');",
+};
+
+const SAMPLE_MIRCONFIG = `# mir config
+#
+# registry:
+#   - name: default
+#     path: ~/.mir/registry
+#
+# locale: ja
+
+registry:
+  - name: default
+    path: ~/.mir/registry
+`;
+
+const README = `# mir Project
+
+このディレクトリは [mir](https://github.com/tbsten/mir) で管理されています。
+
+## ファイル構成
+
+\`\`\`
+.mir/
+├── mirconfig.yaml  # 設定ファイル
+├── README.md       # このファイル
+└── snippets/       # snippet 定義
+    └── hello-world.yaml
+\`\`\`
+
+## コマンド
+
+- \`mir list\` - 利用可能な snippet を一覧表示
+- \`mir info <name>\` - snippet の詳細情報を表示
+- \`mir install <name>\` - snippet をインストール
+- \`mir create <name>\` - 新しい snippet を作成
+- \`mir publish <name>\` - snippet を registry に登録
+
+## 次のステップ
+
+1. \`mir create my-snippet\` で新しい snippet を作成
+2. テンプレートファイルを編集
+3. \`mir publish my-snippet\` で registry に登録
+4. 別プロジェクトで \`mir install my-snippet\` でインストール
+`;
+
+async function initProject(cwd: string = process.cwd()): Promise<void> {
+  const mirDir = path.join(cwd, ".mir");
+  const snippetsDir = path.join(mirDir, SNIPPETS_DIR);
+  const configPath = path.join(cwd, CONFIG_FILE);
+  const readmePath = path.join(cwd, README_FILE);
+
+  // .mir ディレクトリが既に存在する場合
+  if (fs.existsSync(mirDir)) {
+    throw new MirError(".mir ディレクトリは既に存在します");
+  }
+
+  try {
+    // .mir ディレクトリを作成
+    fs.mkdirSync(snippetsDir, { recursive: true });
+    logger.success("✓ .mir ディレクトリを作成しました");
+
+    // サンプル snippet を作成
+    const sampleSnippetPath = path.join(snippetsDir, "hello-world.yaml");
+    fs.writeFileSync(sampleSnippetPath, SAMPLE_SNIPPET_YAML, "utf-8");
+
+    // サンプル snippet ファイルを作成
+    const sampleFilesDir = path.join(snippetsDir, "hello-world");
+    fs.mkdirSync(sampleFilesDir, { recursive: true });
+
+    for (const [filename, content] of Object.entries(SAMPLE_SNIPPET_FILES)) {
+      fs.writeFileSync(path.join(sampleFilesDir, filename), content, "utf-8");
+    }
+    logger.success("✓ サンプル snippet (hello-world) を作成しました");
+
+    // mirconfig.yaml を作成
+    if (!fs.existsSync(configPath)) {
+      fs.writeFileSync(configPath, SAMPLE_MIRCONFIG, "utf-8");
+      logger.success("✓ mirconfig.yaml を作成しました");
+    }
+
+    // README.md を作成
+    if (!fs.existsSync(readmePath)) {
+      fs.writeFileSync(readmePath, README, "utf-8");
+      logger.success("✓ README.md を作成しました");
+    }
+
+    logger.info("");
+    logger.step("初期化が完了しました!");
+    logger.info("\n次のステップ:");
+    logger.info("  1. mir list          # 利用可能な snippet を確認");
+    logger.info("  2. mir info hello-world  # サンプル snippet の詳細を確認");
+    logger.info("  3. mir create my-snippet # 新しい snippet を作成");
+  } catch (error) {
+    // ロールバック
+    if (fs.existsSync(mirDir)) {
+      fs.rmSync(mirDir, { recursive: true });
+    }
+    if (fs.existsSync(configPath)) {
+      fs.unlinkSync(configPath);
+    }
+    if (fs.existsSync(readmePath)) {
+      fs.unlinkSync(readmePath);
+    }
+
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new MirError("初期化に失敗しました");
+  }
+}
+
+export function registerInitCommand(program: Command): void {
+  program
+    .command("init")
+    .description(".mir ディレクトリを初期化する")
+    .action(async () => {
+      await initProject();
+    });
+}

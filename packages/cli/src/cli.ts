@@ -4,6 +4,9 @@ import { registerCreateCommand } from "./commands/create.js";
 import { registerPublishCommand } from "./commands/publish.js";
 import { registerInstallCommand } from "./commands/install.js";
 import { registerSyncCommand } from "./commands/sync.js";
+import { registerListCommand } from "./commands/list.js";
+import { registerInfoCommand } from "./commands/info.js";
+import { registerInitCommand } from "./commands/init.js";
 import { loadMirConfig } from "./lib/mirconfig.js";
 import * as logger from "./lib/logger.js";
 
@@ -25,10 +28,13 @@ program
   .version("0.0.1")
   .showHelpAfterError(true);
 
+registerInitCommand(program);
 registerCreateCommand(program);
 registerPublishCommand(program);
 registerInstallCommand(program);
 registerSyncCommand(program);
+registerListCommand(program);
+registerInfoCommand(program);
 
 program.parseAsync().catch((err) => {
   if (err instanceof MirError) {
