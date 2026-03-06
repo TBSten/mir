@@ -3,10 +3,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { MirError, t } from "@mir/core";
 import * as logger from "../lib/logger.js";
+import { confirm } from "../lib/prompt.js";
 
-const SNIPPETS_DIR = ".mir/snippets";
-const CONFIG_FILE = ".mir/mirconfig.yaml";
-const README_FILE = ".mir/README.md";
+const SNIPPETS_SUBDIR = "snippets";
+const CONFIG_FILE = "mirconfig.yaml";
+const README_FILE = "README.md";
 
 const SAMPLE_SNIPPET_YAML = `name: hello-world
 description: シンプルな Hello World スニペット
@@ -65,15 +66,49 @@ const README = `# mir Project
 4. 別プロジェクトで \`mir install my-snippet\` でインストール
 `;
 
-async function initProject(cwd: string = process.cwd()): Promise<void> {
+export async function initProject(
+  cwd: string = process.cwd(),
+  opts: { force?: boolean; interactive?: boolean } = {}
+): Promise<void> {
   const mirDir = path.join(cwd, ".mir");
-  const snippetsDir = path.join(mirDir, SNIPPETS_DIR);
+  const snippetsDir = path.join(mirDir, SNIPPETS_SUBDIR);
   const configPath = path.join(cwd, CONFIG_FILE);
   const readmePath = path.join(cwd, README_FILE);
 
   // .mir ディレクトリが既に存在する場合
   if (fs.existsSync(mirDir)) {
-    throw new MirError(".mir ディレクトリは既に存在します");
+    if (opts.force) {
+      // --force 指定時: 既存ディレクトリを削除
+      fs.rmSync(mirDir, { recursive: true });
+      // 設定ファイルも削除
+      if (fs.existsSync(configPath)) {
+        fs.unlinkSync(configPath);
+      }
+      if (fs.existsSync(readmePath)) {
+        fs.unlinkSync(readmePath);
+      }
+      logger.warn("既存の .mir/ ディレクトリを削除します");
+    } else if (opts.interactive) {
+      // 対話モード: 確認を取得
+      const shouldDelete = await confirm(
+        "既存の .mir/ ディレクトリを削除してもよろしいですか?"
+      );
+      if (!shouldDelete) {
+        logger.info("初期化をキャンセルしました");
+        return;
+      }
+      fs.rmSync(mirDir, { recursive: true });
+      // 設定ファイルも削除
+      if (fs.existsSync(configPath)) {
+        fs.unlinkSync(configPath);
+      }
+      if (fs.existsSync(readmePath)) {
+        fs.unlinkSync(readmePath);
+      }
+    } else {
+      // 非対話モード: エラー
+      throw new MirError(".mir ディレクトリは既に存在します");
+    }
   }
 
   try {
@@ -135,7 +170,11 @@ export function registerInitCommand(program: Command): void {
   program
     .command("init")
     .description(".mir ディレクトリを初期化する")
-    .action(async () => {
-      await initProject();
+    .option("-f, --force", "既存ディレクトリを上書き", false)
+    .action(async (opts: { force?: boolean }) => {
+      await initProject(process.cwd(), {
+        force: opts.force,
+        interactive: true,
+      });
     });
 }

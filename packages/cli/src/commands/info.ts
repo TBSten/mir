@@ -1,9 +1,12 @@
 import type { Command } from "commander";
+import yaml from "js-yaml";
 import {
   validateSnippetName,
   snippetExistsInRegistry,
   readSnippetFromRegistry,
   fetchRemoteSnippet,
+  listRemoteSnippets,
+  listRegistrySnippets,
   SnippetNotFoundError,
   t,
   type SnippetDefinition,
@@ -14,16 +17,54 @@ import {
   resolveInstallRegistries,
   resolveRegistryPath,
 } from "../lib/mirconfig.js";
+import { selectSnippet } from "../lib/snippet-list.js";
 import * as logger from "../lib/logger.js";
 
 interface InfoOptions {
   registry?: string;
+  json?: boolean;
+  yaml?: boolean;
+  quiet?: boolean;
 }
 
-async function showSnippetInfo(name: string, opts: InfoOptions = {}): Promise<void> {
-  validateSnippetName(name);
+export async function showSnippetInfo(name: string | undefined, opts: InfoOptions = {}, configPath?: string): Promise<void> {
+  let snippetName = name;
 
-  const config = loadMirConfig();
+  // パラメータが省略されている場合は snippet 選択
+  if (!snippetName) {
+    const config = loadMirConfig(configPath ? { configPath } : undefined);
+    const registries = resolveInstallRegistries(config, opts.registry);
+    const allSnippets: string[] = [];
+
+    for (const entry of registries) {
+      if (entry.url) {
+        try {
+          const remoteNames = await listRemoteSnippets(entry.url);
+          for (const s of remoteNames) {
+            if (!allSnippets.includes(s)) {
+              allSnippets.push(s);
+            }
+          }
+        } catch {
+          logger.warn(`Registry "${entry.name ?? entry.url}" の一覧取得に失敗しました`);
+        }
+      } else if (entry.path) {
+        const regPath = resolveRegistryPath(entry);
+        const snippets = listRegistrySnippets(regPath);
+        for (const s of snippets) {
+          if (!allSnippets.includes(s)) {
+            allSnippets.push(s);
+          }
+        }
+      }
+    }
+
+    snippetName = await selectSnippet(allSnippets);
+  }
+
+  validateSnippetName(snippetName);
+
+  const config = loadMirConfig(configPath ? { configPath } : undefined);
   const registries = resolveInstallRegistries(config, opts.registry);
 
   let definition: SnippetDefinition | undefined;
@@ -31,7 +72,7 @@ async function showSnippetInfo(name: string, opts: InfoOptions = {}): Promise<vo
   for (const entry of registries) {
     if (entry.url) {
       try {
-        const remote = await fetchRemoteSnippet(entry.url, name);
+        const remote = await fetchRemoteSnippet(entry.url, snippetName);
         definition = remote.definition;
         break;
       } catch {
@@ -39,19 +80,45 @@ async function showSnippetInfo(name: string, opts: InfoOptions = {}): Promise<vo
       }
     } else if (entry.path) {
       const regPath = resolveRegistryPath(entry);
-      if (snippetExistsInRegistry(regPath, name)) {
-        definition = readSnippetFromRegistry(regPath, name);
+      if (snippetExistsInRegistry(regPath, snippetName)) {
+        definition = readSnippetFromRegistry(regPath, snippetName);
         break;
       }
     }
   }
 
   if (!definition) {
-    throw new SnippetNotFoundError(name);
+    throw new SnippetNotFoundError(snippetName);
   }
 
-  // Snippet 情報を表示
-  logger.info(`Snippet: ${name}\n`);
+  // JSON/YAML 出力の場合
+  if (opts.json || opts.yaml) {
+    const output = {
+      name: definition.name,
+      description: definition.description,
+      variables: Object.entries(definition.variables ?? {}).reduce((acc, [key, def]) => {
+        acc[key] = {
+          name: def.name ?? key,
+          description: def.description ?? "",
+          type: def.schema?.type ?? "string",
+          ...(def.schema?.default !== undefined && { default: def.schema.default }),
+          ...(def.schema?.default === undefined && { required: true }),
+          ...(def.suggests && def.suggests.length > 0 && { suggests: def.suggests }),
+        };
+        return acc;
+      }, {} as Record<string, unknown>),
+    };
+
+    if (opts.yaml) {
+      console.log(yaml.dump(output));
+    } else {
+      console.log(JSON.stringify(output, null, 2));
+    }
+    return;
+  }
+
+  // 人間向けの出力
+  logger.info(`Snippet: ${snippetName}\n`);
 
   if (definition.description) {
     logger.step("Description:");
@@ -87,10 +154,13 @@ async function showSnippetInfo(name: string, opts: InfoOptions = {}): Promise<vo
 
 export function registerInfoCommand(program: Command): void {
   program
-    .command("info <name>")
+    .command("info [name]")
     .description("snippet の詳細情報を表示する")
     .option("-r, --registry <name>", "検索対象 registry の名前")
-    .action(async (name: string, opts: InfoOptions) => {
+    .option("--json", "JSON 形式で出力する")
+    .option("--yaml", "YAML 形式で出力する")
+    .option("-q, --quiet", "ログ出力を抑制する")
+    .action(async (name: string | undefined, opts: InfoOptions) => {
       await showSnippetInfo(name, opts);
     });
 }
