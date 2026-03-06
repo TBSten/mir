@@ -348,6 +348,7 @@ describe.skip("Story 21: --dry-run モード", () => {
     await installSnippet(
       "react-hook",
       { name: "useAuth" },
+      // @ts-expect-error dryRun は未実装
       { outDir, dryRun: true },
       tmpDir,
       configPath,
@@ -373,6 +374,7 @@ describe.skip("Story 21: --dry-run モード", () => {
     await installSnippet(
       "react-hook",
       { name: "useAuth" },
+      // @ts-expect-error dryRun は未実装
       { outDir, dryRun: true },
       tmpDir,
       configPath,

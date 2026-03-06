@@ -7,6 +7,9 @@ import {
   readSnippetFromRegistry,
   listRegistrySnippets,
   expandTemplateDirectory,
+  expandRemoteTemplateFiles,
+  fetchRemoteSnippet,
+  listRemoteSnippets,
   executeHooks,
   MirError,
   SnippetNotFoundError,
@@ -67,23 +70,35 @@ export async function installSnippet(
   const config = loadMirConfig(configPath ? { configPath } : { cwd });
   const registries = resolveInstallRegistries(config, opts.registry);
 
-  let foundRegistryPath: string | undefined;
+  type ResolvedSource =
+    | { type: "local"; registryPath: string }
+    | { type: "remote"; files: Map<string, string> };
+
+  let source: ResolvedSource | undefined;
   let definition: SnippetDefinition | undefined;
 
   for (const entry of registries) {
-    if (!entry.path) {
-      // TODO: リモート registry 対応
-      continue;
-    }
-    const regPath = resolveRegistryPath(entry);
-    if (snippetExistsInRegistry(regPath, name)) {
-      foundRegistryPath = regPath;
-      definition = readSnippetFromRegistry(regPath, name);
-      break;
+    if (entry.url) {
+      try {
+        const remote = await fetchRemoteSnippet(entry.url, name);
+        definition = remote.definition;
+        source = { type: "remote", files: remote.files };
+        break;
+      } catch {
+        logger.warn(`Registry "${entry.name ?? entry.url}" から取得失敗。次の registry を試行します。`);
+        continue;
+      }
+    } else if (entry.path) {
+      const regPath = resolveRegistryPath(entry);
+      if (snippetExistsInRegistry(regPath, name)) {
+        definition = readSnippetFromRegistry(regPath, name);
+        source = { type: "local", registryPath: regPath };
+        break;
+      }
     }
   }
 
-  if (!foundRegistryPath || !definition) {
+  if (!source || !definition) {
     throw new SnippetNotFoundError(name);
   }
 
@@ -110,11 +125,10 @@ export async function installSnippet(
     Object.assign(variables, updatedVars);
   }
 
-  const expandedFiles = expandTemplateDirectory(
-    foundRegistryPath,
-    name,
-    variables,
-  );
+  const expandedFiles =
+    source.type === "local"
+      ? expandTemplateDirectory(source.registryPath, name, variables)
+      : expandRemoteTemplateFiles(source.files, variables);
 
   const outDir = opts.outDir
     ? path.resolve(cwd, opts.outDir)
@@ -273,12 +287,24 @@ export function registerInstallCommand(program: Command): void {
         const registries = resolveInstallRegistries(config, opts.registry);
         const allSnippets: string[] = [];
         for (const entry of registries) {
-          if (!entry.path) continue;
-          const regPath = resolveRegistryPath(entry);
-          const snippets = listRegistrySnippets(regPath);
-          for (const s of snippets) {
-            if (!allSnippets.includes(s)) {
-              allSnippets.push(s);
+          if (entry.url) {
+            try {
+              const remoteNames = await listRemoteSnippets(entry.url);
+              for (const s of remoteNames) {
+                if (!allSnippets.includes(s)) {
+                  allSnippets.push(s);
+                }
+              }
+            } catch {
+              logger.warn(`Registry "${entry.name ?? entry.url}" の一覧取得に失敗しました`);
+            }
+          } else if (entry.path) {
+            const regPath = resolveRegistryPath(entry);
+            const snippets = listRegistrySnippets(regPath);
+            for (const s of snippets) {
+              if (!allSnippets.includes(s)) {
+                allSnippets.push(s);
+              }
             }
           }
         }
