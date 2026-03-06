@@ -104,7 +104,8 @@ export async function installSnippet(
 
   const variableDefs = definition.variables ?? {};
   const builtinVars = getBuiltinVariables(cwd);
-  const variables = await resolveVariables(variableDefs, variableArgs);
+  const interactive = opts.interactive !== false;
+  const variables = await resolveVariables(variableDefs, variableArgs, interactive);
 
   // builtin 変数をマージ (ユーザ指定が優先)
   for (const [key, value] of Object.entries(builtinVars)) {
@@ -134,7 +135,6 @@ export async function installSnippet(
     ? path.resolve(cwd, opts.outDir)
     : cwd;
 
-  const interactive = opts.interactive !== false;
   let overwriteAll = false;
 
   for (const [filePath, content] of expandedFiles) {
@@ -201,6 +201,7 @@ function logVariableSummary(
 async function resolveVariables(
   variableDefs: Record<string, VariableDefinition>,
   args: Record<string, string>,
+  interactive: boolean = true,
 ): Promise<Record<string, unknown>> {
   const variables: Record<string, unknown> = {};
 
@@ -208,29 +209,53 @@ async function resolveVariables(
     if (key in args) {
       variables[key] = coerceValue(args[key], def.schema?.type);
     } else if (def.suggests?.length) {
-      const description = def.description ?? def.name ?? key;
-      const allowManual =
-        def.schema?.type === "string" || !def.schema?.type;
-      const defaultStr =
-        def.schema?.default !== undefined
-          ? String(def.schema.default)
-          : undefined;
-      const answer = await selectWithSuggests({
-        question: `${description} (${key})`,
-        suggests: def.suggests,
-        allowManualInput: allowManual,
-        defaultValue: defaultStr,
-      });
-      variables[key] = coerceValue(answer, def.schema?.type);
+      if (!interactive) {
+        // 非対話モード: default がない場合はエラー
+        if (def.schema?.default === undefined) {
+          throw new MirError(
+            t("error.variable-required", {
+              key,
+              hint: `--${key}=<value>`,
+            }),
+          );
+        }
+        variables[key] = def.schema.default;
+      } else {
+        const description = def.description ?? def.name ?? key;
+        const allowManual =
+          def.schema?.type === "string" || !def.schema?.type;
+        const defaultStr =
+          def.schema?.default !== undefined
+            ? String(def.schema.default)
+            : undefined;
+        const answer = await selectWithSuggests({
+          question: `${description} (${key})`,
+          suggests: def.suggests,
+          allowManualInput: allowManual,
+          defaultValue: defaultStr,
+        });
+        variables[key] = coerceValue(answer, def.schema?.type);
+      }
     } else if (def.schema?.default !== undefined) {
       variables[key] = def.schema.default;
     } else {
-      const description = def.description ?? def.name ?? key;
-      const answer = await prompt(`${description} (${key}): `);
-      if (answer === "") {
+      if (!interactive) {
+        // 非対話モード: default がない場合はエラー
         throw new MirError(
-          t("error.variable-empty", { key }),
+          t("error.variable-required", {
+            key,
+            hint: `--${key}=<value>`,
+          }),
         );
+      }
+      // 対話モード: リトライループで空入力を許さない
+      const description = def.description ?? def.name ?? key;
+      let answer = "";
+      while (!answer) {
+        answer = await prompt(`${description} (${key}): `);
+        if (!answer) {
+          logger.warn(t("error.variable-empty", { key }));
+        }
       }
       variables[key] = coerceValue(answer, def.schema?.type);
     }
