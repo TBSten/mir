@@ -331,7 +331,7 @@ describe.skip("Story 14: プロジェクトローカル mirconfig", () => {
 // Story 21: --dry-run でインストール確認
 // =============================================================================
 
-describe.skip("Story 21: --dry-run モード", () => {
+describe("Story 21: --dry-run モード", () => {
   it("dry-run ではファイルが作成されない", async () => {
     setupRegistrySnippet(
       "react-hook",
@@ -348,7 +348,6 @@ describe.skip("Story 21: --dry-run モード", () => {
     await installSnippet(
       "react-hook",
       { name: "useAuth" },
-      // @ts-expect-error dryRun は未実装
       { outDir, dryRun: true },
       tmpDir,
       configPath,
@@ -374,7 +373,6 @@ describe.skip("Story 21: --dry-run モード", () => {
     await installSnippet(
       "react-hook",
       { name: "useAuth" },
-      // @ts-expect-error dryRun は未実装
       { outDir, dryRun: true },
       tmpDir,
       configPath,
@@ -434,7 +432,7 @@ describe.skip("Story 25: hooks exit 発動", () => {
 // Story 37: defaults を使ったインストール
 // =============================================================================
 
-describe.skip("Story 37: mirconfig defaults", () => {
+describe("Story 37: mirconfig defaults", () => {
   it("defaults で共通変数が自動設定される", async () => {
     const configWithDefaults = path.join(tmpDir, "config-defaults.yaml");
     fs.writeFileSync(

@@ -10,8 +10,9 @@ const registryEntryArb: fc.Arbitrary<RegistryEntry> = fc.record({
 const mirConfigArb: fc.Arbitrary<MirConfig> = fc.record({
   registries: fc.array(registryEntryArb, { minLength: 0, maxLength: 5 }),
   defaults: fc.option(
-    fc.record({
-      author: fc.option(fc.string({ minLength: 1, maxLength: 20 }), { nil: undefined }),
+    fc.dictionary(fc.string({ minLength: 1, maxLength: 20 }), fc.string({ minLength: 1, maxLength: 20 }), {
+      minKeys: 0,
+      maxKeys: 3,
     }),
     { nil: undefined },
   ),
@@ -69,19 +70,22 @@ describe("mergeConfigs property-based", () => {
   it("defaults は local が global を上書き", () => {
     fc.assert(
       fc.property(
-        fc.string({ minLength: 1, maxLength: 20 }),
-        fc.string({ minLength: 1, maxLength: 20 }),
-        (localAuthor, globalAuthor) => {
+        fc.dictionary(fc.string({ minLength: 1, maxLength: 20 }), fc.string({ minLength: 1, maxLength: 20 })),
+        fc.dictionary(fc.string({ minLength: 1, maxLength: 20 }), fc.string({ minLength: 1, maxLength: 20 })),
+        (localDefaults, globalDefaults) => {
           const local: MirConfig = {
             registries: [],
-            defaults: { author: localAuthor },
+            defaults: localDefaults,
           };
           const global: MirConfig = {
             registries: [],
-            defaults: { author: globalAuthor },
+            defaults: globalDefaults,
           };
           const result = mergeConfigs(local, global);
-          expect(result.defaults?.author).toBe(localAuthor);
+          // local が global を上書きすることを確認
+          for (const [key, value] of Object.entries(localDefaults)) {
+            expect(result.defaults?.[key]).toBe(value);
+          }
         },
       ),
     );
