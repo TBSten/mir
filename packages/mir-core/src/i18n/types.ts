@@ -17,6 +17,10 @@ export interface MessageCatalog {
   "error.remote-fetch": string;
   "error.remote-fetch-status": string;
   "error.invalid-manifest": string;
+  "error.fetch-timeout": string;
+  "error.symlink-detected": string;
+  "error.symlink-in-snippet": string;
+  "error.safe-mode-overwrite": string;
 
   // create
   "create.success": string;
@@ -30,6 +34,13 @@ export interface MessageCatalog {
   "install.success": string;
   "install.skip": string;
   "install.confirm-overwrite": string;
+  "install.dry-run-files": string;
+  "install.dry-run-complete": string;
+  "install.multiple-snippets": string;
+  "install.snippet-n-of-m": string;
+  "install.completed-multiple": string;
+  "install.safe-mode-hooks-skipped": string;
+  "install.symlink-warning": string;
 
   // sync
   "sync.no-new-vars": string;

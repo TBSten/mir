@@ -6,6 +6,7 @@ import {
   fetchRemoteFiles,
   fetchRemoteSnippet,
   expandRemoteTemplateFiles,
+  clearAllRemoteRegistryCaches,
 } from "../remote-registry.js";
 import { RemoteRegistryFetchError, InvalidManifestError } from "../errors.js";
 
@@ -46,6 +47,7 @@ function mockFetch(handlers: Record<string, { status: number; body: string }>) {
 describe("fetchRegistryManifest", () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    clearAllRemoteRegistryCaches();
   });
 
   it("正常なマニフェストを取得できる", async () => {
