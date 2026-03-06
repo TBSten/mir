@@ -22,6 +22,16 @@ const sections = [
     description: "Step-by-step guide to create your first snippet",
     href: "/docs/tutorial",
   },
+  {
+    title: "api",
+    description: "Registry API endpoints and protocol",
+    href: "/docs/api",
+  },
+  {
+    title: "submission-guide",
+    description: "How to submit your snippet to the registry",
+    href: "/docs/submission-guide",
+  },
 ];
 
 export default createRoute((c) => {
