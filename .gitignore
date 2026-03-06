@@ -12,3 +12,8 @@ dist/
 .playwright-mcp/
 .claude/
 .mir/
+
+# Test outputs
+playwright-report/
+test-results/
+mirconfig.yaml
