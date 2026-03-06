@@ -1,6 +1,7 @@
 export type {
   RegistrySnippetSummary,
   RegistrySnippetDetail,
+  SnippetVersionEntry,
   RegistryProvider,
 } from "./types.js";
 

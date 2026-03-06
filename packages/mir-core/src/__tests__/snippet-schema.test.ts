@@ -47,6 +47,18 @@ hooks:
     expect(def.hooks?.["after-install"]).toHaveLength(1);
   });
 
+  it("dependencies 付き YAML をパースできる", () => {
+    const yaml = `
+name: react-component
+description: React component
+dependencies:
+  - react-hook
+  - typescript-setup
+`;
+    const def = parseSnippetYaml(yaml);
+    expect(def.dependencies).toEqual(["react-hook", "typescript-setup"]);
+  });
+
   it("不正な YAML でエラー", () => {
     expect(() => parseSnippetYaml("not a yaml object: [")).toThrow();
   });
@@ -119,5 +131,50 @@ describe("validateSnippetDefinition", () => {
         },
       }),
     ).not.toThrow();
+  });
+
+  it("dependencies が配列の場合は通過", () => {
+    expect(() =>
+      validateSnippetDefinition({
+        name: "react-component",
+        dependencies: ["react-hook"],
+      }),
+    ).not.toThrow();
+  });
+
+  it("dependencies に複数要素を持つ場合は通過", () => {
+    expect(() =>
+      validateSnippetDefinition({
+        name: "test",
+        dependencies: ["dep1", "dep2", "dep3"],
+      }),
+    ).not.toThrow();
+  });
+
+  it("dependencies が配列でないとエラー", () => {
+    expect(() =>
+      validateSnippetDefinition({
+        name: "test",
+        dependencies: "not-array" as unknown as string[],
+      }),
+    ).toThrow(ValidationError);
+  });
+
+  it("dependencies の要素が文字列でないとエラー", () => {
+    expect(() =>
+      validateSnippetDefinition({
+        name: "test",
+        dependencies: ["valid-dep", 123 as unknown as string],
+      }),
+    ).toThrow(ValidationError);
+  });
+
+  it("dependencies の要素に不正な名前があるとエラー", () => {
+    expect(() =>
+      validateSnippetDefinition({
+        name: "test",
+        dependencies: ["-invalid-dep-name"],
+      }),
+    ).toThrow(ValidationError);
   });
 });

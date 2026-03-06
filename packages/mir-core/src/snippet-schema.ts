@@ -1,6 +1,7 @@
 import yaml from "js-yaml";
 import { ValidationError } from "./errors.js";
 import { validateSnippetName } from "./validate-name.js";
+import { safeParseYaml, checkNoRefInSchema } from "./safe-yaml-parser.js";
 
 export interface VariableSchema {
   type?: "string" | "number" | "boolean";
@@ -32,8 +33,11 @@ export interface Action {
 
 export interface SnippetDefinition {
   name: string;
+  /** semver 形式のバージョン文字列 (例: "1.0.0")。省略時は未バージョン管理扱い */
+  version?: string;
   description?: string;
   tags?: string[];
+  dependencies?: string[];
   variables?: Record<string, VariableDefinition>;
   hooks?: {
     "before-install"?: Action[];
@@ -42,7 +46,8 @@ export interface SnippetDefinition {
 }
 
 export function parseSnippetYaml(content: string): SnippetDefinition {
-  const parsed = yaml.load(content);
+  // 安全なパーサー使用（サイズ制限・カスタムタグ禁止）
+  const parsed = safeParseYaml(content);
   if (typeof parsed !== "object" || parsed === null) {
     throw new ValidationError("snippet YAML のパースに失敗しました");
   }
@@ -60,6 +65,19 @@ export function validateSnippetDefinition(def: SnippetDefinition): void {
     throw new ValidationError("snippet 定義に name フィールドが必要です");
   }
   validateSnippetName(def.name);
+  if (def.dependencies !== undefined) {
+    if (!Array.isArray(def.dependencies)) {
+      throw new ValidationError("dependencies は配列でなければなりません");
+    }
+    for (const dep of def.dependencies) {
+      if (typeof dep !== "string") {
+        throw new ValidationError(
+          `dependencies の各要素は文字列でなければなりません。受け取った値: ${typeof dep}`,
+        );
+      }
+      validateSnippetName(dep);
+    }
+  }
   if (def.variables !== undefined) {
     if (typeof def.variables !== "object" || def.variables === null) {
       throw new ValidationError("variables はオブジェクトでなければなりません");
@@ -84,6 +102,8 @@ export function validateSnippetDefinition(def: SnippetDefinition): void {
           }
         }
       }
+      // $ref によるJSON Schema外部参照攻撃を禁止
+      checkNoRefInSchema(varDef.schema);
       if (varDef.schema?.type !== undefined) {
         const validTypes = ["string", "number", "boolean"];
         if (!validTypes.includes(varDef.schema.type)) {

@@ -12,10 +12,25 @@
       "description": "snippet の識別名。英数字・ハイフンのみ使用可能",
       "pattern": "^[a-zA-Z0-9][a-zA-Z0-9-]*$"
     },
+    "version": {
+      "type": "string",
+      "description": "snippet のバージョン（semver 形式推奨、例: '1.0.0'）。省略可能",
+      "pattern": "^\\d+\\.\\d+\\.\\d+.*$"
+    },
     "description": {
       "type": "string",
       "description": "snippet の説明文",
       "default": ""
+    },
+    "tags": {
+      "type": "array",
+      "description": "snippet に付与するタグ",
+      "items": { "type": "string" }
+    },
+    "dependencies": {
+      "type": "array",
+      "description": "依存する snippet 名の一覧",
+      "items": { "type": "string" }
     },
     "variables": {
       "type": "object",
