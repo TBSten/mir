@@ -4,6 +4,8 @@ import { Header } from "../components/header.js";
 import { Footer } from "../components/footer.js";
 import { SITE_NAME } from "../lib/constants.js";
 
+const darkModeScript = `(function() { const t = localStorage.getItem('theme') || 'light'; if (t === 'dark') document.documentElement.classList.add('dark'); })();`;
+
 export default jsxRenderer(({ children, title }) => {
   const pageTitle = title ? `${title} - ${SITE_NAME}` : SITE_NAME;
   return (
@@ -12,6 +14,7 @@ export default jsxRenderer(({ children, title }) => {
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{pageTitle}</title>
+        <script dangerouslySetInnerHTML={{ __html: darkModeScript }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
@@ -29,7 +32,7 @@ export default jsxRenderer(({ children, title }) => {
         )}
         <Style />
       </head>
-      <body class="bg-sky-50 font-body text-sky-900 antialiased">
+      <body class="bg-sky-50 font-body text-sky-900 dark:bg-gray-900 dark:text-gray-50 antialiased">
         <Header />
         <main class="min-h-screen">{children}</main>
         <Footer />
