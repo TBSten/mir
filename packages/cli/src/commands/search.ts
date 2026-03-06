@@ -157,5 +157,11 @@ export function registerSearchCommand(program: Command): void {
     .option("--quiet", "ログ出力を抑制")
     .action(async (query: string, opts: SearchOptions) => {
       await searchSnippets(query, opts);
-    });
+    })
+    .addHelpText("after", `
+Examples:
+  mir search react
+  mir search component --registry custom
+  mir search hook --json
+  mir search template --quiet`);
 }

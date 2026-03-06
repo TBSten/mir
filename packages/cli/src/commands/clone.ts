@@ -108,5 +108,11 @@ export function registerCloneCommand(program: Command): void {
     .option("-f, --force", "既存 snippet を上書きする")
     .action(async (name: string, alias: string | undefined, opts: CloneOptions) => {
       cloneSnippet(name, { ...opts, alias }, process.cwd());
-    });
+    })
+    .addHelpText("after", `
+Examples:
+  mir clone react-hook react-hook-custom
+  mir clone my-component my-component-v2
+  mir clone template --force
+  mir clone my-snippet new-name --force`);
 }
