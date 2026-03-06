@@ -3,4 +3,5 @@ export const SITE_NAME = "snpt";
 export const SITE_DESCRIPTION =
   "publish and install reusable code snippets — including full directory structures — with a single command from your terminal.";
 export const GITHUB_URL = "https://github.com/tbsten/mir";
+export const GITHUB_ISSUES_URL = `${GITHUB_URL}/issues`;
 export const INSTALL_COMMAND = "npx @tbsten/mir";

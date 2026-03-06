@@ -2,6 +2,7 @@ import { createRoute } from "honox/factory";
 import { SearchInput } from "../../components/search-input.js";
 import { SnippetCard } from "../../components/snippet-card.js";
 import { staticProvider } from "../../lib/provider.js";
+import { GITHUB_ISSUES_URL } from "../../lib/constants.js";
 
 export default createRoute(async (c) => {
   const query = c.req.query("q") ?? "";
@@ -31,11 +32,30 @@ export default createRoute(async (c) => {
       </div>
 
       {snippets.length === 0 ? (
-        <div class="flex flex-col items-center gap-2 py-16">
+        <div class="flex flex-col items-center gap-4 py-16">
           <p class="font-mono text-lg text-sky-300">// no results found</p>
           <p class="font-body text-sm text-sky-400">
             {`no snippets matching "${query}"`}
           </p>
+          {query && (
+            <div class="flex flex-col items-center gap-2">
+              <a
+                href="/snippets"
+                class="text-sky-400 hover:text-sky-300 underline text-sm"
+              >
+                Clear Search
+              </a>
+              <span class="text-sky-600 text-xs">or</span>
+              <a
+                href={GITHUB_ISSUES_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-sky-400 hover:text-sky-300 underline text-sm"
+              >
+                Submit a Request (GitHub)
+              </a>
+            </div>
+          )}
         </div>
       ) : (
         <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
