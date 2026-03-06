@@ -15,6 +15,9 @@ export const ja: MessageCatalog = {
   "error.exit-hook": "install が中止されました",
   "error.hook-input-required": "変数 \"{key}\" の入力が必要ですが、interactive mode は未対応です。default 値を指定してください",
   "error.no-snippets": "選択可能な snippet がありません",
+  "error.remote-fetch": "リモート registry の取得に失敗しました: {url}",
+  "error.remote-fetch-status": "リモート registry の取得に失敗しました: {url} (HTTP {status})",
+  "error.invalid-manifest": "リモート registry のマニフェストが不正です: {url}",
 
   // create
   "create.success": "Snippet \"{name}\" を作成しました",
