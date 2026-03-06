@@ -1,27 +1,27 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`エラーメッセージ snapshot (日本語) > FileConflictError 1`] = `"ファイル "index.ts" は既に存在します"`;
+exports[`エラーメッセージ snapshot (日本語) > FileConflictError 1`] = `"ファイル "index.ts" は既に存在します。\`--no-interactive\` で全て上書きするか、\`--out-dir\` で別ディレクトリを指定してください"`;
 
-exports[`エラーメッセージ snapshot (日本語) > PathTraversalError 1`] = `"パス "../etc/passwd" は出力ディレクトリの外を参照しています"`;
+exports[`エラーメッセージ snapshot (日本語) > PathTraversalError 1`] = `"セキュリティエラー: ファイルパス "../etc/passwd" が出力範囲外を参照しています。テンプレートファイルを確認してください"`;
 
-exports[`エラーメッセージ snapshot (日本語) > RegistryNotFoundError 1`] = `"Registry "official" が見つかりません"`;
+exports[`エラーメッセージ snapshot (日本語) > RegistryNotFoundError 1`] = `"Registry "official" が見つかりません。\`~/.mir/mirconfig.yaml\` で registry を設定してください"`;
 
 exports[`エラーメッセージ snapshot (日本語) > RegistryRemoteError (名前あり) 1`] = `"Registry "official" はリモート registry のため publish できません"`;
 
 exports[`エラーメッセージ snapshot (日本語) > RegistryRemoteError (名前なし) 1`] = `"リモート registry には publish できません"`;
 
-exports[`エラーメッセージ snapshot (日本語) > SnippetAlreadyExistsError 1`] = `"Snippet "react-hook" は既に存在します"`;
+exports[`エラーメッセージ snapshot (日本語) > SnippetAlreadyExistsError 1`] = `"Snippet "react-hook" は既に存在します。\`--force\` で上書きするか、別の名前を指定してください"`;
 
-exports[`エラーメッセージ snapshot (日本語) > SnippetNotFoundError 1`] = `"Snippet "react-hook" が見つかりません"`;
+exports[`エラーメッセージ snapshot (日本語) > SnippetNotFoundError 1`] = `"Snippet "react-hook" が見つかりません。\`mir list\` で利用可能な snippet を確認するか、\`--registry\` で別の registry を指定してください"`;
 
-exports[`エラーメッセージ snapshot (英語) > FileConflictError 1`] = `"File "index.ts" already exists"`;
+exports[`エラーメッセージ snapshot (英語) > FileConflictError 1`] = `"File "index.ts" already exists. Use \`--no-interactive\` to overwrite all files or \`--out-dir\` to specify another directory"`;
 
-exports[`エラーメッセージ snapshot (英語) > PathTraversalError 1`] = `"Path "../etc/passwd" references outside the output directory"`;
+exports[`エラーメッセージ snapshot (英語) > PathTraversalError 1`] = `"Security error: File path "../etc/passwd" references outside the output directory. Check your template files"`;
 
-exports[`エラーメッセージ snapshot (英語) > RegistryNotFoundError 1`] = `"Registry "official" not found"`;
+exports[`エラーメッセージ snapshot (英語) > RegistryNotFoundError 1`] = `"Registry "official" not found. Configure registries in \`~/.mir/mirconfig.yaml\`"`;
 
 exports[`エラーメッセージ snapshot (英語) > RegistryRemoteError (名前あり) 1`] = `"Cannot publish to registry "official" because it is a remote registry"`;
 
-exports[`エラーメッセージ snapshot (英語) > SnippetAlreadyExistsError 1`] = `"Snippet "react-hook" already exists"`;
+exports[`エラーメッセージ snapshot (英語) > SnippetAlreadyExistsError 1`] = `"Snippet "react-hook" already exists. Use \`--force\` to overwrite or specify a different name"`;
 
-exports[`エラーメッセージ snapshot (英語) > SnippetNotFoundError 1`] = `"Snippet "react-hook" not found"`;
+exports[`エラーメッセージ snapshot (英語) > SnippetNotFoundError 1`] = `"Snippet "react-hook" not found. Use \`mir list\` to see available snippets or specify \`--registry\` for another registry"`;

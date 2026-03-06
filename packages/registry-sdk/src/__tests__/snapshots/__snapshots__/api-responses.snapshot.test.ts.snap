@@ -16,20 +16,25 @@ exports[`API レスポンス snapshot > GET /api/search?q=react レスポンス 
 `;
 
 exports[`API レスポンス snapshot > GET /api/snippets レスポンス 1`] = `
-[
-  {
-    "description": "React カスタムフック雛形",
-    "name": "react-hook",
-  },
-  {
-    "description": "React コンポーネント",
-    "name": "react-component",
-  },
-  {
-    "description": "Express API エンドポイント",
-    "name": "express-api",
-  },
-]
+{
+  "items": [
+    {
+      "description": "React カスタムフック雛形",
+      "name": "react-hook",
+    },
+    {
+      "description": "React コンポーネント",
+      "name": "react-component",
+    },
+    {
+      "description": "Express API エンドポイント",
+      "name": "express-api",
+    },
+  ],
+  "limit": 3,
+  "offset": 0,
+  "total": 3,
+}
 `;
 
 exports[`API レスポンス snapshot > GET /api/snippets/nonexistent 404 レスポンス 1`] = `
