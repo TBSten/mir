@@ -12,14 +12,54 @@ export default createRoute((c) => {
         ]}
       />
 
-      <div class="flex flex-col gap-3">
+      {/* Introduction */}
+      <section class="flex flex-col gap-3">
         <h1 class="font-mono text-2xl font-bold text-sky-900">
           Tutorial: Create Your First Snippet
         </h1>
         <p class="font-body text-sm leading-relaxed text-sky-600">
           // Step-by-step guide to create, test, and install your first snippet
         </p>
-      </div>
+      </section>
+
+      <section class="flex flex-col gap-4 border-l-4 border-sky-300 bg-sky-50 px-4 py-3">
+        <h2 class="font-mono text-lg font-bold text-sky-800">
+          What is a Snippet?
+        </h2>
+        <p class="font-body text-sm text-sky-600">
+          A <strong>snippet</strong> is a reusable piece of code, template, or directory structure that you can share and install across projects. Snippets support dynamic variable substitution using Handlebars templates, allowing you to create flexible, configurable code generation.
+        </p>
+        <p class="font-body text-sm text-sky-600">
+          With mir, you can:
+        </p>
+        <ul class="flex flex-col gap-2 ml-4 font-body text-sm text-sky-600">
+          <li>- Create reusable code templates with variables</li>
+          <li>- Share snippets with your team or the community</li>
+          <li>- Install snippets from local or remote registries</li>
+          <li>- Customize snippets through interactive prompts</li>
+        </ul>
+      </section>
+
+      {/* Installation */}
+      <section class="flex flex-col gap-4">
+        <h2 class="font-mono text-lg font-bold text-sky-800">
+          Installation
+        </h2>
+        <p class="font-body text-sm text-sky-600">
+          Install mir globally or use it with npx:
+        </p>
+        <CodeBlock
+          fileName="terminal"
+          code={`# Install globally
+$ npm install -g @tbsten/mir
+
+# Or use directly with npx
+$ npx @tbsten/mir --help`}
+        />
+        <p class="font-body text-sm text-sky-600">
+          You're now ready to create your first snippet!
+        </p>
+      </section>
 
       {/* Step 1 */}
       <section class="flex flex-col gap-4">
@@ -255,6 +295,67 @@ $ mir install my-snippet
             - Submit your snippet to the <a href="/docs/submission-guide" class="text-sky-500 hover:text-sky-700">official registry</a>
           </li>
         </ul>
+      </section>
+
+      {/* FAQ */}
+      <section class="flex flex-col gap-6">
+        <h2 class="font-mono text-lg font-bold text-sky-800">
+          Frequently Asked Questions
+        </h2>
+
+        <div class="flex flex-col gap-3">
+          <h3 class="font-mono text-sm font-bold text-sky-700">
+            Q: What's the difference between snippets and regular files?
+          </h3>
+          <p class="font-body text-sm text-sky-600">
+            Snippets are <strong>parameterized templates</strong> that generate customized output based on user input. While you could copy files manually, snippets automate this process with variable substitution, making them perfect for boilerplate code and repeated patterns.
+          </p>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <h3 class="font-mono text-sm font-bold text-sky-700">
+            Q: Can I use snippets in an existing project?
+          </h3>
+          <p class="font-body text-sm text-sky-600">
+            Yes! You can install snippets anywhere. mir will generate files in your current directory. Just navigate to the location where you want to install the snippet and run the install command.
+          </p>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <h3 class="font-mono text-sm font-bold text-sky-700">
+            Q: How do I create custom snippets for my team?
+          </h3>
+          <p class="font-body text-sm text-sky-600">
+            Use <span class="font-mono bg-sky-50 px-1">mir create &lt;name&gt;</span> to create a snippet template. Edit the YAML definition and Handlebars template files, then publish with <span class="font-mono bg-sky-50 px-1">mir publish &lt;name&gt;</span>. You can share snippets via a custom registry URL.
+          </p>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <h3 class="font-mono text-sm font-bold text-sky-700">
+            Q: Can I use a remote registry instead of the local one?
+          </h3>
+          <p class="font-body text-sm text-sky-600">
+            Yes! Set your registry URL in <span class="font-mono bg-sky-50 px-1">~/.mir/mirconfig.yaml</span> or pass it directly with the <span class="font-mono bg-sky-50 px-1">--registry</span> flag. mir supports both local and remote registries.
+          </p>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <h3 class="font-mono text-sm font-bold text-sky-700">
+            Q: How do I use Handlebars in snippet templates?
+          </h3>
+          <p class="font-body text-sm text-sky-600">
+            Use <span class="font-mono bg-sky-50 px-1">{"{{variableName}}"}</span> syntax in your template files. Check the <a href="/docs/template-syntax" class="text-sky-500 hover:text-sky-700">Template Syntax</a> guide for advanced features like conditionals and loops.
+          </p>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <h3 class="font-mono text-sm font-bold text-sky-700">
+            Q: What happens if I make a mistake in my snippet?
+          </h3>
+          <p class="font-body text-sm text-sky-600">
+            You can update your snippet by editing the YAML and template files, then republishing. Use <span class="font-mono bg-sky-50 px-1">mir publish --force</span> to overwrite the existing version.
+          </p>
+        </div>
       </section>
 
       {/* Tips */}
