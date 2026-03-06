@@ -106,8 +106,48 @@ registry のルートに `index.json` を配置する。snippet の一覧と各 
 | GET | `<url>/index.json` | マニフェスト取得 |
 | GET | `<url>/<name>.yaml` | snippet 定義ファイル取得 |
 | GET | `<url>/<name>/<file>` | テンプレートファイル取得（パスは URL エンコード） |
+| GET | `<url>/api/snippets/<name>/dependencies` | 依存関係情報取得 |
 
 全てのエンドポイントは `200 OK` でレスポンスを返す。snippet が存在しない場合は `404 Not Found` を返す。
+
+### 依存関係エンドポイント
+
+```
+GET <url>/api/snippets/<name>/dependencies
+```
+
+snippet の依存関係情報を返すエンドポイント。
+
+#### レスポンス
+
+```json
+{
+  "name": "react-hook",
+  "direct": ["react-common", "typescript-utils"],
+  "transitive": ["react-common", "typescript-utils", "lodash-helpers"]
+}
+```
+
+| フィールド | 型 | 説明 |
+|---|---|---|
+| `name` | `string` | snippet 名 |
+| `direct` | `string[]` | 直接依存する snippet の名前一覧 |
+| `transitive` | `string[]` | 推移的依存（直接・間接両方）する snippet の名前一覧 |
+
+#### 実装例
+
+```json
+{
+  "react-hook": {
+    "direct": ["react-common"],
+    "transitive": ["react-common", "lodash-helpers"]
+  },
+  "express-api": {
+    "direct": ["typescript-utils"],
+    "transitive": ["typescript-utils", "lodash-helpers"]
+  }
+}
+```
 
 ### ホスティング
 

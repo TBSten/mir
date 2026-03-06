@@ -24,7 +24,8 @@ mir install <name> [--registry=<name>] [--out-dir=<path>] [--<variable>=<value> 
 | `--out-dir`, `-o` | ファイルの出力先ディレクトリ | `.`（カレントディレクトリ） |
 | `--<variable>=<value>` | snippet で定義された変数の値を指定 | - |
 | `--no-interactive` | インタラクティブモードを無効化。未指定の必須変数がある場合エラーにする | `false` |
-| `--dry-run` | 実際にファイルを書き込まず、生成されるファイル一覧を表示 | `false` |
+| `--dry-run` | 実際にファイルを書き込まず、展開内容をプレビュー表示 | `false` |
+| `--timeout` | リモート registry へのアクセスタイムアウト秒数 | `30` |
 
 ## 動作の詳細
 
@@ -79,11 +80,13 @@ mir install react-hook
 mir install react-hook --name=useAuth --description="認証用カスタムフック"
 ```
 
-### ドライランで確認
+### ドライランで確認（プレビュー）
 
 ```shell
 mir install react-hook --name=useAuth --dry-run
 ```
+
+`--dry-run` を指定すると、実際にはファイルを書き込まず、展開されるファイル一覧と内容をプレビュー表示します。本コマンドは [`mir preview`](./preview.md) と同等の動作です。
 
 ### 特定の registry から検索（ローカル）
 
@@ -102,6 +105,14 @@ mir install react-hook --name=useAuth --registry=community
 ```shell
 mir install react-hook --name=useAuth --out-dir=src/hooks
 ```
+
+### タイムアウト指定（リモート registry）
+
+```shell
+mir install react-hook --name=useAuth --timeout=60
+```
+
+リモート registry へのアクセス時のタイムアウト秒数を指定します。デフォルトは 30 秒。
 
 ### 非インタラクティブモード（CI 等）
 
