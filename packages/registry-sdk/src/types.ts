@@ -27,4 +27,8 @@ export interface RegistryProvider {
   search?(query: string): Promise<RegistrySnippetSummary[]>;
   /** snippet のバージョン履歴を返す。実装は任意 */
   getVersionHistory?(name: string): Promise<SnippetVersionEntry[] | null>;
+  /** snippet が直接依存する snippet 名の一覧を返す。実装は任意 */
+  getDependencies?(name: string): Promise<string[]>;
+  /** snippet が依存する全ての snippet 名（推移的依存関係を含む）を返す。実装は任意 */
+  getTransitiveDependencies?(name: string): Promise<string[]>;
 }

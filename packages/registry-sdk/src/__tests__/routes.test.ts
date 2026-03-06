@@ -332,3 +332,71 @@ describe("search 未実装の provider", () => {
     expect(data).toHaveLength(2);
   });
 });
+
+describe("GET /api/snippets/:name/dependencies (S052)", () => {
+  it("直接依存関係を返す", async () => {
+    const snippetsWithDeps = [
+      {
+        name: "base",
+        definition: { name: "base" },
+        files: { "index.ts": "export const base = 1;" },
+      },
+      {
+        name: "derived",
+        definition: {
+          name: "derived",
+          dependencies: ["base"],
+        },
+        files: { "index.ts": "import { base } from 'base';" },
+      },
+    ];
+    const app = createRegistryRoutes(createMockProvider(snippetsWithDeps));
+    const res = await app.request("/api/snippets/derived/dependencies");
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.name).toBe("derived");
+    expect(data.direct).toContain("base");
+    expect(Array.isArray(data.transitive)).toBe(true);
+  });
+
+  it("依存がない snippet は空配列を返す", async () => {
+    const app = createRegistryRoutes(createMockProvider(testSnippets));
+    const res = await app.request("/api/snippets/react-hook/dependencies");
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.direct).toEqual([]);
+  });
+
+  it("存在しない snippet は 404 を返す", async () => {
+    const app = createRegistryRoutes(createMockProvider(testSnippets));
+    const res = await app.request("/api/snippets/nonexistent/dependencies");
+    expect(res.status).toBe(404);
+    const data = await res.json();
+    expect(data.error).toContain("nonexistent");
+  });
+
+  it("getTransitiveDependencies 実装時は推移的依存関係も返す", async () => {
+    const providerWithTransitive: RegistryProvider = {
+      ...createMockProvider(testSnippets),
+      async getTransitiveDependencies(name) {
+        if (name === "react-component") {
+          return ["react-hook"];
+        }
+        return [];
+      },
+    };
+    const app = createRegistryRoutes(providerWithTransitive);
+    const res = await app.request("/api/snippets/react-component/dependencies");
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.transitive).toContain("react-hook");
+  });
+
+  it("getTransitiveDependencies 未実装時は空配列を返す", async () => {
+    const app = createRegistryRoutes(createMockProvider(testSnippets));
+    const res = await app.request("/api/snippets/react-hook/dependencies");
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.transitive).toEqual([]);
+  });
+});

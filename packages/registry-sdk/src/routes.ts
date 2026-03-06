@@ -109,5 +109,23 @@ export function createRegistryRoutes(provider: RegistryProvider): Hono {
     return c.json(filtered);
   });
 
+  // dependencies (S052: getDependencies 実装)
+  app.get("/api/snippets/:name/dependencies", async (c) => {
+    const name = c.req.param("name");
+    const detail = await provider.get(name);
+    if (!detail) {
+      return c.json({ error: `Snippet "${name}" not found` }, 404);
+    }
+    const direct = detail.definition.dependencies ?? [];
+    const transitive = provider.getTransitiveDependencies
+      ? await provider.getTransitiveDependencies(name)
+      : [];
+    return c.json({
+      name,
+      direct,
+      transitive,
+    });
+  });
+
   return app;
 }

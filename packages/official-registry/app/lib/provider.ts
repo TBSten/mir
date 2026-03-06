@@ -274,4 +274,30 @@ export const staticProvider: RegistryProvider = {
     if (!snippet) return null;
     return versionHistories[name] ?? [];
   },
+  async getDependencies(name) {
+    const snippet = snippets.find((s) => s.definition.name === name);
+    return snippet?.definition.dependencies ?? [];
+  },
+  async getTransitiveDependencies(name) {
+    const visited = new Set<string>();
+    const queue: string[] = [name];
+
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      if (visited.has(current)) continue;
+      visited.add(current);
+
+      const snippet = snippets.find((s) => s.definition.name === current);
+      const deps = snippet?.definition.dependencies ?? [];
+      for (const dep of deps) {
+        if (!visited.has(dep)) {
+          queue.push(dep);
+        }
+      }
+    }
+
+    // 自分自身を除いた結果を返す
+    visited.delete(name);
+    return Array.from(visited);
+  },
 };
