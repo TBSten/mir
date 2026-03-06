@@ -3,6 +3,11 @@ dist/
 .local/
 *.tgz
 .DS_Store
+*.tsbuildinfo
 
 # Cloudflare
 .wrangler/
+
+# Tools
+.playwright-mcp/
+.claude/
