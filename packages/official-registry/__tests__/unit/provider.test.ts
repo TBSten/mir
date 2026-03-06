@@ -115,4 +115,47 @@ describe("staticProvider", () => {
       }
     });
   });
+
+  describe("getDependencies", () => {
+    it("直接依存する snippet の一覧を返す (S052)", async () => {
+      const deps = await staticProvider.getDependencies!("react-component");
+      expect(Array.isArray(deps)).toBe(true);
+      expect(deps).toContain("react-hook");
+    });
+
+    it("依存がない snippet は空配列を返す (S052)", async () => {
+      const deps = await staticProvider.getDependencies!("react-hook");
+      expect(deps).toEqual([]);
+    });
+
+    it("存在しない snippet は空配列を返す (S052)", async () => {
+      const deps = await staticProvider.getDependencies!("nonexistent");
+      expect(deps).toEqual([]);
+    });
+  });
+
+  describe("getTransitiveDependencies", () => {
+    it("推移的に依存する全 snippet を返す (S052)", async () => {
+      const deps = await staticProvider.getTransitiveDependencies!("react-component");
+      expect(Array.isArray(deps)).toBe(true);
+      expect(deps).toContain("react-hook");
+    });
+
+    it("自分自身は含まない (S052)", async () => {
+      const deps = await staticProvider.getTransitiveDependencies!("react-component");
+      expect(deps).not.toContain("react-component");
+    });
+
+    it("依存がない snippet は空配列を返す (S052)", async () => {
+      const deps = await staticProvider.getTransitiveDependencies!("react-hook");
+      expect(deps).toEqual([]);
+    });
+
+    it("複数の推移的依存関係を解決する (S052)", async () => {
+      const deps = await staticProvider.getTransitiveDependencies!("nextjs-page");
+      expect(Array.isArray(deps)).toBe(true);
+      // nextjs-page は react-hook に依存
+      expect(deps).toContain("react-hook");
+    });
+  });
 });
