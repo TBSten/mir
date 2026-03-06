@@ -7,6 +7,9 @@ import { registerSyncCommand } from "./commands/sync.js";
 import { registerListCommand } from "./commands/list.js";
 import { registerInfoCommand } from "./commands/info.js";
 import { registerInitCommand } from "./commands/init.js";
+import { registerPreviewCommand } from "./commands/preview.js";
+import { registerSearchCommand } from "./commands/search.js";
+import { registerCloneCommand } from "./commands/clone.js";
 import { loadMirConfig } from "./lib/mirconfig.js";
 import { getLocaleFromEnv } from "./lib/env.js";
 import * as logger from "./lib/logger.js";
@@ -57,6 +60,9 @@ registerInstallCommand(program);
 registerSyncCommand(program);
 registerListCommand(program);
 registerInfoCommand(program);
+registerSearchCommand(program);
+registerCloneCommand(program);
+registerPreviewCommand(program);
 
 program.parseAsync().catch((err) => {
   if (err instanceof MirError) {
