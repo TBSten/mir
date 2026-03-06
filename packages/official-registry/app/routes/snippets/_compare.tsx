@@ -36,18 +36,48 @@ export default createRoute(async (c) => {
         ]}
       />
 
-      {/* Title */}
+      {/* Title and Controls */}
       <div class="flex flex-col gap-3">
-        <h1 class="font-mono text-2xl font-bold text-sky-900">
-          $ compare snippets
-        </h1>
-        <p class="font-body text-sm leading-relaxed text-sky-600">
-          {`// comparing ${uniqueNames.length} snippet${uniqueNames.length !== 1 ? "s" : ""}`}
-        </p>
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex flex-col gap-1">
+            <h1 class="font-mono text-2xl font-bold text-sky-900">
+              $ compare snippets
+            </h1>
+            <p class="font-body text-sm leading-relaxed text-sky-600">
+              {`// comparing ${uniqueNames.length} snippet${uniqueNames.length !== 1 ? "s" : ""}`}
+            </p>
+          </div>
+          <button
+            onclick={`
+              (async () => {
+                try {
+                  const res = await fetch('/api/compare?compare=${compareParam}');
+                  const data = await res.json();
+                  const jsonString = JSON.stringify(data, null, 2);
+                  const blob = new Blob([jsonString], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = 'compare-${uniqueNames.join("-")}-' + new Date().getTime() + '.json';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  URL.revokeObjectURL(url);
+                } catch (e) {
+                  console.error('Failed to export:', e);
+                }
+              })();
+            `}
+            class="flex items-center gap-2 rounded-md bg-sky-100 px-3 py-2 font-mono text-xs font-semibold text-sky-700 hover:bg-sky-200"
+            data-testid="export-json-button"
+          >
+            <span>↓ export json</span>
+          </button>
+        </div>
       </div>
 
       {/* Comparison Table */}
-      <SnippetComparisonTable snippets={snippets} names={uniqueNames} />
+      <SnippetComparisonTable snippets={snippets} names={uniqueNames} compareParam={compareParam} />
 
       {/* Snippet Names */}
       <div class="flex flex-col gap-2 text-xs text-sky-500">

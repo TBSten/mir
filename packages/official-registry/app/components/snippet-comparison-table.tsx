@@ -4,11 +4,13 @@ import { Tag } from "./tag.js";
 interface SnippetComparisonTableProps {
   snippets: (RegistrySnippetDetail | null)[];
   names: string[];
+  compareParam?: string;
 }
 
 export function SnippetComparisonTable({
   snippets,
   names,
+  compareParam,
 }: SnippetComparisonTableProps) {
   // 各属性の行を定義
   const rows = [

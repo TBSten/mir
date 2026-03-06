@@ -56,4 +56,24 @@ test.describe("snippet 比較ページ", () => {
     await expect(table).toContainText("Variables");
     await expect(table).toContainText("Files");
   });
+
+  test("JSON エクスポートボタンが表示される", async ({ page }) => {
+    await page.goto("/snippets?compare=react-hook,react-component");
+
+    const exportButton = page.locator("[data-testid='export-json-button']");
+    await expect(exportButton).toBeVisible();
+    await expect(exportButton).toContainText("export json");
+  });
+
+  test("スニペット一覧ページに比較機能へのリンクがある", async ({ page }) => {
+    await page.goto("/snippets");
+
+    // 比較機能へのヒントが表示される
+    const hint = page.locator("text=compare snippets");
+    await expect(hint).toBeVisible();
+
+    // 比較ページへのリンクがある
+    const link = page.locator("a:has-text('example')");
+    await expect(link).toHaveAttribute("href", /compare=/);
+  });
 });

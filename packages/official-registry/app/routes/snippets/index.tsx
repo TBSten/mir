@@ -43,12 +43,23 @@ export default createRoute(async (c) => {
         <SearchInput value={query} />
       </form>
 
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between gap-4">
         <p class="font-mono text-xs text-sky-400">
           {query
             ? `// showing ${snippets.length} of ${total} results for "${query}"`
             : `// showing ${offset + 1}–${Math.min(offset + limit, total)} of ${total} snippets`}
         </p>
+        <div class="flex items-center gap-2">
+          <span class="font-mono text-xs text-sky-400">
+            tip: compare snippets?
+          </span>
+          <a
+            href="/snippets?compare=react-hook,react-component"
+            class="font-mono text-xs text-sky-400 hover:text-sky-600 underline"
+          >
+            example
+          </a>
+        </div>
       </div>
 
       {snippets.length === 0 ? (
