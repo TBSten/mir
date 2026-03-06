@@ -28,6 +28,13 @@ export type {
 // validate-name
 export { validateSnippetName } from "./validate-name.js";
 
+// safe-yaml-parser
+export {
+  safeParseYaml,
+  checkNoRefInSchema,
+  YAML_MAX_SIZE_BYTES,
+} from "./safe-yaml-parser.js";
+
 // template-engine
 export {
   expandTemplate,
@@ -61,7 +68,14 @@ export {
   fetchRemoteSnippet,
   expandRemoteTemplateFiles,
 } from "./remote-registry.js";
-export type { RegistryManifest, RemoteSnippet } from "./remote-registry.js";
+export type { RegistryManifest, RemoteSnippet, FetchOptions } from "./remote-registry.js";
+
+// symlink-checker
+export {
+  isSymbolicLink,
+  findSymlinksInDirectory,
+} from "./lib/symlink-checker.js";
+export type { SymlinkCheckResult } from "./lib/symlink-checker.js";
 
 // i18n
 export { setLocale, getLocale, t } from "./i18n/index.js";

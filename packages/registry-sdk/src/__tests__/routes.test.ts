@@ -2,16 +2,15 @@
  * registry-sdk: createRegistryRoutes の HTTP レベル unit テスト
  * Hono の testClient 的なアプローチで app.request() を使う
  */
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { createRegistryRoutes } from "../routes.js";
 import type { RegistryProvider, RegistrySnippetDetail } from "../types.js";
 import type { SnippetDefinition } from "@mir/core";
 
-// TODO: 現時点では理想の挙動をテストケースとして記述。後で有効化する。
-
 function createMockProvider(
   snippets: Array<{
     name: string;
+    version?: string;
     description?: string;
     definition: SnippetDefinition;
     files: Record<string, string>;
@@ -21,6 +20,7 @@ function createMockProvider(
     async list() {
       return snippets.map((s) => ({
         name: s.name,
+        version: s.version,
         description: s.description,
       }));
     },
@@ -39,7 +39,7 @@ function createMockProvider(
             s.name.includes(query) ||
             (s.description?.includes(query) ?? false),
         )
-        .map((s) => ({ name: s.name, description: s.description }));
+        .map((s) => ({ name: s.name, version: s.version, description: s.description }));
     },
   };
 }
@@ -47,9 +47,11 @@ function createMockProvider(
 const testSnippets = [
   {
     name: "react-hook",
+    version: "1.0.0",
     description: "React カスタムフック雛形",
     definition: {
       name: "react-hook",
+      version: "1.0.0",
       description: "React カスタムフック雛形",
       variables: {
         name: { description: "フック名", schema: { type: "string" as const } },
@@ -62,9 +64,11 @@ const testSnippets = [
   },
   {
     name: "react-component",
+    version: "2.0.0",
     description: "React コンポーネント",
     definition: {
       name: "react-component",
+      version: "2.0.0",
       description: "React コンポーネント",
       variables: {
         name: { description: "コンポーネント名", schema: { type: "string" as const } },
@@ -83,22 +87,137 @@ const testSnippets = [
 ];
 
 describe("GET /api/snippets", () => {
-  it("全 snippet の一覧を返す", async () => {
+  it("全 snippet の一覧をページネーション形式で返す", async () => {
     const app = createRegistryRoutes(createMockProvider(testSnippets));
     const res = await app.request("/api/snippets");
     expect(res.status).toBe(200);
     const data = await res.json();
-    expect(data).toHaveLength(3);
-    expect(data[0]).toHaveProperty("name");
-    expect(data[0]).toHaveProperty("description");
+    expect(data).toHaveProperty("items");
+    expect(data).toHaveProperty("total");
+    expect(data).toHaveProperty("offset");
+    expect(data).toHaveProperty("limit");
+    expect(data.items).toHaveLength(3);
+    expect(data.total).toBe(3);
+    expect(data.offset).toBe(0);
+    expect(data.items[0]).toHaveProperty("name");
+    expect(data.items[0]).toHaveProperty("description");
   });
 
-  it("空の registry は空配列を返す", async () => {
+  it("limit パラメータで件数を絞り込める (S038)", async () => {
+    const app = createRegistryRoutes(createMockProvider(testSnippets));
+    const res = await app.request("/api/snippets?limit=2");
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.items).toHaveLength(2);
+    expect(data.total).toBe(3);
+    expect(data.limit).toBe(2);
+    expect(data.offset).toBe(0);
+  });
+
+  it("offset パラメータでスキップできる (S038)", async () => {
+    const app = createRegistryRoutes(createMockProvider(testSnippets));
+    const res = await app.request("/api/snippets?offset=1");
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.items).toHaveLength(2);
+    expect(data.total).toBe(3);
+    expect(data.offset).toBe(1);
+  });
+
+  it("limit と offset を組み合わせたページネーション (S038)", async () => {
+    const app = createRegistryRoutes(createMockProvider(testSnippets));
+    const res = await app.request("/api/snippets?limit=2&offset=2");
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.items).toHaveLength(1);
+    expect(data.items[0].name).toBe("express-api");
+    expect(data.total).toBe(3);
+    expect(data.limit).toBe(2);
+    expect(data.offset).toBe(2);
+  });
+
+  it("limit 上限は 100 に制限される (S038)", async () => {
+    const app = createRegistryRoutes(createMockProvider(testSnippets));
+    const res = await app.request("/api/snippets?limit=999");
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.limit).toBe(100);
+  });
+
+  it("空の registry は items が空配列で total が 0 を返す", async () => {
     const app = createRegistryRoutes(createMockProvider([]));
     const res = await app.request("/api/snippets");
     expect(res.status).toBe(200);
     const data = await res.json();
-    expect(data).toEqual([]);
+    expect(data.items).toEqual([]);
+    expect(data.total).toBe(0);
+  });
+
+  it("version フィールドが含まれる (S035)", async () => {
+    const app = createRegistryRoutes(createMockProvider(testSnippets));
+    const res = await app.request("/api/snippets");
+    const data = await res.json();
+    const reactHook = data.items.find((s: { name: string }) => s.name === "react-hook");
+    expect(reactHook.version).toBe("1.0.0");
+  });
+});
+
+describe("GET /api/snippets/:name/versions", () => {
+  it("getVersionHistory 未実装時は definition.version から返す (S039)", async () => {
+    const app = createRegistryRoutes(createMockProvider(testSnippets));
+    const res = await app.request("/api/snippets/react-hook/versions");
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.name).toBe("react-hook");
+    expect(Array.isArray(data.versions)).toBe(true);
+    expect(data.versions[0].version).toBe("1.0.0");
+  });
+
+  it("version のない snippet は空配列を返す (S039)", async () => {
+    const app = createRegistryRoutes(createMockProvider(testSnippets));
+    const res = await app.request("/api/snippets/express-api/versions");
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.versions).toEqual([]);
+  });
+
+  it("存在しない snippet は 404 を返す (S039)", async () => {
+    const app = createRegistryRoutes(createMockProvider(testSnippets));
+    const res = await app.request("/api/snippets/nonexistent/versions");
+    expect(res.status).toBe(404);
+  });
+
+  it("getVersionHistory 実装済み provider は履歴を返す (S039)", async () => {
+    const providerWithHistory: RegistryProvider = {
+      ...createMockProvider(testSnippets),
+      async getVersionHistory(name) {
+        if (name === "react-hook") {
+          return [
+            { version: "1.0.0", publishedAt: "2026-01-01", description: "Initial release" },
+          ];
+        }
+        return null;
+      },
+    };
+    const app = createRegistryRoutes(providerWithHistory);
+    const res = await app.request("/api/snippets/react-hook/versions");
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.versions).toHaveLength(1);
+    expect(data.versions[0].version).toBe("1.0.0");
+    expect(data.versions[0].publishedAt).toBe("2026-01-01");
+  });
+
+  it("getVersionHistory が null を返す場合は 404 (S039)", async () => {
+    const providerWithHistory: RegistryProvider = {
+      ...createMockProvider(testSnippets),
+      async getVersionHistory(_name) {
+        return null;
+      },
+    };
+    const app = createRegistryRoutes(providerWithHistory);
+    const res = await app.request("/api/snippets/nonexistent/versions");
+    expect(res.status).toBe(404);
   });
 });
 
@@ -111,6 +230,13 @@ describe("GET /api/snippets/:name", () => {
     expect(data.definition.name).toBe("react-hook");
     expect(data.files).toHaveProperty("{{ name }}.ts");
     expect(data.files).toHaveProperty("{{ name }}.test.ts");
+  });
+
+  it("定義に version が含まれる (S035)", async () => {
+    const app = createRegistryRoutes(createMockProvider(testSnippets));
+    const res = await app.request("/api/snippets/react-hook");
+    const data = await res.json();
+    expect(data.definition.version).toBe("1.0.0");
   });
 
   it("存在しない snippet は 404 を返す", async () => {
