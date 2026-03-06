@@ -1,6 +1,7 @@
-import { RemoteRegistryFetchError, InvalidManifestError } from "./errors.js";
+import { RemoteRegistryFetchError, InvalidManifestError, MirError } from "./errors.js";
 import { parseSnippetYaml } from "./snippet-schema.js";
 import { expandTemplate, expandPath } from "./template-engine.js";
+import { t } from "./i18n/index.js";
 import type { SnippetDefinition } from "./snippet-schema.js";
 
 /**
@@ -8,6 +9,14 @@ import type { SnippetDefinition } from "./snippet-schema.js";
  */
 export interface RegistryManifest {
   snippets: Record<string, { files: string[] }>;
+}
+
+/**
+ * fetch オプション (タイムアウト等)
+ */
+export interface FetchOptions {
+  /** タイムアウト時間（ミリ秒）。未指定の場合はタイムアウトなし */
+  timeoutMs?: number;
 }
 
 /**
@@ -50,10 +59,38 @@ function normalizeBaseUrl(baseUrl: string): string {
 }
 
 /**
+ * AbortController を使ったタイムアウト付き fetch
+ */
+async function fetchWithTimeout(
+  url: string,
+  options: FetchOptions = {},
+): Promise<Response> {
+  if (!options.timeoutMs) {
+    return fetch(url);
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), options.timeoutMs);
+
+  try {
+    return await fetch(url, { signal: controller.signal });
+  } catch (err) {
+    if (err instanceof Error && err.name === "AbortError") {
+      const timeoutSec = Math.round(options.timeoutMs / 1000);
+      throw new MirError(t("error.fetch-timeout", { url, timeout: timeoutSec }));
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+/**
  * マニフェスト (index.json) を取得する（キャッシュ付き）
  */
 export async function fetchRegistryManifest(
   baseUrl: string,
+  options: FetchOptions = {},
 ): Promise<RegistryManifest> {
   const normalizedUrl = normalizeBaseUrl(baseUrl);
   const cached = manifestCache.get(normalizedUrl);
@@ -65,14 +102,20 @@ export async function fetchRegistryManifest(
   const url = `${normalizedUrl}/index.json`;
   let res: Response;
   try {
-    res = await fetch(url);
-  } catch {
+    res = await fetchWithTimeout(url, options);
+  } catch (err) {
+    if (err instanceof MirError) throw err;
     throw new RemoteRegistryFetchError(url);
   }
   if (!res.ok) {
     throw new RemoteRegistryFetchError(url, res.status);
   }
-  const data: unknown = await res.json();
+  let data: unknown;
+  try {
+    data = await res.json();
+  } catch {
+    throw new InvalidManifestError(url);
+  }
   if (
     typeof data !== "object" ||
     data === null ||
@@ -96,6 +139,7 @@ export async function fetchRegistryManifest(
  */
 export async function listRemoteSnippets(
   baseUrl: string,
+  options: FetchOptions = {},
 ): Promise<string[]> {
   const normalizedUrl = normalizeBaseUrl(baseUrl);
   const cached = snippetListCache.get(normalizedUrl);
@@ -104,7 +148,7 @@ export async function listRemoteSnippets(
     return cached.data;
   }
 
-  const manifest = await fetchRegistryManifest(baseUrl);
+  const manifest = await fetchRegistryManifest(baseUrl, options);
   const snippetList = Object.keys(manifest.snippets);
 
   snippetListCache.set(normalizedUrl, {
@@ -121,12 +165,14 @@ export async function listRemoteSnippets(
 export async function fetchSnippetDefinition(
   baseUrl: string,
   name: string,
+  options: FetchOptions = {},
 ): Promise<SnippetDefinition> {
   const url = `${normalizeBaseUrl(baseUrl)}/${name}.yaml`;
   let res: Response;
   try {
-    res = await fetch(url);
-  } catch {
+    res = await fetchWithTimeout(url, options);
+  } catch (err) {
+    if (err instanceof MirError) throw err;
     throw new RemoteRegistryFetchError(url);
   }
   if (!res.ok) {
@@ -143,6 +189,7 @@ export async function fetchRemoteFiles(
   baseUrl: string,
   name: string,
   files: string[],
+  options: FetchOptions = {},
 ): Promise<Map<string, string>> {
   const base = normalizeBaseUrl(baseUrl);
   const result = new Map<string, string>();
@@ -152,8 +199,9 @@ export async function fetchRemoteFiles(
       const url = `${base}/${name}/${encodeURIComponent(filePath)}`;
       let res: Response;
       try {
-        res = await fetch(url);
-      } catch {
+        res = await fetchWithTimeout(url, options);
+      } catch (err) {
+        if (err instanceof MirError) throw err;
         throw new RemoteRegistryFetchError(url);
       }
       if (!res.ok) {
@@ -176,8 +224,9 @@ export async function fetchRemoteFiles(
 export async function fetchRemoteSnippet(
   baseUrl: string,
   name: string,
+  options: FetchOptions = {},
 ): Promise<RemoteSnippet> {
-  const manifest = await fetchRegistryManifest(baseUrl);
+  const manifest = await fetchRegistryManifest(baseUrl, options);
   const snippetEntry = manifest.snippets[name];
   if (!snippetEntry) {
     throw new RemoteRegistryFetchError(
@@ -187,8 +236,8 @@ export async function fetchRemoteSnippet(
   }
 
   const [definition, files] = await Promise.all([
-    fetchSnippetDefinition(baseUrl, name),
-    fetchRemoteFiles(baseUrl, name, snippetEntry.files),
+    fetchSnippetDefinition(baseUrl, name, options),
+    fetchRemoteFiles(baseUrl, name, snippetEntry.files, options),
   ]);
 
   return { definition, files };
