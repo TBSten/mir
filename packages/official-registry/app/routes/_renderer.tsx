@@ -2,18 +2,54 @@ import { Style } from "hono/css";
 import { jsxRenderer } from "hono/jsx-renderer";
 import { Header } from "../components/header.js";
 import { Footer } from "../components/footer.js";
-import { SITE_NAME } from "../lib/constants.js";
+import { SITE_NAME, SITE_DESCRIPTION } from "../lib/constants.js";
+import { buildMetaTags } from "../lib/seo.js";
 
 const darkModeScript = `(function() { const t = localStorage.getItem('theme') || 'light'; if (t === 'dark') document.documentElement.classList.add('dark'); })();`;
 
-export default jsxRenderer(({ children, title }) => {
+const OG_IMAGE_URL = "https://mir.tbsten.me/og-image.png";
+
+interface RendererContext {
+  children: any;
+  title?: string;
+  description?: string;
+  path?: string;
+}
+
+export default jsxRenderer((context) => {
+  const { children, title, description = SITE_DESCRIPTION, path = "/" } = context as RendererContext;
   const pageTitle = title ? `${title} - ${SITE_NAME}` : SITE_NAME;
+
+  const metaTags = buildMetaTags({
+    title,
+    description,
+    path,
+    image: OG_IMAGE_URL,
+  });
+
   return (
     <html lang="ja">
       <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{pageTitle}</title>
+
+        {/* OGP */}
+        <meta property="og:title" content={metaTags.ogTitle} />
+        <meta property="og:description" content={metaTags.ogDescription} />
+        <meta property="og:image" content={metaTags.ogImage} />
+        <meta property="og:type" content="website" />
+        <meta property="og:locale" content="ja_JP" />
+
+        {/* Twitter Card */}
+        <meta name="twitter:card" content={metaTags.twitterCard} />
+        <meta name="twitter:title" content={metaTags.ogTitle} />
+        <meta name="twitter:description" content={metaTags.ogDescription} />
+        <meta name="twitter:image" content={metaTags.ogImage} />
+
+        {/* Canonical URL */}
+        <link rel="canonical" href={metaTags.canonicalUrl} />
+
         <script dangerouslySetInnerHTML={{ __html: darkModeScript }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link

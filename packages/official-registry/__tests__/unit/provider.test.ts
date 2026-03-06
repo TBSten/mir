@@ -26,6 +26,14 @@ describe("staticProvider", () => {
       expect(names).toContain("nextjs-page");
       expect(names).toContain("vitest-setup");
     });
+
+    it("各 snippet に version が含まれる (S035)", async () => {
+      const list = await staticProvider.list();
+      for (const s of list) {
+        expect(s.version).toBeDefined();
+        expect(typeof s.version).toBe("string");
+      }
+    });
   });
 
   describe("get", () => {
@@ -41,6 +49,13 @@ describe("staticProvider", () => {
       expect(detail).not.toBeNull();
       expect(detail!.definition.variables).toHaveProperty("name");
       expect(detail!.files.has("{{ name }}.tsx")).toBe(true);
+    });
+
+    it("definition に version が含まれる (S035)", async () => {
+      const detail = await staticProvider.get("react-hook");
+      expect(detail).not.toBeNull();
+      expect(detail!.definition.version).toBeDefined();
+      expect(typeof detail!.definition.version).toBe("string");
     });
 
     it("存在しない snippet は null を返す", async () => {
@@ -67,6 +82,37 @@ describe("staticProvider", () => {
     it("マッチしない場合は空配列", async () => {
       const results = await staticProvider.search!("zzzznonexistent");
       expect(results).toEqual([]);
+    });
+  });
+
+  describe("getVersionHistory", () => {
+    it("存在する snippet のバージョン履歴を返す (S039)", async () => {
+      const history = await staticProvider.getVersionHistory!("react-hook");
+      expect(history).not.toBeNull();
+      expect(Array.isArray(history)).toBe(true);
+      expect(history!.length).toBeGreaterThan(0);
+    });
+
+    it("バージョン履歴の各エントリに version が含まれる (S039)", async () => {
+      const history = await staticProvider.getVersionHistory!("react-hook");
+      for (const entry of history!) {
+        expect(entry.version).toBeDefined();
+        expect(typeof entry.version).toBe("string");
+      }
+    });
+
+    it("存在しない snippet は null を返す (S039)", async () => {
+      const history = await staticProvider.getVersionHistory!("nonexistent");
+      expect(history).toBeNull();
+    });
+
+    it("全 snippet のバージョン履歴が取得できる (S039)", async () => {
+      const names = ["react-hook", "react-component", "express-router", "nextjs-page", "vitest-setup"];
+      for (const name of names) {
+        const history = await staticProvider.getVersionHistory!(name);
+        expect(history).not.toBeNull();
+        expect(Array.isArray(history)).toBe(true);
+      }
     });
   });
 });

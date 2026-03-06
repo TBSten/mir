@@ -3,10 +3,13 @@ import type {} from "hono";
 type Bindings = {
   // D1: D1Database;
   // R2: R2Bucket;
+  STATS_KV?: KVNamespace;
 };
 
 type RendererProps = {
   title?: string;
+  description?: string;
+  path?: string;
 };
 
 declare module "hono" {
