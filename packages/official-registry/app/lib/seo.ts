@@ -3,6 +3,7 @@
  * OGP meta タグ、Sitemap、robots.txt の生成
  */
 import type { RegistryProvider } from "@mir/registry-sdk";
+import { SITE_NAME } from "./constants.js";
 
 export interface MetaTags {
   title: string;
@@ -21,7 +22,6 @@ interface BuildMetaTagsInput {
 }
 
 const SITE_DOMAIN = "https://mir.tbsten.me";
-const SITE_NAME = "snpt";
 
 /**
  * ページ用のメタタグを生成
