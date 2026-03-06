@@ -11,6 +11,7 @@ import {
   t,
   type SnippetDefinition,
   type VariableDefinition,
+  type FetchOptions,
 } from "@mir/core";
 import {
   loadMirConfig,
@@ -25,10 +26,16 @@ interface InfoOptions {
   json?: boolean;
   yaml?: boolean;
   quiet?: boolean;
+  /** リモート registry へのタイムアウト秒数 */
+  timeout?: number;
 }
 
 export async function showSnippetInfo(name: string | undefined, opts: InfoOptions = {}, configPath?: string): Promise<void> {
   let snippetName = name;
+
+  const fetchOptions: FetchOptions = opts.timeout
+    ? { timeoutMs: opts.timeout * 1000 }
+    : {};
 
   // パラメータが省略されている場合は snippet 選択
   if (!snippetName) {
@@ -39,7 +46,7 @@ export async function showSnippetInfo(name: string | undefined, opts: InfoOption
     for (const entry of registries) {
       if (entry.url) {
         try {
-          const remoteNames = await listRemoteSnippets(entry.url);
+          const remoteNames = await listRemoteSnippets(entry.url, fetchOptions);
           for (const s of remoteNames) {
             if (!allSnippets.includes(s)) {
               allSnippets.push(s);
@@ -72,7 +79,7 @@ export async function showSnippetInfo(name: string | undefined, opts: InfoOption
   for (const entry of registries) {
     if (entry.url) {
       try {
-        const remote = await fetchRemoteSnippet(entry.url, snippetName);
+        const remote = await fetchRemoteSnippet(entry.url, snippetName, fetchOptions);
         definition = remote.definition;
         break;
       } catch {
@@ -160,6 +167,14 @@ export function registerInfoCommand(program: Command): void {
     .option("--json", "JSON 形式で出力する")
     .option("--yaml", "YAML 形式で出力する")
     .option("-q, --quiet", "ログ出力を抑制する")
+    .option("--timeout <seconds>", "リモート registry へのタイムアウト秒数", parseInt)
+    .addHelpText("after", `
+Examples:
+  mir info react-hook
+  mir info react-hook --json
+  mir info react-hook --yaml
+  mir info --registry custom
+  mir info react-hook --timeout=10`)
     .action(async (name: string | undefined, opts: InfoOptions) => {
       await showSnippetInfo(name, opts);
     });

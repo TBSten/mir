@@ -538,6 +538,13 @@ export function registerInstallCommand(program: Command): void {
     .option("--quiet", "進捗ログを抑制する（エラーのみ出力）")
     .option("--timeout <seconds>", "リモート registry へのタイムアウト秒数", parseInt)
     .allowUnknownOption(true)
+    .addHelpText("after", `
+Examples:
+  mir install react-hook
+  mir install react-hook --out-dir ./src
+  mir install react-hook --dry-run
+  mir install react-hook --registry custom --no-interactive
+  mir install react-hook --framework=react --version=3.0`)
     .action(async (names: string[], opts: InstallOptions, cmd) => {
       const rawArgs: string[] = cmd.args.slice(0);
       const variableArgs = parseVariableArgs(rawArgs);

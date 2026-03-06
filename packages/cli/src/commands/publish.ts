@@ -80,6 +80,12 @@ export function registerPublishCommand(program: Command): void {
     .option("-r, --registry <name>", "登録先 registry の名前")
     .option("-f, --force", "既存の snippet を上書き", false)
     .option("--no-interactive", "対話的な確認を無効化する")
+    .addHelpText("after", `
+Examples:
+  mir publish react-hook
+  mir publish react-hook --force
+  mir publish my-component --registry custom
+  mir publish react-hook --no-interactive`)
     .action(async (name: string | undefined, opts: PublishOptions) => {
       let snippetName = name;
       if (!snippetName) {

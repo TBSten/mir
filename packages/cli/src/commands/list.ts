@@ -5,6 +5,7 @@ import {
   listRegistrySnippets,
   listRemoteSnippets,
   t,
+  type FetchOptions,
 } from "@mir/core";
 import { loadMirConfig, resolveInstallRegistries, resolveRegistryPath } from "../lib/mirconfig.js";
 import * as logger from "../lib/logger.js";
@@ -17,6 +18,8 @@ interface GlobalOptions {
 
 interface ListOptions extends GlobalOptions {
   registry?: string;
+  /** リモート registry へのタイムアウト秒数 */
+  timeout?: number;
 }
 
 interface RegistryData {
@@ -38,6 +41,10 @@ export async function listSnippets(opts: ListOptions = {}): Promise<void> {
     return;
   }
 
+  const fetchOptions: FetchOptions = opts.timeout
+    ? { timeoutMs: opts.timeout * 1000 }
+    : {};
+
   // JSON/YAML 出力モード
   if (opts.json || opts.yaml) {
     const registryDataList: RegistryData[] = [];
@@ -51,7 +58,7 @@ export async function listSnippets(opts: ListOptions = {}): Promise<void> {
           snippets: [],
         };
         try {
-          regData.snippets = await listRemoteSnippets(entry.url);
+          regData.snippets = await listRemoteSnippets(entry.url, fetchOptions);
         } catch {
           // 取得失敗時は空配列のまま
         }
@@ -91,7 +98,7 @@ export async function listSnippets(opts: ListOptions = {}): Promise<void> {
         logger.step(`${entry.name ?? "remote"} (${entry.url}):`);
       }
       try {
-        const remoteSnippets = await listRemoteSnippets(entry.url);
+        const remoteSnippets = await listRemoteSnippets(entry.url, fetchOptions);
         for (const name of remoteSnippets) {
           if (!opts.quiet) {
             logger.fileItem(name);
@@ -146,6 +153,14 @@ export function registerListCommand(program: Command): void {
     .option("--json", "JSON 形式で出力")
     .option("--yaml", "YAML 形式で出力")
     .option("--quiet", "ログ出力を抑制")
+    .option("--timeout <seconds>", "リモート registry へのタイムアウト秒数", parseInt)
+    .addHelpText("after", `
+Examples:
+  mir list
+  mir ls
+  mir list --json
+  mir list --registry custom
+  mir list --timeout=10`)
     .action(async (opts: ListOptions) => {
       await listSnippets(opts);
     });
