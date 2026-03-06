@@ -259,7 +259,14 @@ export function registerPreviewCommand(program: Command): void {
         }
         process.exit(1);
       }
-    });
+    })
+    .addHelpText("after", `
+Examples:
+  mir preview react-hook
+  mir preview react-hook --name="MyHook"
+  mir preview my-component --name="Button" --output
+  mir preview template --json
+  mir preview snippet --registry custom --dry-run`);
 }
 
 /** --key=value 形式の引数をパース */
