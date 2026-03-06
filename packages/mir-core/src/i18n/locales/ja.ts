@@ -12,6 +12,7 @@ export const ja: MessageCatalog = {
   "error.validation": "バリデーションエラー",
   "error.invalid-snippet-name": "不正な snippet 名 \"{name}\" です。英数字とハイフンのみ使用可能で、先頭は英数字にしてください",
   "error.variable-empty": "変数 \"{key}\" の値が入力されませんでした",
+  "error.variable-required": "変数 \"{key}\" の値が必要です。{hint} で指定してください",
   "error.exit-hook": "install が中止されました",
   "error.hook-input-required": "変数 \"{key}\" の入力が必要ですが、interactive mode は未対応です。default 値を指定してください",
   "error.no-snippets": "選択可能な snippet がありません",

@@ -12,6 +12,7 @@ export const en: MessageCatalog = {
   "error.validation": "Validation error",
   "error.invalid-snippet-name": "Invalid snippet name \"{name}\". Only alphanumeric characters and hyphens are allowed, and must start with an alphanumeric character",
   "error.variable-empty": "No value provided for variable \"{key}\"",
+  "error.variable-required": "Variable \"{key}\" is required. Specify it with {hint}",
   "error.exit-hook": "Installation was cancelled",
   "error.hook-input-required": "Variable \"{key}\" requires input, but interactive mode is not yet supported. Please specify a default value",
   "error.no-snippets": "No snippets available to select",

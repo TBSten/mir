@@ -10,6 +10,7 @@ export interface MessageCatalog {
   "error.validation": string;
   "error.invalid-snippet-name": string;
   "error.variable-empty": string;
+  "error.variable-required": string;
   "error.exit-hook": string;
   "error.hook-input-required": string;
   "error.no-snippets": string;
