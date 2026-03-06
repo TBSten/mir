@@ -48,6 +48,17 @@ export const ja: MessageCatalog = {
   "sync.no-new-vars": "追加する変数はありません",
   "sync.success": "{count} 件の変数を追加しました",
 
+  // search
+  "search.query-required": "検索キーワードが必要です",
+  "search.no-results": "\"{query}\" に一致する snippet が見つかりません",
+
+  // clone
+  "clone.success": "Snippet \"{name}\" を \"{alias}\" として複製しました",
+
+  // preview
+  "preview.title": "プレビュー: {name}",
+  "preview.confirm": "この snippet をインストールしますか？",
+
   // prompt
   "prompt.snippet-name": "snippet 名: ",
   "prompt.select-snippet": "snippet を選択してください",

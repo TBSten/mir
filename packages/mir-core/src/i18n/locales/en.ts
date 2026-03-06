@@ -48,6 +48,17 @@ export const en: MessageCatalog = {
   "sync.no-new-vars": "No new variables to add",
   "sync.success": "Added {count} variable(s)",
 
+  // search
+  "search.query-required": "Search query is required",
+  "search.no-results": "No snippets found matching \"{query}\"",
+
+  // clone
+  "clone.success": "Cloned snippet \"{name}\" to \"{alias}\"",
+
+  // preview
+  "preview.title": "Preview: {name}",
+  "preview.confirm": "Do you want to install this snippet?",
+
   // prompt
   "prompt.snippet-name": "Snippet name: ",
   "prompt.select-snippet": "Select a snippet",

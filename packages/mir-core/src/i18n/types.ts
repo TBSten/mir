@@ -46,6 +46,17 @@ export interface MessageCatalog {
   "sync.no-new-vars": string;
   "sync.success": string;
 
+  // search
+  "search.query-required": string;
+  "search.no-results": string;
+
+  // clone
+  "clone.success": string;
+
+  // preview
+  "preview.title": string;
+  "preview.confirm": string;
+
   // prompt
   "prompt.snippet-name": string;
   "prompt.select-snippet": string;
