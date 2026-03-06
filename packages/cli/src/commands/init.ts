@@ -171,6 +171,10 @@ export function registerInitCommand(program: Command): void {
     .command("init")
     .description(".mir ディレクトリを初期化する")
     .option("-f, --force", "既存ディレクトリを上書き", false)
+    .addHelpText("after", `
+Examples:
+  mir init
+  mir init --force`)
     .action(async (opts: { force?: boolean }) => {
       await initProject(process.cwd(), {
         force: opts.force,

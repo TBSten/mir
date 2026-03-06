@@ -58,6 +58,10 @@ export function registerSyncCommand(program: Command): void {
   program
     .command("sync [name]")
     .description("テンプレートの変数を snippet 定義に同期する")
+    .addHelpText("after", `
+Examples:
+  mir sync react-hook
+  mir sync`)
     .action(async (name: string | undefined) => {
       let snippetName = name;
       if (!snippetName) {

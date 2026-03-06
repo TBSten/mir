@@ -59,5 +59,10 @@ export function registerCreateCommand(program: Command): void {
     .action(async (name: string | undefined, opts: CreateOptions) => {
       const snippetName = name ?? await prompt(t("prompt.snippet-name"));
       createSnippet(snippetName, opts);
-    });
+    })
+    .addHelpText("after", `
+Examples:
+  mir create react-hook
+  mir create react-hook --description "Custom React Hook template"
+  mir create my-component -d "Reusable component"`);
 }
