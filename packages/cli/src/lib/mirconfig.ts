@@ -16,9 +16,7 @@ export interface RegistryEntry {
 
 export interface MirConfig {
   registries: RegistryEntry[];
-  defaults?: {
-    author?: string;
-  };
+  defaults?: Record<string, string>;
   locale?: "ja" | "en";
 }
 
@@ -121,6 +119,11 @@ export function resolveInstallRegistries(
   registryName?: string,
 ): RegistryEntry[] {
   if (registryName) {
+    // URL 形式で直接指定された場合
+    if (registryName.startsWith("http://") || registryName.startsWith("https://")) {
+      return [{ url: registryName }];
+    }
+    // registry 名で指定された場合
     const entry = config.registries.find((r) => r.name === registryName);
     if (!entry) {
       throw new RegistryNotFoundError(registryName);

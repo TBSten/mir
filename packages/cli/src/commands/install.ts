@@ -32,6 +32,7 @@ export interface InstallOptions {
   registry?: string;
   outDir?: string;
   interactive?: boolean;
+  dryRun?: boolean;
 }
 
 export function getBuiltinVariables(cwd: string): Record<string, unknown> {
@@ -68,6 +69,13 @@ export async function installSnippet(
   validateSnippetName(name);
 
   const config = loadMirConfig(configPath ? { configPath } : { cwd });
+
+  // config.defaults をマージ (variableArgs が優先)
+  if (config.defaults) {
+    const mergedArgs = { ...config.defaults, ...variableArgs };
+    Object.assign(variableArgs, mergedArgs);
+  }
+
   const registries = resolveInstallRegistries(config, opts.registry);
 
   type ResolvedSource =
@@ -134,6 +142,19 @@ export async function installSnippet(
   const outDir = opts.outDir
     ? path.resolve(cwd, opts.outDir)
     : cwd;
+
+  // dry-run モード: ファイル一覧を表示して終了
+  if (opts.dryRun) {
+    logger.info("[dry-run] 生成されるファイル:");
+    for (const filePath of expandedFiles.keys()) {
+      const displayPath = opts.outDir
+        ? path.join(opts.outDir, filePath)
+        : filePath;
+      logger.fileItem(displayPath);
+    }
+    logger.info("[dry-run] 実際のファイル書き込みは実行されていません。");
+    return;
+  }
 
   let overwriteAll = false;
 
@@ -304,6 +325,7 @@ export function registerInstallCommand(program: Command): void {
     .option("-r, --registry <name>", "検索対象 registry の名前")
     .option("-o, --out-dir <path>", "出力先ディレクトリ")
     .option("--no-interactive", "対話的な確認を無効化する")
+    .option("--dry-run", "インストール前に生成されるファイル一覧を表示")
     .allowUnknownOption(true)
     .action(async (name: string | undefined, opts: InstallOptions, cmd) => {
       let snippetName = name;
