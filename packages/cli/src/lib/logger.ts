@@ -6,8 +6,15 @@ const dim = "\x1b[2m";
 const bold = "\x1b[1m";
 const reset = "\x1b[0m";
 
+type OutputMode = "default" | "json" | "yaml" | "quiet";
+let currentOutputMode: OutputMode = "default";
+
 function write(msg: string): void {
   process.stderr.write(msg + "\n");
+}
+
+export function setOutputMode(mode: OutputMode): void {
+  currentOutputMode = mode;
 }
 
 export function success(msg: string): void {
@@ -40,4 +47,8 @@ export function fileItem(filePath: string): void {
 
 export function dirItem(dirPath: string): void {
   write(`  ${dim}📁 ${dirPath}${reset}`);
+}
+
+export function infoForOutput(data: unknown): void {
+  console.log(JSON.stringify(data, null, 2));
 }

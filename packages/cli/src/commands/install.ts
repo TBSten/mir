@@ -15,9 +15,11 @@ import {
   SnippetNotFoundError,
   PathTraversalError,
   FileConflictError,
+  findSymlinksInDirectory,
   t,
   type SnippetDefinition,
   type VariableDefinition,
+  type FetchOptions,
 } from "@mir/core";
 import {
   loadMirConfig,
@@ -26,6 +28,7 @@ import {
 } from "../lib/mirconfig.js";
 import { prompt, selectWithSuggests, confirmOverwrite } from "../lib/prompt.js";
 import { selectSnippet } from "../lib/snippet-list.js";
+import { isCIEnvironment } from "../lib/ci-detector.js";
 import * as logger from "../lib/logger.js";
 
 export interface InstallOptions {
@@ -33,6 +36,25 @@ export interface InstallOptions {
   outDir?: string;
   interactive?: boolean;
   dryRun?: boolean;
+  /** safe モード: hooks・上書き・対話を無効化する */
+  safe?: boolean;
+  /** 結果を JSON 形式で出力する */
+  json?: boolean;
+  /** 進捗ログを抑制する（エラーのみ出力） */
+  quiet?: boolean;
+  /** リモート registry へのタイムアウト秒数 */
+  timeout?: number;
+}
+
+/** install コマンドの実行結果 */
+export interface InstallResult {
+  success: boolean;
+  snippet: string;
+  variables?: Record<string, unknown>;
+  files?: string[];
+  outDir?: string;
+  error?: string;
+  code?: string;
 }
 
 export function getBuiltinVariables(cwd: string): Record<string, unknown> {
@@ -59,13 +81,44 @@ export function validateOutputPath(filePath: string, outDir: string): void {
   }
 }
 
+/**
+ * レジストリ内のシンボリックリンクをチェックする
+ * safe モードではエラー、それ以外では警告を表示する
+ */
+function checkSymlinksInRegistry(
+  registryPath: string,
+  snippetName: string,
+  safe: boolean,
+  quiet: boolean,
+): void {
+  const snippetDir = path.join(registryPath, snippetName);
+  if (!fs.existsSync(snippetDir)) return;
+
+  const { hasSymlinks, symlinkPaths } = findSymlinksInDirectory(snippetDir);
+  if (!hasSymlinks) return;
+
+  const pathList = symlinkPaths.join(", ");
+  if (safe) {
+    throw new MirError(t("error.symlink-in-snippet", { paths: pathList }));
+  } else if (!quiet) {
+    for (const symlinkPath of symlinkPaths) {
+      logger.warn(t("install.symlink-warning", { path: symlinkPath }));
+    }
+  }
+}
+
 export async function installSnippet(
   name: string,
   variableArgs: Record<string, string>,
   opts: InstallOptions = {},
   cwd: string = process.cwd(),
   configPath?: string,
-): Promise<void> {
+): Promise<InstallResult> {
+  // CI 環境では safe モードを自動適用
+  const safe = opts.safe ?? isCIEnvironment();
+  const quiet = opts.quiet ?? false;
+  const isJson = opts.json ?? false;
+
   validateSnippetName(name);
 
   const config = loadMirConfig(configPath ? { configPath } : { cwd });
@@ -78,6 +131,10 @@ export async function installSnippet(
 
   const registries = resolveInstallRegistries(config, opts.registry);
 
+  const fetchOptions: FetchOptions = opts.timeout
+    ? { timeoutMs: opts.timeout * 1000 }
+    : {};
+
   type ResolvedSource =
     | { type: "local"; registryPath: string }
     | { type: "remote"; files: Map<string, string> };
@@ -88,17 +145,21 @@ export async function installSnippet(
   for (const entry of registries) {
     if (entry.url) {
       try {
-        const remote = await fetchRemoteSnippet(entry.url, name);
+        const remote = await fetchRemoteSnippet(entry.url, name, fetchOptions);
         definition = remote.definition;
         source = { type: "remote", files: remote.files };
         break;
       } catch {
-        logger.warn(`Registry "${entry.name ?? entry.url}" から取得失敗。次の registry を試行します。`);
+        if (!quiet) {
+          logger.warn(`Registry "${entry.name ?? entry.url}" から取得失敗。次の registry を試行します。`);
+        }
         continue;
       }
     } else if (entry.path) {
       const regPath = resolveRegistryPath(entry);
       if (snippetExistsInRegistry(regPath, name)) {
+        // ローカル registry のシンボリックリンクチェック
+        checkSymlinksInRegistry(regPath, name, safe, quiet);
         definition = readSnippetFromRegistry(regPath, name);
         source = { type: "local", registryPath: regPath };
         break;
@@ -112,7 +173,9 @@ export async function installSnippet(
 
   const variableDefs = definition.variables ?? {};
   const builtinVars = getBuiltinVariables(cwd);
-  const interactive = opts.interactive !== false;
+
+  // safe モードでは対話を無効化
+  const interactive = opts.interactive !== false && !safe;
   const variables = await resolveVariables(variableDefs, variableArgs, interactive);
 
   // builtin 変数をマージ (ユーザ指定が優先)
@@ -122,16 +185,25 @@ export async function installSnippet(
     }
   }
 
-  // 変数一覧を表示
-  logVariableSummary(name, variableDefs, variables, variableArgs);
+  // 変数一覧を表示（quiet/json モードでは抑制）
+  if (!quiet && !isJson) {
+    logVariableSummary(name, variableDefs, variables, variableArgs);
+  }
 
+  // before-install hooks 実行 (safe モードではスキップ)
   if (definition.hooks?.["before-install"]?.length) {
-    const updatedVars = executeHooks(
-      definition.hooks["before-install"],
-      variables,
-      { onEcho: logger.info },
-    );
-    Object.assign(variables, updatedVars);
+    if (safe) {
+      if (!quiet) {
+        logger.warn(t("install.safe-mode-hooks-skipped"));
+      }
+    } else {
+      const updatedVars = executeHooks(
+        definition.hooks["before-install"],
+        variables,
+        { onEcho: quiet ? () => {} : logger.info },
+      );
+      Object.assign(variables, updatedVars);
+    }
   }
 
   const expandedFiles =
@@ -143,33 +215,53 @@ export async function installSnippet(
     ? path.resolve(cwd, opts.outDir)
     : cwd;
 
-  // dry-run モード: ファイル一覧を表示して終了
+  // --dry-run: ファイル一覧表示のみ
   if (opts.dryRun) {
-    logger.info("[dry-run] 生成されるファイル:");
-    for (const filePath of expandedFiles.keys()) {
-      const displayPath = opts.outDir
-        ? path.join(opts.outDir, filePath)
-        : filePath;
-      logger.fileItem(displayPath);
+    if (!quiet) {
+      logger.info(t("install.dry-run-files"));
+      for (const filePath of expandedFiles.keys()) {
+        const displayPath = opts.outDir
+          ? path.join(opts.outDir, filePath)
+          : filePath;
+        logger.fileItem(displayPath);
+      }
+      logger.info(t("install.dry-run-complete"));
     }
-    logger.info("[dry-run] 実際のファイル書き込みは実行されていません。");
-    return;
+    return {
+      success: true,
+      snippet: name,
+      variables,
+      files: [...expandedFiles.keys()].map((p) =>
+        opts.outDir ? path.join(opts.outDir, p) : p,
+      ),
+      outDir,
+    };
   }
 
   let overwriteAll = false;
+  const createdFiles: string[] = [];
 
   for (const [filePath, content] of expandedFiles) {
     validateOutputPath(filePath, outDir);
 
     const fullPath = path.join(outDir, filePath);
+    const displayPath = opts.outDir ? path.join(opts.outDir, filePath) : filePath;
 
     if (fs.existsSync(fullPath)) {
       if (overwriteAll) {
         // "all" が選択済みならそのまま上書き
+      } else if (safe) {
+        // safe モードでは上書きをスキップ（警告のみ）
+        if (!quiet) {
+          logger.warn(t("install.skip", { path: displayPath }));
+        }
+        continue;
       } else if (interactive) {
         const choice = await confirmOverwrite(filePath);
         if (choice === "no") {
-          logger.warn(t("install.skip", { path: filePath }));
+          if (!quiet) {
+            logger.warn(t("install.skip", { path: displayPath }));
+          }
           continue;
         }
         if (choice === "all") {
@@ -182,19 +274,32 @@ export async function installSnippet(
 
     fs.mkdirSync(path.dirname(fullPath), { recursive: true });
     fs.writeFileSync(fullPath, content, "utf-8");
+    createdFiles.push(displayPath);
   }
 
+  // after-install hooks 実行 (safe モードではスキップ)
   if (definition.hooks?.["after-install"]?.length) {
-    executeHooks(definition.hooks["after-install"], variables, { onEcho: logger.info });
+    if (!safe) {
+      executeHooks(definition.hooks["after-install"], variables, {
+        onEcho: quiet ? () => {} : logger.info,
+      });
+    }
   }
 
-  logger.success(t("install.success", { name }));
-  for (const filePath of expandedFiles.keys()) {
-    const displayPath = opts.outDir
-      ? path.join(opts.outDir, filePath)
-      : filePath;
-    logger.fileItem(displayPath);
+  if (!quiet && !isJson) {
+    logger.success(t("install.success", { name }));
+    for (const filePath of createdFiles) {
+      logger.fileItem(filePath);
+    }
   }
+
+  return {
+    success: true,
+    snippet: name,
+    variables,
+    files: createdFiles,
+    outDir,
+  };
 }
 
 function logVariableSummary(
@@ -317,26 +422,141 @@ export function parseVariableArgs(args: string[]): Record<string, string> {
   return result;
 }
 
+/** 複数 snippet 名をフィルタリングする（--key=value 形式を除外） */
+export function parseSnippetNames(args: string[]): string[] {
+  return args.filter((arg) => !arg.startsWith("--") && arg.trim() !== "");
+}
+
+/** 単一スニペットのインストールを実行し、json/quiet に応じて出力を制御する */
+export async function runInstallWithOutput(
+  name: string,
+  variableArgs: Record<string, string>,
+  opts: InstallOptions,
+  cwd?: string,
+  configPath?: string,
+): Promise<void> {
+  const isJson = opts.json ?? false;
+
+  if (isJson) {
+    try {
+      const result = await installSnippet(name, variableArgs, opts, cwd, configPath);
+      process.stdout.write(JSON.stringify(result) + "\n");
+    } catch (err) {
+      const errorResult: InstallResult = {
+        success: false,
+        snippet: name,
+        error: err instanceof Error ? err.message : String(err),
+        code: err instanceof MirError ? err.constructor.name : "UnknownError",
+      };
+      process.stdout.write(JSON.stringify(errorResult) + "\n");
+      process.exit(1);
+    }
+  } else {
+    await installSnippet(name, variableArgs, opts, cwd, configPath);
+  }
+}
+
+/** 複数スニペットのバッチインストール */
+export async function runBatchInstall(
+  snippetNames: string[],
+  variableArgs: Record<string, string>,
+  opts: InstallOptions,
+  cwd?: string,
+  configPath?: string,
+): Promise<void> {
+  const isJson = opts.json ?? false;
+  const quiet = opts.quiet ?? false;
+  const total = snippetNames.length;
+  const results: InstallResult[] = [];
+
+  if (!quiet && !isJson) {
+    logger.info(t("install.multiple-snippets"));
+  }
+
+  for (let i = 0; i < snippetNames.length; i++) {
+    const name = snippetNames[i];
+    const current = i + 1;
+
+    if (!quiet && !isJson) {
+      logger.step(t("install.snippet-n-of-m", { current, total, name }));
+    }
+
+    try {
+      const result = await installSnippet(name, variableArgs, opts, cwd, configPath);
+      results.push(result);
+    } catch (err) {
+      const errorResult: InstallResult = {
+        success: false,
+        snippet: name,
+        error: err instanceof Error ? err.message : String(err),
+        code: err instanceof MirError ? err.constructor.name : "UnknownError",
+      };
+      results.push(errorResult);
+
+      if (!quiet && !isJson) {
+        logger.error(err instanceof Error ? err.message : String(err));
+      }
+    }
+  }
+
+  const successCount = results.filter((r) => r.success).length;
+  const failCount = results.length - successCount;
+
+  if (isJson) {
+    process.stdout.write(
+      JSON.stringify({
+        success: failCount === 0,
+        total,
+        successCount,
+        failCount,
+        results,
+      }) + "\n",
+    );
+    if (failCount > 0) {
+      process.exit(1);
+    }
+  } else if (!quiet) {
+    logger.success(t("install.completed-multiple", { count: successCount }));
+    if (failCount > 0) {
+      logger.error(`${failCount} 個の snippet のインストールに失敗しました`);
+      process.exit(1);
+    }
+  }
+}
+
 export function registerInstallCommand(program: Command): void {
   program
-    .command("install [name]")
+    .command("install [names...]")
     .alias("i")
     .description("snippet を registry からインストールする")
     .option("-r, --registry <name>", "検索対象 registry の名前")
     .option("-o, --out-dir <path>", "出力先ディレクトリ")
     .option("--no-interactive", "対話的な確認を無効化する")
     .option("--dry-run", "インストール前に生成されるファイル一覧を表示")
+    .option("--safe", "safe モード: hooks・上書き・対話を無効化する")
+    .option("--json", "結果を JSON 形式で出力する")
+    .option("--quiet", "進捗ログを抑制する（エラーのみ出力）")
+    .option("--timeout <seconds>", "リモート registry へのタイムアウト秒数", parseInt)
     .allowUnknownOption(true)
-    .action(async (name: string | undefined, opts: InstallOptions, cmd) => {
-      let snippetName = name;
-      if (!snippetName) {
+    .action(async (names: string[], opts: InstallOptions, cmd) => {
+      const rawArgs: string[] = cmd.args.slice(0);
+      const variableArgs = parseVariableArgs(rawArgs);
+      const snippetNames = parseSnippetNames(names);
+
+      // スニペット名が指定されていない場合は interactive に選択
+      if (snippetNames.length === 0) {
         const config = loadMirConfig({ cwd: process.cwd() });
         const registries = resolveInstallRegistries(config, opts.registry);
         const allSnippets: string[] = [];
+
+        const fetchOptions: FetchOptions = opts.timeout
+          ? { timeoutMs: opts.timeout * 1000 }
+          : {};
+
         for (const entry of registries) {
           if (entry.url) {
             try {
-              const remoteNames = await listRemoteSnippets(entry.url);
+              const remoteNames = await listRemoteSnippets(entry.url, fetchOptions);
               for (const s of remoteNames) {
                 if (!allSnippets.includes(s)) {
                   allSnippets.push(s);
@@ -355,10 +575,14 @@ export function registerInstallCommand(program: Command): void {
             }
           }
         }
-        snippetName = await selectSnippet(allSnippets);
+        const selected = await selectSnippet(allSnippets);
+        snippetNames.push(selected);
       }
-      const rawArgs: string[] = cmd.args.slice(0);
-      const variableArgs = parseVariableArgs(rawArgs);
-      await installSnippet(snippetName, variableArgs, opts);
+
+      if (snippetNames.length === 1) {
+        await runInstallWithOutput(snippetNames[0], variableArgs, opts);
+      } else {
+        await runBatchInstall(snippetNames, variableArgs, opts);
+      }
     });
 }
