@@ -1,6 +1,5 @@
 import type { RegistryProvider, RegistrySnippetDetail, RegistrySnippetSummary } from "@mir/registry-sdk";
 
-// TODO: 将来的にファイルシステムやDBから読み込む
 const snippets: RegistrySnippetDetail[] = [
   {
     definition: {
@@ -38,7 +37,170 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
   return [storedValue, setValue] as const;
 }`,
       ],
-      ["index.ts", `export { useDebounce } from "./use-debounce";\nexport { useLocalStorage } from "./use-local-storage";\n`],
+      [
+        "index.ts",
+        `export { useDebounce } from "./use-debounce";\nexport { useLocalStorage } from "./use-local-storage";\n`,
+      ],
+    ]),
+  },
+  {
+    definition: {
+      name: "react-component",
+      description: "React component boilerplate with TypeScript",
+      variables: {
+        name: {
+          description: "Component name",
+          schema: { type: "string" as const },
+        },
+      },
+    },
+    files: new Map([
+      [
+        "{{ name }}.tsx",
+        `export interface {{ name }}Props {
+  children?: React.ReactNode;
+}
+
+export function {{ name }}({ children }: {{ name }}Props) {
+  return <div>{children}</div>;
+}`,
+      ],
+      [
+        "{{ name }}.test.tsx",
+        `import { render, screen } from "@testing-library/react";
+import { {{ name }} } from "./{{ name }}";
+
+test("renders children", () => {
+  render(<{{ name }}>Hello</{{ name }}>);
+  expect(screen.getByText("Hello")).toBeInTheDocument();
+});`,
+      ],
+    ]),
+  },
+  {
+    definition: {
+      name: "express-router",
+      description: "Express router with CRUD endpoints",
+      variables: {
+        name: {
+          description: "Resource name",
+          schema: { type: "string" as const },
+        },
+        method: {
+          description: "HTTP method",
+          schema: { type: "string" as const, default: "get" },
+        },
+      },
+    },
+    files: new Map([
+      [
+        "{{ name }}.router.ts",
+        `import { Router } from "express";
+
+const router = Router();
+
+router.{{ method }}("/{{ name }}", (req, res) => {
+  res.json({ message: "{{ name }} endpoint" });
+});
+
+router.{{ method }}("/{{ name }}/:id", (req, res) => {
+  res.json({ id: req.params.id });
+});
+
+export default router;`,
+      ],
+      [
+        "{{ name }}.router.test.ts",
+        `import request from "supertest";
+import express from "express";
+import router from "./{{ name }}.router";
+
+const app = express();
+app.use(router);
+
+test("{{ method }} /{{ name }}", async () => {
+  const res = await request(app).{{ method }}("/{{ name }}");
+  expect(res.status).toBe(200);
+});`,
+      ],
+    ]),
+  },
+  {
+    definition: {
+      name: "nextjs-page",
+      description: "Next.js App Router page with layout",
+      variables: {
+        name: {
+          description: "Page name (used as route segment)",
+          schema: { type: "string" as const },
+        },
+      },
+    },
+    files: new Map([
+      [
+        "{{ name }}/page.tsx",
+        `export default function {{ name }}Page() {
+  return (
+    <main>
+      <h1>{{ name }}</h1>
+    </main>
+  );
+}`,
+      ],
+      [
+        "{{ name }}/layout.tsx",
+        `export default function {{ name }}Layout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <section>{children}</section>;
+}`,
+      ],
+      [
+        "{{ name }}/loading.tsx",
+        `export default function {{ name }}Loading() {
+  return <div>Loading...</div>;
+}`,
+      ],
+    ]),
+  },
+  {
+    definition: {
+      name: "vitest-setup",
+      description: "Vitest configuration and test utilities",
+      variables: {},
+    },
+    files: new Map([
+      [
+        "vitest.config.ts",
+        `import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: "node",
+    include: ["**/*.test.{ts,tsx}"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+    },
+  },
+});`,
+      ],
+      [
+        "test/setup.ts",
+        `// Global test setup
+// Add any global mocks or configuration here
+
+beforeAll(() => {
+  // Setup before all tests
+});
+
+afterAll(() => {
+  // Cleanup after all tests
+});`,
+      ],
     ]),
   },
 ];
