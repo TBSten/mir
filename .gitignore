@@ -11,3 +11,4 @@ dist/
 # Tools
 .playwright-mcp/
 .claude/
+.mir/
