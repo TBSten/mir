@@ -18,17 +18,51 @@ export interface RemoteSnippet {
   files: Map<string, string>;
 }
 
+/**
+ * キャッシュエントリの型
+ */
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
+const CACHE_TTL_MS = 60000; // 60秒
+const manifestCache = new Map<string, CacheEntry<RegistryManifest>>();
+const snippetListCache = new Map<string, CacheEntry<string[]>>();
+
+/**
+ * キャッシュが有効か確認
+ */
+function isCacheValid<T>(entry: CacheEntry<T>): boolean {
+  return Date.now() - entry.timestamp < CACHE_TTL_MS;
+}
+
+/**
+ * すべてのリモート registry キャッシュをクリア
+ */
+export function clearAllRemoteRegistryCaches(): void {
+  manifestCache.clear();
+  snippetListCache.clear();
+}
+
 function normalizeBaseUrl(baseUrl: string): string {
   return baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
 }
 
 /**
- * マニフェスト (index.json) を取得する
+ * マニフェスト (index.json) を取得する（キャッシュ付き）
  */
 export async function fetchRegistryManifest(
   baseUrl: string,
 ): Promise<RegistryManifest> {
-  const url = `${normalizeBaseUrl(baseUrl)}/index.json`;
+  const normalizedUrl = normalizeBaseUrl(baseUrl);
+  const cached = manifestCache.get(normalizedUrl);
+
+  if (cached && isCacheValid(cached)) {
+    return cached.data;
+  }
+
+  const url = `${normalizedUrl}/index.json`;
   let res: Response;
   try {
     res = await fetch(url);
@@ -47,17 +81,38 @@ export async function fetchRegistryManifest(
   ) {
     throw new InvalidManifestError(url);
   }
-  return data as RegistryManifest;
+
+  const manifest = data as RegistryManifest;
+  manifestCache.set(normalizedUrl, {
+    data: manifest,
+    timestamp: Date.now(),
+  });
+
+  return manifest;
 }
 
 /**
- * リモート registry の snippet 名一覧を返す
+ * リモート registry の snippet 名一覧を返す（キャッシュ付き）
  */
 export async function listRemoteSnippets(
   baseUrl: string,
 ): Promise<string[]> {
+  const normalizedUrl = normalizeBaseUrl(baseUrl);
+  const cached = snippetListCache.get(normalizedUrl);
+
+  if (cached && isCacheValid(cached)) {
+    return cached.data;
+  }
+
   const manifest = await fetchRegistryManifest(baseUrl);
-  return Object.keys(manifest.snippets);
+  const snippetList = Object.keys(manifest.snippets);
+
+  snippetListCache.set(normalizedUrl, {
+    data: snippetList,
+    timestamp: Date.now(),
+  });
+
+  return snippetList;
 }
 
 /**

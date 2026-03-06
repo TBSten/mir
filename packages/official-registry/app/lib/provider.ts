@@ -5,6 +5,7 @@ const snippets: RegistrySnippetDetail[] = [
     definition: {
       name: "react-hook",
       description: "A set of useful React hooks for common tasks",
+      tags: ["react", "hooks", "typescript"],
       variables: {},
     },
     files: new Map([
@@ -47,6 +48,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     definition: {
       name: "react-component",
       description: "React component boilerplate with TypeScript",
+      tags: ["react", "component", "typescript"],
       variables: {
         name: {
           description: "Component name",
@@ -81,6 +83,7 @@ test("renders children", () => {
     definition: {
       name: "express-router",
       description: "Express router with CRUD endpoints",
+      tags: ["express", "api", "typescript"],
       variables: {
         name: {
           description: "Resource name",
@@ -129,6 +132,7 @@ test("{{ method }} /{{ name }}", async () => {
     definition: {
       name: "nextjs-page",
       description: "Next.js App Router page with layout",
+      tags: ["nextjs", "react", "typescript"],
       variables: {
         name: {
           description: "Page name (used as route segment)",
@@ -169,6 +173,7 @@ test("{{ method }} /{{ name }}", async () => {
     definition: {
       name: "vitest-setup",
       description: "Vitest configuration and test utilities",
+      tags: ["vitest", "testing", "typescript"],
       variables: {},
     },
     files: new Map([

@@ -33,6 +33,7 @@ export interface Action {
 export interface SnippetDefinition {
   name: string;
   description?: string;
+  tags?: string[];
   variables?: Record<string, VariableDefinition>;
   hooks?: {
     "before-install"?: Action[];

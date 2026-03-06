@@ -1,0 +1,6 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Story 37: mirconfig defaults > defaults で共通変数が自動設定される 1`] = `
+"// Author: tbsten
+export function myFunc() {}"
+`;
