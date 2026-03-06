@@ -56,6 +56,9 @@ npm run mir -- --help              # CLI 動作確認
 
 | Command | Description |
 |---|---|
+| `mir init` | `.mir/` ディレクトリを初期化（サンプル snippet、config, README 生成） |
+| `mir list` / `mir ls` | 利用可能な snippet を一覧表示（ローカル・リモート） |
+| `mir info <name>` | snippet の詳細情報を表示（変数一覧など） |
 | `mir create <name>` | `.mir/snippets/` に snippet の雛形を作成 |
 | `mir publish <name>` | snippet をローカル registry に登録 |
 | `mir install <name>` | registry から snippet をインストール |
