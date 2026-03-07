@@ -81,19 +81,12 @@ jobs:
   verify-packages:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          registry-url: 'https://registry.npmjs.org'
-
       - name: Verify published packages
         run: |
           echo "Verifying npm packages are accessible..."
           npm view @tbsten/mir-core@alpha version
           npm view @tbsten/mir-registry-sdk@alpha version
           npm view @tbsten/mir@alpha version
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_READ }}
         continue-on-error: true
 
   e2e-tests:
