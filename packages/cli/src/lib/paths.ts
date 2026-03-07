@@ -36,3 +36,7 @@ export function mirconfigPath(): string {
 export function defaultRegistryPath(): string {
   return expandTilde("~/.mir/registry");
 }
+
+export function installFailuresPath(): string {
+  return expandTilde("~/.mir/install-failures.json");
+}

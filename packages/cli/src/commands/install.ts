@@ -30,6 +30,11 @@ import { prompt, selectWithSuggests, confirmOverwrite } from "../lib/prompt.js";
 import { selectSnippet } from "../lib/snippet-list.js";
 import { isCIEnvironment } from "../lib/ci-detector.js";
 import * as logger from "../lib/logger.js";
+import { printBatchSummary, type BatchSummaryItem } from "../lib/batch-summary.js";
+import {
+  getFailedSnippetNames,
+  clearInstallFailures,
+} from "../lib/install-failures.js";
 
 export interface InstallOptions {
   registry?: string;
@@ -46,6 +51,8 @@ export interface InstallOptions {
   timeout?: number;
   /** バッチインストール時、エラーが発生しても続行する */
   skipErrors?: boolean;
+  /** 前回失敗したスニペットをもう一度インストール */
+  retryFailed?: boolean;
 }
 
 /** install コマンドの実行結果 */
@@ -481,6 +488,7 @@ export async function runBatchInstall(
   const skipErrors = opts.skipErrors ?? false;
   const total = snippetNames.length;
   const results: InstallResult[] = [];
+  let aborted = false;
 
   if (!quiet && !isJson) {
     logger.info(t("install.multiple-snippets"));
@@ -495,8 +503,18 @@ export async function runBatchInstall(
     }
 
     try {
-      const result = await installSnippet(name, variableArgs, opts, cwd, configPath);
-      results.push(result);
+      if (aborted) {
+        // 前の処理で中止されているので、スキップ結果を記録
+        results.push({
+          success: false,
+          snippet: name,
+          error: "Skipped due to previous error",
+          code: "SkippedError",
+        });
+      } else {
+        const result = await installSnippet(name, variableArgs, opts, cwd, configPath);
+        results.push(result);
+      }
     } catch (err) {
       const errorResult: InstallResult = {
         success: false,
@@ -512,24 +530,16 @@ export async function runBatchInstall(
 
       // skipErrors が false の場合はここで中断
       if (!skipErrors) {
-        if (isJson) {
-          process.stdout.write(
-            JSON.stringify({
-              success: false,
-              total,
-              successCount: results.filter((r) => r.success).length,
-              failCount: results.filter((r) => !r.success).length,
-              results,
-            }) + "\n",
-          );
-        }
-        process.exit(1);
+        aborted = true;
       }
     }
   }
 
   const successCount = results.filter((r) => r.success).length;
-  const failCount = results.length - successCount;
+  const failCount = results.filter((r) => !r.success).length;
+  const skippedCount = results.filter(
+    (r) => r.code === "SkippedError",
+  ).length;
 
   if (isJson) {
     process.stdout.write(
@@ -538,6 +548,7 @@ export async function runBatchInstall(
         total,
         successCount,
         failCount,
+        skippedCount,
         results,
       }) + "\n",
     );
@@ -545,9 +556,19 @@ export async function runBatchInstall(
       process.exit(1);
     }
   } else if (!quiet) {
-    logger.success(t("install.completed-multiple", { count: successCount }));
+    // Batch summary を表示
+    const summaryItems: BatchSummaryItem[] = results.map((r) => ({
+      name: r.snippet,
+      status: r.success
+        ? "success"
+        : r.code === "SkippedError"
+          ? "skipped"
+          : "failure",
+      error: r.error,
+    }));
+    printBatchSummary(summaryItems);
+
     if (failCount > 0) {
-      logger.error(t("install.failed-multiple", { count: failCount }));
       process.exit(1);
     }
   }
@@ -568,6 +589,7 @@ export function registerInstallCommand(program: Command): void {
     .option("--skip-errors", "バッチインストール時、エラーが発生しても続行する")
     .option("--file <path>", "スニペット名を列挙したファイルを読み込む")
     .option("--timeout <seconds>", "リモート registry へのタイムアウト秒数", parseInt)
+    .option("--retry-failed", "前回失敗したスニペットをもう一度インストール")
     .allowUnknownOption(true)
     .addHelpText("after", `
 Examples:
@@ -578,10 +600,22 @@ Examples:
   mir install react-hook --file snippets.txt
   mir install react-hook --registry custom --no-interactive
   mir install react-hook --framework=react --version=3.0`)
-    .action(async (names: string[], opts: InstallOptions & { file?: string }, cmd) => {
+    .action(async (names: string[], opts: InstallOptions & { file?: string; retryFailed?: boolean }, cmd) => {
       const rawArgs: string[] = cmd.args.slice(0);
       const variableArgs = parseVariableArgs(rawArgs);
       let snippetNames = parseSnippetNames(names);
+
+      // --retry-failed の場合は前回失敗したスニペットを読み込む
+      if (opts.retryFailed) {
+        const failedNames = getFailedSnippetNames();
+        if (failedNames.length === 0) {
+          logger.info(t("error.no-failed-snippets"));
+          process.exit(0);
+        }
+        snippetNames = failedNames;
+        // 成功時に履歴をクリアするために記録しておく
+        logger.info(`Retrying ${failedNames.length} failed snippet(s)...`);
+      }
 
       // --file オプションで指定されたファイルからスニペット名を読み込む
       if (opts.file) {
@@ -637,8 +671,16 @@ Examples:
 
       if (snippetNames.length === 1) {
         await runInstallWithOutput(snippetNames[0], variableArgs, opts);
+        // 成功時は失敗履歴をクリア
+        if (opts.retryFailed) {
+          clearInstallFailures();
+        }
       } else {
         await runBatchInstall(snippetNames, variableArgs, opts);
+        // 成功時は失敗履歴をクリア
+        if (opts.retryFailed) {
+          clearInstallFailures();
+        }
       }
     });
 }

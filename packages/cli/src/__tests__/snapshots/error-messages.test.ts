@@ -18,6 +18,10 @@ describe("エラーメッセージ snapshot (日本語)", () => {
     expect(new SnippetNotFoundError("my-comp").message).toMatchSnapshot();
   });
 
+  it("SnippetNotFoundError - details", () => {
+    expect(new SnippetNotFoundError("my-comp").details).toMatchSnapshot();
+  });
+
   it("SnippetAlreadyExistsError", () => {
     expect(new SnippetAlreadyExistsError("my-comp").message).toMatchSnapshot();
   });
@@ -47,6 +51,11 @@ describe("エラーメッセージ snapshot (英語)", () => {
   it("SnippetNotFoundError", () => {
     setLocale("en");
     expect(new SnippetNotFoundError("my-comp").message).toMatchSnapshot();
+  });
+
+  it("SnippetNotFoundError - details", () => {
+    setLocale("en");
+    expect(new SnippetNotFoundError("my-comp").details).toMatchSnapshot();
   });
 
   it("SnippetAlreadyExistsError", () => {

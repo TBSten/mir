@@ -23,6 +23,7 @@ export interface MessageCatalog {
   "error.safe-mode-overwrite": string;
   "error.file-not-found": string;
   "error.file-read-failed": string;
+  "error.snippet-not-found-details": string;
 
   // create
   "create.success": string;
@@ -53,6 +54,9 @@ export interface MessageCatalog {
   "search.query-required": string;
   "search.no-results": string;
 
+  // error specific
+  "error.no-failed-snippets": string;
+
   // clone
   "clone.success": string;
 
@@ -70,6 +74,14 @@ export interface MessageCatalog {
   "prompt.use-default-value": string;
   "prompt.yes-no-all": string;
   "prompt.yes-no": string;
+
+  // batch-summary
+  "batch-summary.results": string;
+  "batch-summary.success": string;
+  "batch-summary.failure": string;
+  "batch-summary.skipped": string;
+  "batch-summary.counts": string;
+  "batch-summary.retry-hint": string;
 
   // general
   "general.variables": string;

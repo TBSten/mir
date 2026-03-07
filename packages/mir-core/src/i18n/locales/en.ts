@@ -25,6 +25,7 @@ export const en: MessageCatalog = {
   "error.safe-mode-overwrite": "Overwriting existing files is not allowed in safe mode: {path}",
   "error.file-not-found": "File \"{path}\" not found",
   "error.file-read-failed": "Failed to read file \"{path}\"",
+  "error.snippet-not-found-details": "\nPossible causes:\n1. Typo in snippet name\n2. Snippet not registered in registry\n3. No access permission to registry\n\nWays to check:\n• mir list              - Show available snippets\n• mir search <keyword> - Search by keyword\n• mir info <name>      - Show snippet details",
 
   // create
   "create.success": "Created snippet \"{name}\"",
@@ -55,6 +56,9 @@ export const en: MessageCatalog = {
   "search.query-required": "Search query is required",
   "search.no-results": "No snippets found matching \"{query}\"",
 
+  // error specific
+  "error.no-failed-snippets": "No failed snippet history",
+
   // clone
   "clone.success": "Cloned snippet \"{name}\" to \"{alias}\"",
 
@@ -72,6 +76,14 @@ export const en: MessageCatalog = {
   "prompt.use-default-value": "Press Enter to use default \"{value}\"",
   "prompt.yes-no-all": "(y/n/a): ",
   "prompt.yes-no": "(y/N): ",
+
+  // batch-summary
+  "batch-summary.results": "Installation results:",
+  "batch-summary.success": "Success",
+  "batch-summary.failure": "Failed",
+  "batch-summary.skipped": "Skipped",
+  "batch-summary.counts": "Success: {success}/{total}, Failed: {failure}/{total}, Skipped: {skipped}/{total}",
+  "batch-summary.retry-hint": "💡 To retry failed snippets: mir install --retry-failed",
 
   // general
   "general.variables": "Variables:",
