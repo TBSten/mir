@@ -2,17 +2,24 @@ import type { Context } from "hono";
 import type { RegistryProvider } from "@tbsten/mir-registry-sdk";
 import { staticProvider } from "./provider.js";
 import { createD1Provider } from "./d1-provider.js";
+import { createInMemoryProvider } from "./in-memory-store.js";
+
+// dev 環境用のモジュールレベル InMemory プロバイダー（プロセス内で持続）
+const devProvider = createInMemoryProvider();
 
 /**
  * リクエストコンテキストから適切なプロバイダーを取得
- * Dev 環境では staticProvider を使用
- * 本番環境では D1Provider を使用
+ * Dev 環境では InMemory を使用（プロセス内でデータが持続）
+ * 本番環境では D1Provider を使用（フォールバック付き）
  */
 export function getProvider(c: Context): RegistryProvider {
-  // Dev 環境では常に staticProvider を使用
-  const isDev = (c.env as any)?.ENVIRONMENT === "development" || !((c.env as any)?.D1);
+  // Dev 環境では常に InMemory を使用
+  const isDev =
+    process.env.DEV_MODE === "true" ||
+    process.env.NODE_ENV === "development" ||
+    typeof (c.env as any)?.D1 === "undefined";
   if (isDev) {
-    return staticProvider;
+    return devProvider;
   }
 
   const db = (c.env as any)?.D1;
@@ -21,6 +28,13 @@ export function getProvider(c: Context): RegistryProvider {
     return createFallbackProvider(d1Provider, staticProvider);
   }
   return staticProvider;
+}
+
+/**
+ * dev 環境用プロバイダーを取得（テスト・デバッグ用）
+ */
+export function getDevProvider(): RegistryProvider {
+  return devProvider;
 }
 
 /**
