@@ -4,11 +4,11 @@ import { SearchInput } from "../components/search-input.js";
 import { SnippetCard } from "../components/snippet-card.js";
 import { TerminalDemo } from "../components/terminal-demo.js";
 import type { TerminalLine } from "../components/terminal-demo.js";
-import { SITE_DESCRIPTION } from "../lib/constants.js";
+import { SITE_DESCRIPTION, INSTALL_COMMAND } from "../lib/constants.js";
 import { staticProvider } from "../lib/provider.js";
 
 const terminalLines: TerminalLine[] = [
-  { type: "command", prompt: "$", text: "mir install @tbsten/react-hooks" },
+  { type: "command", prompt: "$", text: "npx @tbsten/mir install @tbsten/react-hooks" },
   { type: "output", text: "resolving dependencies..." },
   { type: "output", text: "downloading @tbsten/react-hooks@2.1.0" },
   { type: "output", text: "extracting files..." },
@@ -45,7 +45,7 @@ export default createRoute(async (c) => {
             href="/docs"
             class="bg-sky-500 px-6 py-3 font-mono text-sm font-medium text-white hover:bg-sky-600"
           >
-            $ mir install mir
+            $ {INSTALL_COMMAND} install mir
           </a>
           <a
             href="/docs"
