@@ -8,5 +8,5 @@ export type {
 export { createRegistryRoutes } from "./routes.js";
 export { createStaticProtocolRoutes } from "./static-routes.js";
 
-// @mir/core の型を re-export
-export type { SnippetDefinition } from "@mir/core";
+// @tbsten/mir-core の型を re-export
+export type { SnippetDefinition } from "@tbsten/mir-core";

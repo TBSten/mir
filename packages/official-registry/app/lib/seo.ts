@@ -2,7 +2,7 @@
  * SEO ユーティリティ
  * OGP meta タグ、Sitemap、robots.txt の生成
  */
-import type { RegistryProvider } from "@mir/registry-sdk";
+import type { RegistryProvider } from "@tbsten/mir-registry-sdk";
 import { SITE_NAME } from "./constants.js";
 
 export interface MetaTags {

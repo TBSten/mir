@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { serializeSnippetYaml } from "@mir/core";
+import { serializeSnippetYaml } from "@tbsten/mir-core";
 import type { RegistryProvider } from "./types.js";
 
 /**

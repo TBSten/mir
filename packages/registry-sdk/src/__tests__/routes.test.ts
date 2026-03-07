@@ -5,7 +5,7 @@
 import { describe, it, expect } from "vitest";
 import { createRegistryRoutes } from "../routes.js";
 import type { RegistryProvider, RegistrySnippetDetail } from "../types.js";
-import type { SnippetDefinition } from "@mir/core";
+import type { SnippetDefinition } from "@tbsten/mir-core";
 
 function createMockProvider(
   snippets: Array<{

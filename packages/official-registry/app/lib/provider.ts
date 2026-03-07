@@ -3,7 +3,7 @@ import type {
   RegistrySnippetDetail,
   RegistrySnippetSummary,
   SnippetVersionEntry,
-} from "@mir/registry-sdk";
+} from "@tbsten/mir-registry-sdk";
 
 const snippets: RegistrySnippetDetail[] = [
   {

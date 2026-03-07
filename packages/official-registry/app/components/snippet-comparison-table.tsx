@@ -1,4 +1,4 @@
-import type { RegistrySnippetDetail } from "@mir/registry-sdk";
+import type { RegistrySnippetDetail } from "@tbsten/mir-registry-sdk";
 import { Tag } from "./tag.js";
 
 interface SnippetComparisonTableProps {

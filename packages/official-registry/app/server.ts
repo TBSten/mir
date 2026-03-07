@@ -1,5 +1,5 @@
 import { createApp } from "honox/server";
-import { createRegistryRoutes, createStaticProtocolRoutes } from "@mir/registry-sdk";
+import { createRegistryRoutes, createStaticProtocolRoutes } from "@tbsten/mir-registry-sdk";
 import { staticProvider } from "./lib/provider.js";
 import { buildRobotsTxt, buildSitemap } from "./lib/seo.js";
 

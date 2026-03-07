@@ -89,11 +89,11 @@ $ mir sync my-awesome-snippet`}
           Build Custom Registry
         </h2>
         <p class="font-body text-sm text-sky-600">
-          Want to maintain your own registry? Use @mir/registry-sdk:
+          Want to maintain your own registry? Use @tbsten/mir-registry-sdk:
         </p>
         <CodeBlock
           fileName="registry.ts"
-          code={`import { createRegistryRoutes } from "@mir/registry-sdk";
+          code={`import { createRegistryRoutes } from "@tbsten/mir-registry-sdk";
 
 // Implement your own RegistryProvider
 const provider = {

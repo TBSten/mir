@@ -2,7 +2,7 @@
  * snippet 比較テーブルコンポーネントのユニットテスト
  */
 import { describe, it, expect } from "vitest";
-import type { RegistrySnippetDetail } from "@mir/registry-sdk";
+import type { RegistrySnippetDetail } from "@tbsten/mir-registry-sdk";
 
 describe("SnippetComparisonTable", () => {
   it("should render comparison table with correct structure", () => {

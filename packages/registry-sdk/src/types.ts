@@ -1,4 +1,4 @@
-import type { SnippetDefinition } from "@mir/core";
+import type { SnippetDefinition } from "@tbsten/mir-core";
 
 /** snippet のメタ情報 (一覧用) */
 export interface RegistrySnippetSummary {

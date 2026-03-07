@@ -5,7 +5,7 @@ import { DirectoryTree } from "../../components/directory-tree.js";
 import { Tag } from "../../components/tag.js";
 import { NotFoundError, renderError } from "../../lib/errors.js";
 import { staticProvider } from "../../lib/provider.js";
-import { serializeSnippetYaml } from "@mir/core";
+import { serializeSnippetYaml } from "@tbsten/mir-core";
 import { GITHUB_ISSUES_URL } from "../../lib/constants.js";
 import yaml from "js-yaml";
 
