@@ -5,12 +5,17 @@ import {
   listTemplateFiles,
   readTemplateFile,
 } from "./registry.js";
+import { HELPER_NAMES, registerHelpers } from "./helpers/index.js";
+
+// 隔離インスタンスを作成しヘルパーを登録
+const hbs = Handlebars.create();
+registerHelpers(hbs);
 
 export function expandTemplate(
   template: string,
   variables: Record<string, unknown>,
 ): string {
-  const compiled = Handlebars.compile(template, { noEscape: true });
+  const compiled = hbs.compile(template, { noEscape: true });
   return compiled(variables);
 }
 
@@ -23,30 +28,50 @@ export function expandPath(
   return path.normalize(expanded);
 }
 
+/** Handlebars 組み込みヘルパー名 */
+const BUILTIN_HELPERS = new Set([
+  "if",
+  "unless",
+  "each",
+  "with",
+  "lookup",
+  "log",
+]);
+
 export function extractVariables(template: string): string[] {
   const ast = Handlebars.parse(template);
   const vars = new Set<string>();
 
-  function visitExpression(expr: hbs.AST.Expression): void {
+  function collectVarFromExpression(expr: hbs.AST.Expression): void {
     if (expr.type === "PathExpression") {
       const pathExpr = expr as hbs.AST.PathExpression;
       vars.add(pathExpr.parts[0]);
+    } else if (expr.type === "SubExpression") {
+      // サブ式: {{lowercase (replace name "/" ".")}} 等
+      const sub = expr as hbs.AST.SubExpression;
+      // sub.path はヘルパー名なのでスキップ、params のみ抽出
+      if (sub.params) {
+        for (const param of sub.params) collectVarFromExpression(param);
+      }
     }
   }
 
   function visit(node: hbs.AST.Node): void {
     if (node.type === "MustacheStatement") {
       const stmt = node as hbs.AST.MustacheStatement;
-      if (stmt.path) visitExpression(stmt.path);
-      if (stmt.params) {
-        for (const param of stmt.params) visitExpression(param);
+      if (stmt.params && stmt.params.length > 0) {
+        // ヘルパー呼び出し: path はヘルパー名なのでスキップ、params のみ変数抽出
+        for (const param of stmt.params) collectVarFromExpression(param);
+      } else {
+        // 単純な変数参照: {{name}}
+        if (stmt.path) collectVarFromExpression(stmt.path);
       }
     }
     if (node.type === "BlockStatement") {
       const block = node as hbs.AST.BlockStatement;
       // #if, #unless, #each 等のパラメータから変数を抽出
       if (block.params) {
-        for (const param of block.params) visitExpression(param);
+        for (const param of block.params) collectVarFromExpression(param);
       }
       if (block.program) visit(block.program);
       if (block.inverse) visit(block.inverse);
@@ -59,6 +84,11 @@ export function extractVariables(template: string): string[] {
   }
 
   visit(ast);
+
+  // ヘルパー名・組み込みヘルパー名を除外
+  for (const name of HELPER_NAMES) vars.delete(name);
+  for (const name of BUILTIN_HELPERS) vars.delete(name);
+
   return [...vars];
 }
 

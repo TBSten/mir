@@ -44,6 +44,9 @@ export {
   expandTemplateDirectory,
 } from "./template-engine.js";
 
+// helpers
+export { HELPER_NAMES } from "./helpers/index.js";
+
 // hooks
 export { ExitHookError, executeHooks } from "./hooks.js";
 export type { HookExecutionOptions } from "./hooks.js";

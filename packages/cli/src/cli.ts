@@ -21,7 +21,7 @@ const program = new Command();
 program
   .name("mir")
   .description("スニペットを配布・取得する CLI ツール")
-  .version(__PKG_VERSION__)
+  .version(__PKG_VERSION__, "-v, -V, --version")
   .showHelpAfterError(true)
   .option("--config <path>", "設定ファイルパス (デフォルト: ~/.mir/config.yaml)")
   .option("--locale <lang>", "UI 言語 (ja|en)")

@@ -100,6 +100,109 @@ describe("extractVariables", () => {
   });
 });
 
+describe("expandTemplate with helpers", () => {
+  it("lowercase ヘルパー", () => {
+    expect(expandTemplate("{{lowercase name}}", { name: "HELLO" })).toBe("hello");
+  });
+
+  it("uppercase ヘルパー", () => {
+    expect(expandTemplate("{{uppercase name}}", { name: "hello" })).toBe("HELLO");
+  });
+
+  it("replace ヘルパー", () => {
+    expect(
+      expandTemplate('{{replace package "/" "."}}', { package: "com/example/app" }),
+    ).toBe("com.example.app");
+  });
+
+  it("camelCase ヘルパー", () => {
+    expect(expandTemplate("{{camelCase name}}", { name: "my-component" })).toBe(
+      "myComponent",
+    );
+  });
+
+  it("pascalCase ヘルパー", () => {
+    expect(expandTemplate("{{pascalCase name}}", { name: "my-component" })).toBe(
+      "MyComponent",
+    );
+  });
+
+  it("snakeCase ヘルパー", () => {
+    expect(expandTemplate("{{snakeCase name}}", { name: "myComponent" })).toBe(
+      "my_component",
+    );
+  });
+
+  it("kebabCase ヘルパー", () => {
+    expect(expandTemplate("{{kebabCase name}}", { name: "MyComponent" })).toBe(
+      "my-component",
+    );
+  });
+
+  it("capitalize ヘルパー", () => {
+    expect(expandTemplate("{{capitalize name}}", { name: "hello" })).toBe("Hello");
+  });
+
+  it("uncapitalize ヘルパー", () => {
+    expect(expandTemplate("{{uncapitalize name}}", { name: "Hello" })).toBe("hello");
+  });
+
+  it("trim ヘルパー", () => {
+    expect(expandTemplate("{{trim name}}", { name: "  hello  " })).toBe("hello");
+  });
+
+  it("サブ式（ネスト）: lowercase(replace(...))", () => {
+    expect(
+      expandTemplate('{{lowercase (replace name "/" ".")}}', {
+        name: "COM/EXAMPLE/APP",
+      }),
+    ).toBe("com.example.app");
+  });
+
+  it("サブ式（ネスト）: pascalCase(replace(...))", () => {
+    expect(
+      expandTemplate('{{pascalCase (replace pkg "/" "-")}}', {
+        pkg: "my/cool/component",
+      }),
+    ).toBe("MyCoolComponent");
+  });
+});
+
+describe("extractVariables with helpers", () => {
+  it("ヘルパー名を変数に含めない", () => {
+    const vars = extractVariables("{{lowercase name}}");
+    expect(vars).toContain("name");
+    expect(vars).not.toContain("lowercase");
+  });
+
+  it("replace ヘルパーで変数のみ抽出", () => {
+    const vars = extractVariables('{{replace package "/" "."}}');
+    expect(vars).toContain("package");
+    expect(vars).not.toContain("replace");
+  });
+
+  it("サブ式でもヘルパー名を除外", () => {
+    const vars = extractVariables('{{lowercase (replace name "/" ".")}}');
+    expect(vars).toContain("name");
+    expect(vars).not.toContain("lowercase");
+    expect(vars).not.toContain("replace");
+  });
+
+  it("ヘルパーと通常変数が混在", () => {
+    const vars = extractVariables("{{name}} {{lowercase title}}");
+    expect(vars).toContain("name");
+    expect(vars).toContain("title");
+    expect(vars).not.toContain("lowercase");
+  });
+
+  it("組み込みヘルパー (if/each) も変数に含めない", () => {
+    const vars = extractVariables("{{#if enabled}}{{name}}{{/if}}");
+    expect(vars).toContain("enabled");
+    expect(vars).toContain("name");
+    expect(vars).not.toContain("if");
+  });
+});
+
 describe("extractVariablesFromDirectory", () => {
   let tmpDir: string;
 
