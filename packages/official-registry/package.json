@@ -13,7 +13,7 @@
     "test:vrt": "playwright test --grep @vrt"
   },
   "dependencies": {
-    "@mir/registry-sdk": "*",
+    "@tbsten/registry-sdk": "*",
     "hono": "^4.12.5",
     "honox": "^0.1.54"
   },
