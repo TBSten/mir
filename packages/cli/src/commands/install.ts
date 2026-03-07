@@ -602,6 +602,12 @@ Examples:
   mir install react-hook --framework=react --version=3.0`)
     .action(async (names: string[], opts: InstallOptions & { file?: string; retryFailed?: boolean }, cmd) => {
       const rawArgs: string[] = cmd.args.slice(0);
+
+      // --no-interactive フラグを process.argv から直接チェック
+      if (process.argv.includes("--no-interactive")) {
+        opts.interactive = false;
+      }
+
       const variableArgs = parseVariableArgs(rawArgs);
       let snippetNames = parseSnippetNames(names);
 

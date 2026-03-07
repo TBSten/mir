@@ -14,4 +14,7 @@ export default defineConfig({
     build(),
     tailwindcss(),
   ],
+  ssr: {
+    external: ["handlebars"],
+  },
 });
