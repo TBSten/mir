@@ -23,7 +23,7 @@ export function createD1Provider(db: D1Database): RegistryProvider {
           description: row.description || undefined,
         }));
       } catch (e) {
-        console.error("D1 list() error:", e);
+        // Silently fall back to empty list on D1 error (e.g., in dev environment)
         return [];
       }
     },
@@ -68,7 +68,7 @@ export function createD1Provider(db: D1Database): RegistryProvider {
           files,
         };
       } catch (e) {
-        console.error("D1 get() error:", e);
+        
         return null;
       }
     },
@@ -95,7 +95,7 @@ export function createD1Provider(db: D1Database): RegistryProvider {
           description: row.description || undefined,
         }));
       } catch (e) {
-        console.error("D1 search() error:", e);
+        
         return [];
       }
     },
@@ -130,7 +130,7 @@ export function createD1Provider(db: D1Database): RegistryProvider {
           description: row.description || undefined,
         }));
       } catch (e) {
-        console.error("D1 getVersionHistory() error:", e);
+        
         return [];
       }
     },
@@ -152,7 +152,7 @@ export function createD1Provider(db: D1Database): RegistryProvider {
           return [];
         }
       } catch (e) {
-        console.error("D1 getDependencies() error:", e);
+        
         return [];
       }
     },
