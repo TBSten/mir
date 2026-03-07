@@ -5,6 +5,10 @@
   "exports": {
     ".": "./src/index.ts"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "dependencies": {
     "handlebars": "^4.7.8",
     "js-yaml": "^4.1.1"

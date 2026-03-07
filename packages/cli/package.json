@@ -4,7 +4,7 @@
   "description": "スニペット(ディレクトリ構造含む)を配布・取得するCLIツール",
   "type": "module",
   "bin": {
-    "mir": "./dist/cli.js"
+    "mir": "dist/cli.js"
   },
   "scripts": {
     "build": "tsup",
@@ -23,6 +23,10 @@
   "files": [
     "dist"
   ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^22",
