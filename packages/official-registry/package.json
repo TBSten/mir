@@ -1,6 +1,6 @@
 {
   "name": "@mir/official-registry",
-  "version": "0.0.1-alpha03",
+  "version": "0.0.1-alpha04",
   "description": "mir 公式 Registry（HonoX + Cloudflare Pages）",
   "private": true,
   "type": "module",
