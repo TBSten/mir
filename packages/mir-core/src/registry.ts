@@ -40,6 +40,8 @@ export function listTemplateFiles(
   return listFilesRecursive(dirPath, "");
 }
 
+const IGNORED_FILES = new Set([".DS_Store", "Thumbs.db", "desktop.ini"]);
+
 function listFilesRecursive(basePath: string, relativePath: string): string[] {
   const fullPath = relativePath
     ? path.join(basePath, relativePath)
@@ -48,6 +50,7 @@ function listFilesRecursive(basePath: string, relativePath: string): string[] {
   const files: string[] = [];
 
   for (const entry of entries) {
+    if (IGNORED_FILES.has(entry.name)) continue;
     const entryRelative = relativePath
       ? path.join(relativePath, entry.name)
       : entry.name;

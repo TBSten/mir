@@ -7,8 +7,6 @@ import { confirm } from "../lib/prompt.js";
 
 const SNIPPETS_SUBDIR = "snippets";
 const CONFIG_FILE = "mirconfig.yaml";
-const README_FILE = "README.md";
-
 const SAMPLE_SNIPPET_YAML = `name: hello-world
 description: シンプルな Hello World スニペット
 
@@ -36,36 +34,6 @@ registry:
     path: ~/.mir/registry
 `;
 
-const README = `# mir Project
-
-このディレクトリは [mir](https://github.com/tbsten/mir) で管理されています。
-
-## ファイル構成
-
-\`\`\`
-.mir/
-├── mirconfig.yaml  # 設定ファイル
-├── README.md       # このファイル
-└── snippets/       # snippet 定義
-    └── hello-world.yaml
-\`\`\`
-
-## コマンド
-
-- \`mir list\` - 利用可能な snippet を一覧表示
-- \`mir info <name>\` - snippet の詳細情報を表示
-- \`mir install <name>\` - snippet をインストール
-- \`mir create <name>\` - 新しい snippet を作成
-- \`mir publish <name>\` - snippet を registry に登録
-
-## 次のステップ
-
-1. \`mir create my-snippet\` で新しい snippet を作成
-2. テンプレートファイルを編集
-3. \`mir publish my-snippet\` で registry に登録
-4. 別プロジェクトで \`mir install my-snippet\` でインストール
-`;
-
 export async function initProject(
   cwd: string = process.cwd(),
   opts: { force?: boolean; interactive?: boolean } = {}
@@ -73,7 +41,6 @@ export async function initProject(
   const mirDir = path.join(cwd, ".mir");
   const snippetsDir = path.join(mirDir, SNIPPETS_SUBDIR);
   const configPath = path.join(cwd, CONFIG_FILE);
-  const readmePath = path.join(cwd, README_FILE);
 
   // .mir ディレクトリが既に存在する場合
   if (fs.existsSync(mirDir)) {
@@ -83,9 +50,6 @@ export async function initProject(
       // 設定ファイルも削除
       if (fs.existsSync(configPath)) {
         fs.unlinkSync(configPath);
-      }
-      if (fs.existsSync(readmePath)) {
-        fs.unlinkSync(readmePath);
       }
       logger.warn("既存の .mir/ ディレクトリを削除します");
     } else if (opts.interactive) {
@@ -101,9 +65,6 @@ export async function initProject(
       // 設定ファイルも削除
       if (fs.existsSync(configPath)) {
         fs.unlinkSync(configPath);
-      }
-      if (fs.existsSync(readmePath)) {
-        fs.unlinkSync(readmePath);
       }
     } else {
       // 非対話モード: エラー
@@ -135,12 +96,6 @@ export async function initProject(
       logger.success("✓ mirconfig.yaml を作成しました");
     }
 
-    // README.md を作成
-    if (!fs.existsSync(readmePath)) {
-      fs.writeFileSync(readmePath, README, "utf-8");
-      logger.success("✓ README.md を作成しました");
-    }
-
     logger.info("");
     logger.step("初期化が完了しました!");
     logger.info("\n次のステップ:");
@@ -154,9 +109,6 @@ export async function initProject(
     }
     if (fs.existsSync(configPath)) {
       fs.unlinkSync(configPath);
-    }
-    if (fs.existsSync(readmePath)) {
-      fs.unlinkSync(readmePath);
     }
 
     if (error instanceof Error) {

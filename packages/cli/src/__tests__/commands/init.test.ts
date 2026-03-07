@@ -85,8 +85,6 @@ describe("initProject", () => {
       fs.existsSync(path.join(tmpDir, ".mir/snippets/hello-world/hello.txt"))
     ).toBe(true);
     expect(fs.existsSync(path.join(tmpDir, "mirconfig.yaml"))).toBe(true);
-    expect(fs.existsSync(path.join(tmpDir, "README.md"))).toBe(true);
-
     // 古いファイルが削除されていることを確認
     expect(fs.existsSync(path.join(mirDir, "old-file.txt"))).toBe(false);
   });
@@ -136,8 +134,6 @@ describe("initProject", () => {
       fs.existsSync(path.join(tmpDir, ".mir/snippets/hello-world/hello.txt"))
     ).toBe(true);
     expect(fs.existsSync(path.join(tmpDir, "mirconfig.yaml"))).toBe(true);
-    expect(fs.existsSync(path.join(tmpDir, "README.md"))).toBe(true);
-
     // 古いファイルが削除されていることを確認
     expect(fs.existsSync(path.join(mirDir, "old-file.txt"))).toBe(false);
   });
@@ -221,6 +217,5 @@ describe("initProject", () => {
       fs.existsSync(path.join(tmpDir, ".mir/snippets/hello-world/hello.txt"))
     ).toBe(true);
     expect(fs.existsSync(path.join(tmpDir, "mirconfig.yaml"))).toBe(true);
-    expect(fs.existsSync(path.join(tmpDir, "README.md"))).toBe(true);
   });
 });

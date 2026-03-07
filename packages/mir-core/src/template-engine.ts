@@ -62,12 +62,15 @@ export function extractVariables(template: string): string[] {
   return [...vars];
 }
 
+const IGNORED_FILES = new Set([".DS_Store", "Thumbs.db", "desktop.ini"]);
+
 export function extractVariablesFromDirectory(dirPath: string): string[] {
   const allVars = new Set<string>();
 
   function walkDir(currentPath: string): void {
     const entries = fs.readdirSync(currentPath, { withFileTypes: true });
     for (const entry of entries) {
+      if (IGNORED_FILES.has(entry.name)) continue;
       const fullPath = path.join(currentPath, entry.name);
       if (entry.isDirectory()) {
         // ディレクトリ名からも変数を抽出
