@@ -49,10 +49,12 @@ export function SnippetCard({
     const data = await res.json();
     const el = document.getElementById('installs-${name}');
     if (el) {
-      el.textContent = \`↓ \${data.count}\`;
+      el.textContent = '↓ ' + data.count;
     }
   } catch (e) {
-    console.error('Failed to load stats:', e);
+    const error = e instanceof Error ? e.message : String(e);
+    console.error('Failed to load stats:', error);
+    console.error('Error details:', e);
   }
 })();
 `}</script>
