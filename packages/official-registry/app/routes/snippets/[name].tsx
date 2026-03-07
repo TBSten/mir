@@ -214,7 +214,7 @@ function PopularityBadge({ name }: { name: string }) {
     const data = await res.json();
     const badge = document.getElementById('popularity-badge-${name}');
     if (badge) {
-      badge.textContent = \`↓ \${data.count}\`;
+      badge.textContent = '↓ ' + data.count;
     }
   } catch (e) {
     console.error('Failed to load stats:', e);
