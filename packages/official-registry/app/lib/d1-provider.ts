@@ -8,126 +8,151 @@ import type {
 export function createD1Provider(db: D1Database): RegistryProvider {
   return {
     async list(): Promise<RegistrySnippetSummary[]> {
-      const result = await db
-        .prepare("SELECT name, version, description FROM snippets ORDER BY name")
-        .all();
+      try {
+        const result = await db
+          .prepare("SELECT name, version, description FROM snippets ORDER BY name")
+          .all();
 
-      if (!result.success) {
+        if (!result.success) {
+          return [];
+        }
+
+        return (result.results || []).map((row: any) => ({
+          name: row.name,
+          version: row.version || undefined,
+          description: row.description || undefined,
+        }));
+      } catch (e) {
+        console.error("D1 list() error:", e);
         return [];
       }
-
-      return (result.results || []).map((row: any) => ({
-        name: row.name,
-        version: row.version || undefined,
-        description: row.description || undefined,
-      }));
     },
 
     async get(name: string): Promise<RegistrySnippetDetail | null> {
-      const snippetResult = await db
-        .prepare("SELECT * FROM snippets WHERE name = ?")
-        .bind(name)
-        .first();
+      try {
+        const snippetResult = await db
+          .prepare("SELECT * FROM snippets WHERE name = ?")
+          .bind(name)
+          .first();
 
-      if (!snippetResult) {
+        if (!snippetResult) {
+          return null;
+        }
+
+        const filesResult = await db
+          .prepare("SELECT file_path, content FROM snippet_files WHERE snippet_id = ?")
+          .bind(snippetResult.id)
+          .all();
+
+        const files = new Map<string, string>();
+        if (filesResult.success && filesResult.results) {
+          for (const row of filesResult.results as any[]) {
+            files.set(row.file_path, row.content);
+          }
+        }
+
+        return {
+          definition: {
+            name: String(snippetResult.name),
+            version: snippetResult.version ? String(snippetResult.version) : undefined,
+            description: snippetResult.description ? String(snippetResult.description) : undefined,
+            tags: snippetResult.tags ? JSON.parse(String(snippetResult.tags)) : undefined,
+            variables: snippetResult.variables
+              ? JSON.parse(String(snippetResult.variables))
+              : undefined,
+            dependencies: snippetResult.dependencies
+              ? JSON.parse(String(snippetResult.dependencies))
+              : undefined,
+            hooks: snippetResult.hooks ? JSON.parse(String(snippetResult.hooks)) : undefined,
+          },
+          files,
+        };
+      } catch (e) {
+        console.error("D1 get() error:", e);
         return null;
       }
-
-      const filesResult = await db
-        .prepare("SELECT file_path, content FROM snippet_files WHERE snippet_id = ?")
-        .bind(snippetResult.id)
-        .all();
-
-      const files = new Map<string, string>();
-      if (filesResult.success && filesResult.results) {
-        for (const row of filesResult.results as any[]) {
-          files.set(row.file_path, row.content);
-        }
-      }
-
-      return {
-        definition: {
-          name: String(snippetResult.name),
-          version: snippetResult.version ? String(snippetResult.version) : undefined,
-          description: snippetResult.description ? String(snippetResult.description) : undefined,
-          tags: snippetResult.tags ? JSON.parse(String(snippetResult.tags)) : undefined,
-          variables: snippetResult.variables
-            ? JSON.parse(String(snippetResult.variables))
-            : undefined,
-          dependencies: snippetResult.dependencies
-            ? JSON.parse(String(snippetResult.dependencies))
-            : undefined,
-          hooks: snippetResult.hooks ? JSON.parse(String(snippetResult.hooks)) : undefined,
-        },
-        files,
-      };
     },
 
     async search(query: string): Promise<RegistrySnippetSummary[]> {
-      const searchQuery = `%${query}%`;
-      const result = await db
-        .prepare(
-          `SELECT name, version, description FROM snippets
-           WHERE name LIKE ? OR description LIKE ?
-           ORDER BY name`,
-        )
-        .bind(searchQuery, searchQuery)
-        .all();
+      try {
+        const searchQuery = `%${query}%`;
+        const result = await db
+          .prepare(
+            `SELECT name, version, description FROM snippets
+             WHERE name LIKE ? OR description LIKE ?
+             ORDER BY name`,
+          )
+          .bind(searchQuery, searchQuery)
+          .all();
 
-      if (!result.success) {
+        if (!result.success) {
+          return [];
+        }
+
+        return (result.results || []).map((row: any) => ({
+          name: row.name,
+          version: row.version || undefined,
+          description: row.description || undefined,
+        }));
+      } catch (e) {
+        console.error("D1 search() error:", e);
         return [];
       }
-
-      return (result.results || []).map((row: any) => ({
-        name: row.name,
-        version: row.version || undefined,
-        description: row.description || undefined,
-      }));
     },
 
     async getVersionHistory(name: string): Promise<SnippetVersionEntry[]> {
-      const snippetResult = await db
-        .prepare("SELECT id FROM snippets WHERE name = ?")
-        .bind(name)
-        .first();
+      try {
+        const snippetResult = await db
+          .prepare("SELECT id FROM snippets WHERE name = ?")
+          .bind(name)
+          .first();
 
-      if (!snippetResult) {
+        if (!snippetResult) {
+          return [];
+        }
+
+        const result = await db
+          .prepare(
+            `SELECT version, description, published_at FROM snippet_versions
+             WHERE snippet_id = ?
+             ORDER BY published_at DESC`,
+          )
+          .bind(snippetResult.id)
+          .all();
+
+        if (!result.success) {
+          return [];
+        }
+
+        return (result.results || []).map((row: any) => ({
+          version: row.version,
+          publishedAt: row.published_at || new Date().toISOString(),
+          description: row.description || undefined,
+        }));
+      } catch (e) {
+        console.error("D1 getVersionHistory() error:", e);
         return [];
       }
-
-      const result = await db
-        .prepare(
-          `SELECT version, description, published_at FROM snippet_versions
-           WHERE snippet_id = ?
-           ORDER BY published_at DESC`,
-        )
-        .bind(snippetResult.id)
-        .all();
-
-      if (!result.success) {
-        return [];
-      }
-
-      return (result.results || []).map((row: any) => ({
-        version: row.version,
-        publishedAt: row.published_at || new Date().toISOString(),
-        description: row.description || undefined,
-      }));
     },
 
     async getDependencies(name: string): Promise<string[]> {
-      const result = await db
-        .prepare("SELECT dependencies FROM snippets WHERE name = ?")
-        .bind(name)
-        .first();
-
-      if (!result || !result.dependencies) {
-        return [];
-      }
-
       try {
-        return JSON.parse(String(result.dependencies)) || [];
-      } catch {
+        const result = await db
+          .prepare("SELECT dependencies FROM snippets WHERE name = ?")
+          .bind(name)
+          .first();
+
+        if (!result || !result.dependencies) {
+          return [];
+        }
+
+        try {
+          return JSON.parse(String(result.dependencies)) || [];
+        } catch {
+          return [];
+        }
+      } catch (e) {
+        console.error("D1 getDependencies() error:", e);
         return [];
       }
     },
