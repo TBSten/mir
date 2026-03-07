@@ -26,12 +26,23 @@ mir プロジェクトの自動化ワークフロー説明。
 
 ### 2. Publish (publish.yml)
 
-**トリガー**: Git tag を push（`v*` パターン）
+**トリガー**: GitHub Release を publish（作成）
 
-**例:**
+**実行方法:**
+
+**方法 1: GitHub UI（推奨）**
+1. https://github.com/tbsten/mir/releases → "Draft a new release"
+2. Tag version: `v0.0.1-alpha02`
+3. Title: `Release v0.0.1-alpha02`
+4. Description: 変更内容を記入
+5. "Publish release" をクリック
+
+**方法 2: gh CLI**
 ```bash
-git tag v0.0.1-alpha02
-git push origin v0.0.1-alpha02
+gh release create v0.0.1-alpha02 \
+  --title "Release v0.0.1-alpha02" \
+  --notes "変更内容..." \
+  --prerelease
 ```
 
 **実行内容:**
@@ -41,7 +52,6 @@ git push origin v0.0.1-alpha02
    - @tbsten/mir-registry-sdk --tag alpha
    - @tbsten/mir --tag alpha
 3. Cloudflare Pages デプロイ
-4. GitHub Release 作成
 
 **実行時間**: 約 5-10 分
 
@@ -124,34 +134,54 @@ Cloudflare アカウント ID。
 
 ## 実行フロー
 
-### 通常フロー（Tag push）
+### 通常フロー（Release 作成）
 
 ```
-git tag v0.0.1-alpha02
-git push origin v0.0.1-alpha02
+GitHub UI or gh CLI: Release を作成
+(v0.0.1-alpha02 のタグとメモを設定)
     ↓
-GitHub Actions: CI チェック
+"Publish release" をクリック
     ↓
-GitHub Actions: npm publish
-    ↓
-GitHub Actions: Cloudflare deploy
-    ↓
-GitHub Actions: Release 作成
+GitHub Actions: Publish ワークフロー開始
+    ├→ CI チェック (test/build/typecheck)
+    ├→ npm publish (3パッケージ)
+    ├→ Cloudflare deploy
+    └→ 完了通知
     ↓
 ✅ 完了
 ```
 
-### 緊急フロー（手動実行）
+**例:**
+```bash
+# GitHub UI で作成: Releases → "Draft a new release"
+# または CLI で作成:
+gh release create v0.0.1-alpha02 \
+  --title "Release v0.0.1-alpha02" \
+  --notes "新機能..." \
+  --prerelease
+```
+
+### 別フロー（手動実行 - 柔軟な制御）
+
+Release を作成せずに npm/CF のみをデプロイしたい場合：
 
 ```
-GitHub UI → "Manual Publish" → Run workflow
+GitHub UI → Actions → "Manual Publish" → "Run workflow"
     ↓
-パラメータ入力（version, publish?, deploy?）
+パラメータ入力
+  - version: 0.0.1-alpha02
+  - publish_npm: true/false
+  - deploy_cf: true/false
     ↓
 GitHub Actions: 実行
     ↓
-✅ 完了
+✅ 完了（Release なし）
 ```
+
+用途：
+- npm だけ公開したい
+- Cloudflare だけデプロイしたい
+- Release を別途管理したい
 
 ---
 
