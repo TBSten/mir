@@ -1,6 +1,6 @@
 {
   "name": "@mir/official-registry",
-  "version": "0.0.1-alpha",
+  "version": "0.0.1-alpha01",
   "private": true,
   "type": "module",
   "scripts": {

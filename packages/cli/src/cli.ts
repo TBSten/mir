@@ -19,7 +19,7 @@ const program = new Command();
 program
   .name("mir")
   .description("スニペットを配布・取得する CLI ツール")
-  .version("0.0.1-alpha")
+  .version("0.0.1-alpha01")
   .showHelpAfterError(true)
   .option("--config <path>", "設定ファイルパス (デフォルト: ~/.mir/config.yaml)")
   .option("--locale <lang>", "UI 言語 (ja|en)")
