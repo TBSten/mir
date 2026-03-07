@@ -6,7 +6,7 @@ export default defineConfig({
   target: "node18",
   clean: true,
   dts: true,
-  noExternal: ["@mir/core"],
+  external: ["@tbsten/mir-core"],
   banner: {
     js: "#!/usr/bin/env node",
   },

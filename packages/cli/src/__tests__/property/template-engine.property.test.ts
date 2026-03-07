@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import fc from "fast-check";
-import { expandTemplate, expandPath, extractVariables } from "@mir/core";
+import { expandTemplate, expandPath, extractVariables } from "@tbsten/mir-core";
 
 describe("expandTemplate property-based", () => {
   it("空テンプレートは空文字を返す", () => {

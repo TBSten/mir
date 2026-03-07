@@ -9,7 +9,7 @@ import {
   SnippetNotFoundError,
   SnippetAlreadyExistsError,
   ValidationError,
-} from "@mir/core";
+} from "@tbsten/mir-core";
 
 vi.mock("../../lib/logger.js", () => ({
   success: vi.fn(),

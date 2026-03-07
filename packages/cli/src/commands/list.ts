@@ -6,7 +6,7 @@ import {
   listRemoteSnippets,
   t,
   type FetchOptions,
-} from "@mir/core";
+} from "@tbsten/mir-core";
 import { loadMirConfig, resolveInstallRegistries, resolveRegistryPath } from "../lib/mirconfig.js";
 import * as logger from "../lib/logger.js";
 

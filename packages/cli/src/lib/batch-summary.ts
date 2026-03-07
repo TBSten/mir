@@ -1,4 +1,4 @@
-import { t } from "@mir/core";
+import { t } from "@tbsten/mir-core";
 import * as logger from "./logger.js";
 import {
   saveInstallFailures,

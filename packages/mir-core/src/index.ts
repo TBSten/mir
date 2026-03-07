@@ -63,7 +63,6 @@ export {
 export {
   fetchRegistryManifest,
   listRemoteSnippets,
-  searchRemoteSnippets,
   fetchSnippetDefinition,
   fetchRemoteFiles,
   fetchRemoteSnippet,

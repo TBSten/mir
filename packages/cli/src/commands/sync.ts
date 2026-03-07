@@ -7,7 +7,7 @@ import {
   extractVariablesFromDirectory,
   SnippetNotFoundError,
   t,
-} from "@mir/core";
+} from "@tbsten/mir-core";
 import { snippetYamlPath, snippetDirPath } from "../lib/paths.js";
 import { listLocalSnippets, selectSnippet } from "../lib/snippet-list.js";
 import * as logger from "../lib/logger.js";

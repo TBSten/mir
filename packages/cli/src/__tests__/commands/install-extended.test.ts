@@ -15,7 +15,7 @@ import {
   MirError,
   SnippetNotFoundError,
   type SnippetDefinition,
-} from "@mir/core";
+} from "@tbsten/mir-core";
 
 // prompt モジュールをモック
 vi.mock("../../lib/prompt.js", () => ({

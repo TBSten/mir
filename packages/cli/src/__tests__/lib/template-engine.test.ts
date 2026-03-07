@@ -8,7 +8,7 @@ import {
   expandTemplateDirectory,
   extractVariables,
   extractVariablesFromDirectory,
-} from "@mir/core";
+} from "@tbsten/mir-core";
 
 describe("expandTemplate", () => {
   it("単純な変数を展開する", () => {

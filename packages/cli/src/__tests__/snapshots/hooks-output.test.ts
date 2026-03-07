@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { executeHooks, type Action } from "@mir/core";
+import { executeHooks, type Action } from "@tbsten/mir-core";
 
 describe("executeHooks snapshot", () => {
   it("echo アクションの変数返却値", () => {

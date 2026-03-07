@@ -7,7 +7,7 @@ import {
   SnippetAlreadyExistsError,
   t,
   type SnippetDefinition,
-} from "@mir/core";
+} from "@tbsten/mir-core";
 import { snippetYamlPath, snippetDirPath, snippetsBasePath } from "../lib/paths.js";
 import { prompt } from "../lib/prompt.js";
 import * as logger from "../lib/logger.js";

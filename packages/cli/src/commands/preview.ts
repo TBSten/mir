@@ -11,7 +11,7 @@ import {
   t,
   type SnippetDefinition,
   type FetchOptions,
-} from "@mir/core";
+} from "@tbsten/mir-core";
 import {
   loadMirConfig,
   resolveInstallRegistries,

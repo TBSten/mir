@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { t } from "@mir/core";
+import { t } from "@tbsten/mir-core";
 import { snippetsBasePath } from "./paths.js";
 import { selectWithSuggests } from "./prompt.js";
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { validateSnippetName, ValidationError } from "@mir/core";
+import { validateSnippetName, ValidationError } from "@tbsten/mir-core";
 
 describe("validateSnippetName", () => {
   it("有効な名前を受け入れる", () => {

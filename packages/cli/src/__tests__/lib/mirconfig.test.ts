@@ -13,7 +13,7 @@ import {
 import {
   RegistryNotFoundError,
   RegistryRemoteError,
-} from "@mir/core";
+} from "@tbsten/mir-core";
 import type { MirConfig } from "../../lib/mirconfig.js";
 
 let tmpDir: string;

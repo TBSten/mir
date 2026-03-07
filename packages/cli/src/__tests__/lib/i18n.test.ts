@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { t, setLocale, getLocale } from "@mir/core";
+import { t, setLocale, getLocale } from "@tbsten/mir-core";
 
 afterEach(() => {
   setLocale("ja");

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import fc from "fast-check";
 import { validateOutputPath, parseVariableArgs } from "../../commands/install.js";
-import { PathTraversalError } from "@mir/core";
+import { PathTraversalError } from "@tbsten/mir-core";
 
 const safePathChar = fc.constantFrom(..."abcdefghijklmnopqrstuvwxyz0123456789_-.");
 

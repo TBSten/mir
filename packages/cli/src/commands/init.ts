@@ -1,7 +1,7 @@
 import type { Command } from "commander";
 import fs from "node:fs";
 import path from "node:path";
-import { MirError, t } from "@mir/core";
+import { MirError, t } from "@tbsten/mir-core";
 import * as logger from "../lib/logger.js";
 import { confirm } from "../lib/prompt.js";
 

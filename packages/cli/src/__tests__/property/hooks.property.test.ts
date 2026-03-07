@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import fc from "fast-check";
-import { executeHooks, ExitHookError, type Action } from "@mir/core";
+import { executeHooks, ExitHookError, type Action } from "@tbsten/mir-core";
 
 describe("executeHooks property-based", () => {
   it("echo アクションを渡しても変数は変更されない", () => {

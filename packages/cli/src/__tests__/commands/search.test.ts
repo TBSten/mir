@@ -29,16 +29,10 @@ vi.mock("../../lib/mirconfig.js", async () => {
 import * as mirconfig from "../../lib/mirconfig.js";
 
 // remote-registry と registry をモック
-vi.mock("@mir/core", async () => {
-  const actual = await vi.importActual<any>("@mir/core");
+vi.mock("@tbsten/mir-core", async () => {
+  const actual = await vi.importActual<any>("@tbsten/mir-core");
   return {
     ...actual,
-    searchRemoteSnippets: vi.fn(async (baseUrl: string, query: string) => {
-      // baseUrl が含まれる registry のデータを返す
-      const allSnippets = remoteSnippets[baseUrl] || [];
-      const lowerQuery = query.toLowerCase();
-      return allSnippets.filter((name) => name.toLowerCase().includes(lowerQuery));
-    }),
     listRemoteSnippets: vi.fn(async (baseUrl: string) => {
       return remoteSnippets[baseUrl] || [];
     }),

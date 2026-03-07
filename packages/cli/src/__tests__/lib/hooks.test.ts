@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { executeHooks, ExitHookError, MirError } from "@mir/core";
+import { executeHooks, ExitHookError, MirError } from "@tbsten/mir-core";
 
 describe("executeHooks", () => {
   it("echo アクションでメッセージを表示する", () => {

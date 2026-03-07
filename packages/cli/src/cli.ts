@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { MirError, SnippetNotFoundError, setLocale, type Locale } from "@mir/core";
+import { MirError, SnippetNotFoundError, setLocale, type Locale } from "@tbsten/mir-core";
 import { registerCreateCommand } from "./commands/create.js";
 import { registerPublishCommand } from "./commands/publish.js";
 import { registerInstallCommand } from "./commands/install.js";

@@ -9,7 +9,7 @@ import {
   SnippetNotFoundError,
   SnippetAlreadyExistsError,
   t,
-} from "@mir/core";
+} from "@tbsten/mir-core";
 import { snippetYamlPath, snippetDirPath } from "../lib/paths.js";
 import {
   loadMirConfig,

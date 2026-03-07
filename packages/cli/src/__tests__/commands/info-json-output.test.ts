@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import yaml from "js-yaml";
 import { showSnippetInfo } from "../../commands/info.js";
-import { SnippetNotFoundError, type SnippetDefinition } from "@mir/core";
+import { SnippetNotFoundError, type SnippetDefinition } from "@tbsten/mir-core";
 
 // logger モジュールをモック
 vi.mock("../../lib/logger.js", () => ({

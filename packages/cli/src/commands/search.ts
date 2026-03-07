@@ -2,11 +2,10 @@ import type { Command } from "commander";
 import fs from "node:fs";
 import path from "node:path";
 import {
-  searchRemoteSnippets,
   listRemoteSnippets,
   listRegistrySnippets,
   t,
-} from "@mir/core";
+} from "@tbsten/mir-core";
 import { loadMirConfig, resolveInstallRegistries, resolveRegistryPath } from "../lib/mirconfig.js";
 import * as logger from "../lib/logger.js";
 
@@ -59,7 +58,11 @@ export async function searchSnippets(query: string, opts: SearchOptions = {}): P
           snippets: [],
         };
         try {
-          result.snippets = await searchRemoteSnippets(entry.url, query);
+          const allSnippets = await listRemoteSnippets(entry.url);
+          const lowerQuery = query.toLowerCase();
+          result.snippets = allSnippets.filter((name) =>
+            name.toLowerCase().includes(lowerQuery),
+          );
         } catch {
           // 検索失敗時は空配列のまま
         }
@@ -98,7 +101,11 @@ export async function searchSnippets(query: string, opts: SearchOptions = {}): P
   for (const entry of registries) {
     if (entry.url) {
       try {
-        const searchResults = await searchRemoteSnippets(entry.url, query);
+        const allSnippets = await listRemoteSnippets(entry.url);
+        const lowerQuery = query.toLowerCase();
+        const searchResults = allSnippets.filter((name) =>
+          name.toLowerCase().includes(lowerQuery),
+        );
         if (searchResults.length > 0) {
           if (!opts.quiet) {
             logger.step(`${entry.name ?? "remote"} (${entry.url}):`);

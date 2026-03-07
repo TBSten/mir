@@ -12,7 +12,7 @@ import {
   type SnippetDefinition,
   type VariableDefinition,
   type FetchOptions,
-} from "@mir/core";
+} from "@tbsten/mir-core";
 import {
   loadMirConfig,
   resolveInstallRegistries,

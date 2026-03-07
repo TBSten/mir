@@ -25,7 +25,7 @@ import {
   parseSnippetYaml,
   serializeSnippetYaml,
   type SnippetDefinition,
-} from "@mir/core";
+} from "@tbsten/mir-core";
 
 // TODO: 現時点では理想の挙動をテストケースとして記述。後で有効化する。
 

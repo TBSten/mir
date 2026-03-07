@@ -4,7 +4,7 @@ import {
   serializeSnippetYaml,
   validateSnippetDefinition,
   ValidationError,
-} from "@mir/core";
+} from "@tbsten/mir-core";
 
 describe("parseSnippetYaml", () => {
   it("最小限の YAML をパースする", () => {

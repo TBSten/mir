@@ -6,7 +6,7 @@ import {
   validateSnippetDefinition,
   ValidationError,
   type SnippetDefinition,
-} from "@mir/core";
+} from "@tbsten/mir-core";
 
 const alphaNumChar = fc.constantFrom(..."abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 const alphaNumHyphenChar = fc.constantFrom(..."abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-");

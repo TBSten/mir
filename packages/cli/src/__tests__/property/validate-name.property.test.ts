@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import fc from "fast-check";
-import { validateSnippetName, ValidationError } from "@mir/core";
+import { validateSnippetName, ValidationError } from "@tbsten/mir-core";
 
 const VALID_NAME_PATTERN = /^[a-zA-Z0-9][a-zA-Z0-9-]*$/;
 

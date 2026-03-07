@@ -7,7 +7,7 @@ import { createSnippet } from "../../commands/create.js";
 import {
   SnippetAlreadyExistsError,
   ValidationError,
-} from "@mir/core";
+} from "@tbsten/mir-core";
 
 vi.mock("../../lib/logger.js", () => ({
   success: vi.fn(),

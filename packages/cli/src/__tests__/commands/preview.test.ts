@@ -7,7 +7,7 @@ import { previewSnippet, type PreviewOptions } from "../../commands/preview.js";
 import {
   SnippetNotFoundError,
   type SnippetDefinition,
-} from "@mir/core";
+} from "@tbsten/mir-core";
 
 // prompt をモック
 vi.mock("../../lib/prompt.js", () => ({

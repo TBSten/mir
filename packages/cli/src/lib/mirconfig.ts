@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import yaml from "js-yaml";
-import { RegistryNotFoundError, RegistryRemoteError } from "@mir/core";
+import { RegistryNotFoundError, RegistryRemoteError } from "@tbsten/mir-core";
 import {
   expandTilde,
   globalConfigPath,

@@ -7,7 +7,7 @@ import {
   RegistryRemoteError,
   PathTraversalError,
   FileConflictError,
-} from "@mir/core";
+} from "@tbsten/mir-core";
 
 afterEach(() => {
   setLocale("ja");

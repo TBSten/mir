@@ -7,7 +7,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { initProject } from "../../commands/init.js";
-import { MirError } from "@mir/core";
+import { MirError } from "@tbsten/mir-core";
 
 // prompt モジュールをモック
 vi.mock("../../lib/prompt.js", () => ({
