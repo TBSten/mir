@@ -45,7 +45,7 @@ export default createRoute(async (c) => {
             href="/docs"
             class="bg-sky-500 px-6 py-3 font-mono text-sm font-medium text-white hover:bg-sky-600"
           >
-            $ {INSTALL_COMMAND} install mir
+            $ {INSTALL_COMMAND} -h
           </a>
           <a
             href="/docs"
