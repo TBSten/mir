@@ -1,163 +1,168 @@
 # GitHub Actions Secrets セットアップガイド
 
-GitHub Actions ワークフローで必要な secrets 設定。
+GitHub Actions ワークフローで必要な secrets 設定。読み書き権限を分離してセキュリティを強化。
 
-## 📋 必要な Secrets
+## 📋 必要な Secrets（合計 5つ）
 
-| Secret | 用途 | 必須 | 取得難度 |
-|--------|------|------|--------|
-| `NPM_TOKEN` | npm パッケージ公開 | ✅ | 🟢 中 |
-| `CLOUDFLARE_API_TOKEN` | Cloudflare Pages デプロイ | ✅ | 🟡 高 |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare アカウント ID | ✅ | 🟢 低 |
+### 🔍 CI/Test 用（読み取り専用）
+
+| Secret | 用途 | 権限 |
+|--------|------|------|
+| `NPM_TOKEN_READ` | npm info で package 確認 | Read-only |
+| `CLOUDFLARE_API_TOKEN_READ` | ヘルスチェック等 | Read-only |
+
+### 🚀 Deploy 用（書き込み権限）
+
+| Secret | 用途 | 権限 |
+|--------|------|------|
+| `NPM_TOKEN_PUBLISH` | npm パッケージ公開 | Read & Write (Publish) |
+| `CLOUDFLARE_API_TOKEN_DEPLOY` | Cloudflare Pages デプロイ | Edit |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare アカウント ID | - |
 
 ---
 
-## 1️⃣ NPM_TOKEN
+## 1️⃣ NPM_TOKEN_READ (CI 用・読み取り専用)
 
 ### 説明
-npm registry への認証トークン。`npm publish` に使用。
+npm registry への読み取り専用トークン。CI で `npm view`/`npm info` を実行する際に使用。
 
 ### 取得方法
 
-**Step 1: npm.js にアクセス**
-```
-https://www.npmjs.com/settings/tbsten/tokens
-```
-
-**Step 2: 新規トークン作成**
-- "Generate New Token" をクリック
-- Type: **Granular Access Token** を選択
-
-**Step 3: 権限設定**
-```
-Permissions:
-  ✅ Package access (read & write)
-    - @tbsten/* に対して read & write 可能
-  ✅ Organization access (read & write)
-  ✅ Bypass 2FA for publish ← 重要！
-```
-
-**Step 4: トークンをコピー**
-```
-npm_xxxxxxxxxxxxxxxxxxxxxxxxxx
-```
+1. https://www.npmjs.com/settings/tbsten/tokens にアクセス
+2. "Generate New Token" → **Granular Access Token** を選択
+3. **権限設定（読み取り専用）:**
+   ```
+   ✅ Package access: read-only
+   ❌ Bypass 2FA: 不要
+   ```
+4. トークンをコピー
 
 ### 検証方法
-
 ```bash
-export NPM_TOKEN=npm_xxxxxxx
-npm login --registry=https://registry.npmjs.org
-npm whoami
+npm view @tbsten/mir-core@alpha version
 ```
 
-期待される出力: `tbsten`
-
-### 設定方法
-
-GitHub に設定:
+### GitHub 設定
 ```
-Settings → Secrets and variables → Actions
-→ "New repository secret"
-Name: NPM_TOKEN
+Settings → Secrets → Actions → New secret
+Name: NPM_TOKEN_READ
 Value: npm_xxxxxxx
 ```
 
 ---
 
-## 2️⃣ CLOUDFLARE_API_TOKEN
+## 2️⃣ NPM_TOKEN_PUBLISH (Deploy 用・書き込み権限)
 
 ### 説明
-Cloudflare API 認証トークン。Pages デプロイに使用。
+npm registry への公開権限トークン。Release 時の `npm publish` に使用。
 
 ### 取得方法
 
-**Step 1: Cloudflare Dashboard にアクセス**
-```
-https://dash.cloudflare.com/profile/api-tokens
-```
-
-**Step 2: "Create Token" をクリック**
-
-**Step 3: Template を選択**
-```
-Cloudflare Pages — Edit
-```
-
-この template は以下の権限で自動設定:
-- Account Resources: Cloudflare Pages
-- Permissions: Edit Pages
-
-**Step 4: Account Resources 設定**
-```
-Include:
-  ✅ All accounts (推奨)
-  または
-  ✅ 特定アカウント選択
-```
-
-**Step 5: トークンをコピー**
-```
-v1.0xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-```
+1. https://www.npmjs.com/settings/tbsten/tokens にアクセス
+2. "Generate New Token" → **Granular Access Token** を選択
+3. **権限設定（公開用）:**
+   ```
+   ✅ Package access: read & write
+   ✅ Organization access: read & write
+   ✅ Bypass 2FA for publish ← 必須！
+   ```
+4. トークンをコピー
 
 ### 検証方法
-
 ```bash
-export CLOUDFLARE_API_TOKEN=v1.0xxx
-export CLOUDFLARE_ACCOUNT_ID=xxxxx
-
-# wrangler で検証
-wrangler whoami
+npm login --registry=https://registry.npmjs.org
+npm whoami  # → tbsten
 ```
 
-期待される出力: アカウント情報
-
-### 設定方法
-
-GitHub に設定:
+### GitHub 設定
 ```
-Settings → Secrets and variables → Actions
-→ "New repository secret"
-Name: CLOUDFLARE_API_TOKEN
-Value: v1.0xxxxx
+Settings → Secrets → Actions → New secret
+Name: NPM_TOKEN_PUBLISH
+Value: npm_xxxxxxx
 ```
 
 ---
 
-## 3️⃣ CLOUDFLARE_ACCOUNT_ID
+## 3️⃣ CLOUDFLARE_API_TOKEN_READ (CI 用・読み取り専用)
 
 ### 説明
-Cloudflare アカウント ID。
+Cloudflare API 読み取り専用トークン。ヘルスチェック等に使用。
 
 ### 取得方法
 
-**Step 1: Cloudflare Dashboard にアクセス**
-```
-https://dash.cloudflare.com
-```
-
-**Step 2: 左サイドバー → "Settings"**
-
-**Step 3: "General" タブ**
-
-**Step 4: "Account ID" をコピー**
-```
-e1f305e305fac0afa279aa56fa711f2c  (例)
-```
+1. https://dash.cloudflare.com/profile/api-tokens にアクセス
+2. "Create Token" → **Custom Token** を作成
+3. **権限設定（読み取り専用）:**
+   ```
+   ✅ Account Settings: Read
+   ❌ Cloudflare Pages: 不要
+   ❌ Workers: 不要
+   ```
+4. トークンをコピー
 
 ### 検証方法
-
 ```bash
-echo $CLOUDFLARE_ACCOUNT_ID
-# 結果: e1f305e305fac0afa279aa56fa711f2c
+curl -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN_READ" \
+  https://api.cloudflare.com/client/v4/accounts/YOUR_ACCOUNT_ID/pages/projects
 ```
 
-### 設定方法
-
-GitHub に設定:
+### GitHub 設定
 ```
-Settings → Secrets and variables → Actions
-→ "New repository secret"
+Settings → Secrets → Actions → New secret
+Name: CLOUDFLARE_API_TOKEN_READ
+Value: v1.0xxx
+```
+
+---
+
+## 4️⃣ CLOUDFLARE_API_TOKEN_DEPLOY (Deploy 用・Edit 権限)
+
+### 説明
+Cloudflare API トークン（Edit 権限）。Release 時の Pages デプロイに使用。
+
+### 取得方法
+
+1. https://dash.cloudflare.com/profile/api-tokens にアクセス
+2. "Create Token"
+3. **Template を選択:**
+   ```
+   Cloudflare Pages — Edit
+   ```
+4. この template で自動設定:
+   - Account Resources: Cloudflare Pages
+   - Permissions: Edit Pages
+5. トークンをコピー
+
+### 検証方法
+```bash
+export CLOUDFLARE_API_TOKEN_DEPLOY=v1.0xxx
+export CLOUDFLARE_ACCOUNT_ID=xxxxx
+wrangler whoami
+```
+
+### GitHub 設定
+```
+Settings → Secrets → Actions → New secret
+Name: CLOUDFLARE_API_TOKEN_DEPLOY
+Value: v1.0xxx
+```
+
+---
+
+## 5️⃣ CLOUDFLARE_ACCOUNT_ID
+
+### 説明
+Cloudflare アカウント ID。Deploy 時に必要。
+
+### 取得方法
+
+1. https://dash.cloudflare.com にアクセス
+2. Settings → General
+3. Account ID をコピー（例: e1f305e305fac0afa279aa56fa711f2c）
+
+### GitHub 設定
+```
+Settings → Secrets → Actions → New secret
 Name: CLOUDFLARE_ACCOUNT_ID
 Value: e1f305e305fac0afa279aa56fa711f2c
 ```
@@ -166,112 +171,50 @@ Value: e1f305e305fac0afa279aa56fa711f2c
 
 ## ✅ セットアップチェックリスト
 
-- [ ] NPM_TOKEN を取得して設定
-  ```bash
-  npm login --registry=https://registry.npmjs.org
-  npm whoami  # tbsten が表示されれば OK
-  ```
-
-- [ ] CLOUDFLARE_API_TOKEN を取得して設定
-  ```bash
-  wrangler whoami  # アカウント情報が表示されれば OK
-  ```
-
-- [ ] CLOUDFLARE_ACCOUNT_ID を取得して設定
-  ```bash
-  echo $CLOUDFLARE_ACCOUNT_ID  # ID が表示されれば OK
-  ```
-
-- [ ] GitHub Secrets に全て追加済み
-  ```
-  Settings → Secrets and variables → Actions
-  → 3つ全て表示されている確認
-  ```
+```
+☐ NPM_TOKEN_READ (読み取り専用) を取得・設定
+☐ NPM_TOKEN_PUBLISH (書き込み) を取得・設定
+☐ CLOUDFLARE_API_TOKEN_READ (読み取り専用) を取得・設定
+☐ CLOUDFLARE_API_TOKEN_DEPLOY (Edit) を取得・設定
+☐ CLOUDFLARE_ACCOUNT_ID を取得・設定
+☐ GitHub Secrets に全 5 つが登録済み確認
+```
 
 ---
 
-## 🔒 セキュリティベストプラクティス
+## 🔒 セキュリティメリット
 
-✅ **推奨:**
-- Secrets は rotate する（定期的に更新）
-- Granular token を使用（最小権限の原則）
-- 2FA bypass は必要な場合だけ
-- 本番環境のトークンと開発環境のトークンを分ける
-
-❌ **禁止:**
-- Secrets をコミットに含める
-- Secrets を log に出力する
-- Secrets をメール送信
-- 他人と Secrets を共有
+✅ **読み取り専用 token の漏洩**: データ参照のみ可能（修正不可）
+✅ **書き込み token の漏洩**: 限定的な権限（公開/デプロイのみ）
+✅ **token 紛失時**: 権限ごとに再生成（全 token 再生成不要）
+✅ **CI での不要な権限**: 読み取り専用 token で実行（安全）
 
 ---
 
-## 🆘 トラブルシューティング
+## 🚀 ワークフロー動作
 
-### エラー: "403 Forbidden - npm publish"
-
-**原因**: NPM_TOKEN が無効または権限不足
-
-**対策:**
-```bash
-# Token を再生成
-npm login --registry=https://registry.npmjs.org
-
-# 新しいトークンを GitHub Secrets に設定
+### CI (ci.yml)
+```
+NPM_TOKEN_READ を使用 → npm view で package 確認
+CLOUDFLARE_API_TOKEN_READ を使用 → ヘルスチェック
 ```
 
-### エラー: "API token expired - Cloudflare"
-
-**原因**: Cloudflare API token の有効期限切れ
-
-**対策:**
+### Publish (publish.yml)
 ```
-1. https://dash.cloudflare.com/profile/api-tokens
-2. 古いトークンを削除
-3. 新しいトークンを作成
-4. GitHub Secrets を更新
+NPM_TOKEN_PUBLISH を使用 → npm publish 実行
+CLOUDFLARE_API_TOKEN_DEPLOY を使用 → Pages デプロイ
+CLOUDFLARE_ACCOUNT_ID を使用 → アカウント特定
 ```
 
-### エラー: "Account ID invalid"
-
-**原因**: CLOUDFLARE_ACCOUNT_ID が不正
-
-**対策:**
-```bash
-# 正しいアカウント ID を確認
-# https://dash.cloudflare.com → Settings → General
-# ID をコピーして GitHub Secrets に設定
+### Manual Publish (manual-publish.yml)
+```
+必要な token のみ使用（フレキシブル）
 ```
 
 ---
 
 ## 📚 参考
 
-- [npm granular access tokens](https://docs.npmjs.com/creating-and-viewing-access-tokens)
+- [npm Granular Access Tokens](https://docs.npmjs.com/creating-and-viewing-access-tokens)
 - [Cloudflare API Tokens](https://developers.cloudflare.com/api/tokens/create/)
-- [Wrangler Authentication](https://developers.cloudflare.com/workers/wrangler/configuration/)
 - [GitHub Secrets](https://docs.github.com/en/actions/security-guides/encrypted-secrets)
-
----
-
-## 🚀 次のステップ
-
-Secrets を設定したら:
-
-1. Release を作成
-   ```bash
-   gh release create v0.0.1-alpha02 \
-     --title "Release v0.0.1-alpha02" \
-     --prerelease
-   ```
-
-2. Actions を確認
-   ```bash
-   gh run list --workflow=publish.yml
-   ```
-
-3. デプロイ完了を確認
-   ```
-   npm view @tbsten/mir@alpha version
-   curl https://mir.tbsten.me/health
-   ```
