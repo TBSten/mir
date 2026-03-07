@@ -14,12 +14,14 @@ import { loadMirConfig } from "./lib/mirconfig.js";
 import { getLocaleFromEnv } from "./lib/env.js";
 import * as logger from "./lib/logger.js";
 
+declare const __PKG_VERSION__: string;
+
 const program = new Command();
 
 program
   .name("mir")
   .description("スニペットを配布・取得する CLI ツール")
-  .version("0.0.1-alpha02")
+  .version(__PKG_VERSION__)
   .showHelpAfterError(true)
   .option("--config <path>", "設定ファイルパス (デフォルト: ~/.mir/config.yaml)")
   .option("--locale <lang>", "UI 言語 (ja|en)")
