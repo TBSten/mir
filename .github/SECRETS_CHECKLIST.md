@@ -21,9 +21,10 @@ npm view @tbsten/mir-core@alpha version
 ---
 
 #### ☐ 2. CLOUDFLARE_API_TOKEN_READ
-- **何**: Cloudflare API 読み取り専用トークン
+- **何**: Cloudflare アカウント API トークン（読み取り専用）
 - **用途**: ヘルスチェック等
 - **権限**: 読み取り専用
+- **取得**: https://dash.cloudflare.com/profile/api-tokens → 「アカウント API トークン」
 
 **Status:** □ 取得完了 / □ GitHub に設定済み
 
@@ -47,9 +48,10 @@ npm whoami  # → tbsten
 ---
 
 #### ☐ 4. CLOUDFLARE_API_TOKEN_DEPLOY
-- **何**: Cloudflare API デプロイトークン
+- **何**: Cloudflare アカウント API トークン（デプロイ用）
 - **用途**: Release 時の Pages デプロイ
 - **権限**: Edit (Cloudflare Pages)
+- **取得**: https://dash.cloudflare.com/profile/api-tokens → 「アカウント API トークン」 → "Cloudflare Pages — Edit"
 
 ```bash
 # 確認
