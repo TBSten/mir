@@ -5,15 +5,18 @@ import { createD1Provider } from "./d1-provider.js";
 
 /**
  * リクエストコンテキストから適切なプロバイダーを取得
- * D1 が利用可能ならば D1Provider を、そうでなければ staticProvider を返す
- * Dev 環境では D1 がセットアップされていない可能性があるため、
- * D1 が失敗する場合は staticProvider にフォールバックする
+ * Dev 環境では staticProvider を使用
+ * 本番環境では D1Provider を使用
  */
 export function getProvider(c: Context): RegistryProvider {
+  // Dev 環境では常に staticProvider を使用
+  const isDev = (c.env as any)?.ENVIRONMENT === "development" || !((c.env as any)?.D1);
+  if (isDev) {
+    return staticProvider;
+  }
+
   const db = (c.env as any)?.D1;
   if (db) {
-    // Dev 環境では D1 がセットアップされていない可能性があるため、
-    // D1Provider でラップして、失敗時は staticProvider にフォールバックする
     const d1Provider = createD1Provider(db);
     return createFallbackProvider(d1Provider, staticProvider);
   }
