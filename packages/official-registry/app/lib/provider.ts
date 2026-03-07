@@ -248,11 +248,8 @@ const versionHistories: Record<string, SnippetVersionEntry[]> = {
   ],
 };
 
-const summaries: RegistrySnippetSummary[] = snippets.map((s) => ({
-  name: s.definition.name,
-  version: s.definition.version,
-  description: s.definition.description,
-}));
+// Dev environment: empty snippets list by default
+const summaries: RegistrySnippetSummary[] = [];
 
 export const staticProvider: RegistryProvider = {
   async list() {
