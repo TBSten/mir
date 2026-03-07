@@ -1,6 +1,6 @@
 {
-  "name": "@tbsten/core",
-  "version": "0.0.1-alpha01",
+  "name": "@tbsten/mir-core",
+  "version": "0.0.1-alpha02",
   "type": "module",
   "exports": {
     ".": "./src/index.ts"

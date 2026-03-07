@@ -1,6 +1,6 @@
 {
   "name": "@mir/official-registry",
-  "version": "0.0.1-alpha01",
+  "version": "0.0.1-alpha02",
   "private": true,
   "type": "module",
   "scripts": {
@@ -13,7 +13,7 @@
     "test:vrt": "playwright test --grep @vrt"
   },
   "dependencies": {
-    "@tbsten/registry-sdk": "*",
+    "@tbsten/mir-registry-sdk": "*",
     "hono": "^4.12.5",
     "honox": "^0.1.54"
   },

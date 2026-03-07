@@ -1,6 +1,6 @@
 {
-  "name": "@tbsten/registry-sdk",
-  "version": "0.0.1-alpha01",
+  "name": "@tbsten/mir-registry-sdk",
+  "version": "0.0.1-alpha02",
   "type": "module",
   "exports": {
     ".": "./src/index.ts"

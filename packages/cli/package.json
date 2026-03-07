@@ -1,6 +1,6 @@
 {
   "name": "@tbsten/mir",
-  "version": "0.0.1-alpha01",
+  "version": "0.0.1-alpha02",
   "description": "スニペット(ディレクトリ構造含む)を配布・取得するCLIツール",
   "type": "module",
   "bin": {
@@ -36,7 +36,7 @@
     "vitest": "^3"
   },
   "dependencies": {
-    "@tbsten/core": "*",
+    "@tbsten/mir-core": "*",
     "commander": "^12.1.0",
     "js-yaml": "^4.1.1"
   }
