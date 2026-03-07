@@ -41,7 +41,6 @@ function createFallbackProvider(
         // 空の配列の場合もフォールバック
         return await fallbackProvider.list();
       } catch (e) {
-        console.error("Primary provider list() failed, using fallback:", e);
         return await fallbackProvider.list();
       }
     },
@@ -50,7 +49,6 @@ function createFallbackProvider(
       try {
         return await primaryProvider.get(name);
       } catch (e) {
-        console.error(`Primary provider get(${name}) failed, using fallback:`, e);
         return await fallbackProvider.get(name);
       }
     },
@@ -59,7 +57,6 @@ function createFallbackProvider(
       try {
         return await primaryProvider.search(query);
       } catch (e) {
-        console.error(`Primary provider search(${query}) failed, using fallback:`, e);
         return await fallbackProvider.search(query);
       }
     },
@@ -68,10 +65,6 @@ function createFallbackProvider(
       try {
         return await primaryProvider.getVersionHistory(name);
       } catch (e) {
-        console.error(
-          `Primary provider getVersionHistory(${name}) failed, using fallback:`,
-          e,
-        );
         return await fallbackProvider.getVersionHistory(name);
       }
     },
@@ -80,10 +73,6 @@ function createFallbackProvider(
       try {
         return await primaryProvider.getDependencies(name);
       } catch (e) {
-        console.error(
-          `Primary provider getDependencies(${name}) failed, using fallback:`,
-          e,
-        );
         return await fallbackProvider.getDependencies(name);
       }
     },
@@ -92,10 +81,6 @@ function createFallbackProvider(
       try {
         return await primaryProvider.getTransitiveDependencies(name);
       } catch (e) {
-        console.error(
-          `Primary provider getTransitiveDependencies(${name}) failed, using fallback:`,
-          e,
-        );
         return await fallbackProvider.getTransitiveDependencies(name);
       }
     },
