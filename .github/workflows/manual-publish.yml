@@ -1,0 +1,118 @@
+name: Manual Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 0.0.1-alpha02)'
+        required: true
+        type: string
+      publish_npm:
+        description: 'Publish to npm?'
+        required: true
+        type: boolean
+        default: true
+      deploy_cf:
+        description: 'Deploy to Cloudflare?'
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  manual-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+      - name: Publish to NPM
+        if: inputs.publish_npm
+        run: |
+          echo "Publishing version: ${{ inputs.version }}"
+          cd packages/mir-core && npm publish --tag alpha && cd - || exit 1
+          cd packages/registry-sdk && npm publish --tag alpha && cd - || exit 1
+          cd packages/cli && npm publish --tag alpha && cd - || exit 1
+          echo "✅ NPM publish completed"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Deploy to Cloudflare
+        if: inputs.deploy_cf
+        working-directory: packages/official-registry
+        run: |
+          echo "Deploying to Cloudflare Pages..."
+          npm run deploy
+          echo "✅ Cloudflare deployment completed"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Create Git Tag (if not exists)
+        run: |
+          TAG="v${{ inputs.version }}"
+          if ! git rev-parse "$TAG" >/dev/null 2>&1; then
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
+            git tag -a "$TAG" -m "Release $TAG"
+            git push origin "$TAG"
+            echo "✅ Tag created: $TAG"
+          else
+            echo "ℹ️ Tag already exists: $TAG"
+          fi
+
+      - name: Create Release
+        if: inputs.publish_npm || inputs.deploy_cf
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ inputs.version }}
+          draft: false
+          prerelease: true
+          body: |
+            ## Release ${{ inputs.version }}
+
+            ### 公開内容
+            - NPM: ${{ inputs.publish_npm && '✅ Yes' || '❌ No' }}
+            - Cloudflare: ${{ inputs.deploy_cf && '✅ Yes' || '❌ No' }}
+
+            ### パッケージ
+            - @tbsten/mir-core@${{ inputs.version }}
+            - @tbsten/mir-registry-sdk@${{ inputs.version }}
+            - @tbsten/mir@${{ inputs.version }}
+            - Official Registry (mir.tbsten.me)
+
+            詳細は [CHANGELOG.md](CHANGELOG.md) を参照してください。
+          files: |
+            CHANGELOG.md
+            LICENSE
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Workflow summary
+        run: |
+          echo "## 📦 Manual Publish Completed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Item | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Version | ${{ inputs.version }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| NPM Publish | ${{ inputs.publish_npm && '✅' || '⏭️' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Cloudflare Deploy | ${{ inputs.deploy_cf && '✅' || '⏭️' }} |" >> $GITHUB_STEP_SUMMARY

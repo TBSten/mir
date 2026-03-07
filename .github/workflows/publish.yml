@@ -1,0 +1,125 @@
+name: Publish & Deploy
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  # ビルド・テスト
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
+
+  # NPM パッケージ公開
+  publish-npm:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Publish @tbsten/mir-core
+        working-directory: packages/mir-core
+        run: npm publish --tag alpha
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @tbsten/mir-registry-sdk
+        working-directory: packages/registry-sdk
+        run: npm publish --tag alpha
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @tbsten/mir
+        working-directory: packages/cli
+        run: npm publish --tag alpha
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Verify packages published
+        run: |
+          npm info @tbsten/mir-core@alpha | grep version
+          npm info @tbsten/mir-registry-sdk@alpha | grep version
+          npm info @tbsten/mir@alpha | grep version
+
+  # Cloudflare Pages デプロイ
+  deploy-cloudflare:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web
+        run: npm run build:web
+
+      - name: Deploy to Cloudflare Pages
+        working-directory: packages/official-registry
+        run: npm run deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: true
+          files: |
+            CHANGELOG.md
+            LICENSE
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # 公開完了通知
+  notify:
+    needs: [publish-npm, deploy-cloudflare]
+    runs-on: ubuntu-latest
+    if: success()
+    steps:
+      - name: Success notification
+        run: |
+          echo "✅ Publish & Deploy completed successfully!"
+          echo "📦 NPM packages published"
+          echo "🚀 Cloudflare Pages deployed"
+          echo "📝 GitHub Release created"
