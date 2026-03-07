@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { MirError, setLocale, type Locale } from "@mir/core";
+import { MirError, SnippetNotFoundError, setLocale, type Locale } from "@mir/core";
 import { registerCreateCommand } from "./commands/create.js";
 import { registerPublishCommand } from "./commands/publish.js";
 import { registerInstallCommand } from "./commands/install.js";
@@ -65,6 +65,11 @@ registerCloneCommand(program);
 registerPreviewCommand(program);
 
 program.parseAsync().catch((err) => {
+  if (err instanceof SnippetNotFoundError) {
+    logger.error(err.message);
+    logger.info(err.details);
+    process.exit(1);
+  }
   if (err instanceof MirError) {
     logger.error(err.message);
     process.exit(1);

@@ -15,9 +15,12 @@ export class ValidationError extends MirError {
 }
 
 export class SnippetNotFoundError extends MirError {
+  readonly details: string;
+
   constructor(name: string) {
     super(t("error.snippet-not-found", { name }));
     this.name = "SnippetNotFoundError";
+    this.details = t("error.snippet-not-found-details");
   }
 }
 
