@@ -1,5 +1,5 @@
 {
-  "name": "mir",
+  "name": "@tbsten/mir",
   "version": "0.0.1-alpha01",
   "description": "スニペット(ディレクトリ構造含む)を配布・取得するCLIツール",
   "type": "module",
