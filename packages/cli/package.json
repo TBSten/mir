@@ -19,7 +19,17 @@
     "scaffold",
     "template"
   ],
+  "author": "tbsten",
   "license": "MIT",
+  "homepage": "https://mir.tbsten.me",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tbsten/mir.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/tbsten/mir/issues"
+  },
   "files": [
     "dist"
   ],

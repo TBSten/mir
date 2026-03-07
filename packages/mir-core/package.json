@@ -1,7 +1,26 @@
 {
   "name": "@tbsten/mir-core",
   "version": "0.0.1-alpha02",
+  "description": "スニペット配布・取得ツール mir のコアロジック（テンプレート、スキーマ、i18n）",
   "type": "module",
+  "keywords": [
+    "snippet",
+    "template",
+    "handlebars",
+    "scaffold",
+    "generator"
+  ],
+  "author": "tbsten",
+  "license": "MIT",
+  "homepage": "https://mir.tbsten.me",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tbsten/mir.git",
+    "directory": "packages/mir-core"
+  },
+  "bugs": {
+    "url": "https://github.com/tbsten/mir/issues"
+  },
   "exports": {
     ".": "./src/index.ts"
   },

@@ -1,8 +1,20 @@
 {
   "name": "@mir/official-registry",
   "version": "0.0.1-alpha02",
+  "description": "mir 公式 Registry（HonoX + Cloudflare Pages）",
   "private": true,
   "type": "module",
+  "author": "tbsten",
+  "license": "MIT",
+  "homepage": "https://mir.tbsten.me",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tbsten/mir.git",
+    "directory": "packages/official-registry"
+  },
+  "bugs": {
+    "url": "https://github.com/tbsten/mir/issues"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tailwindcss -i app/styles.css -o dist/static/styles.css --minify && vite build",

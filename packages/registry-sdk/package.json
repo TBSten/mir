@@ -1,7 +1,26 @@
 {
   "name": "@tbsten/mir-registry-sdk",
   "version": "0.0.1-alpha02",
+  "description": "mir Registry サーバー実装用 SDK（Hono ベース）",
   "type": "module",
+  "keywords": [
+    "registry",
+    "sdk",
+    "hono",
+    "snippet",
+    "api"
+  ],
+  "author": "tbsten",
+  "license": "MIT",
+  "homepage": "https://mir.tbsten.me",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tbsten/mir.git",
+    "directory": "packages/registry-sdk"
+  },
+  "bugs": {
+    "url": "https://github.com/tbsten/mir/issues"
+  },
   "exports": {
     ".": "./src/index.ts"
   },
@@ -10,7 +29,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@tbsten/core": "*",
+    "@tbsten/mir-core": "*",
     "hono": "^4.12.5"
   },
   "scripts": {
