@@ -8,7 +8,7 @@ import { SITE_DESCRIPTION } from "../lib/constants.js";
 import { staticProvider } from "../lib/provider.js";
 
 const terminalLines: TerminalLine[] = [
-  { type: "command", prompt: "$", text: "snpt install @tbsten/react-hooks" },
+  { type: "command", prompt: "$", text: "mir install @tbsten/react-hooks" },
   { type: "output", text: "resolving dependencies..." },
   { type: "output", text: "downloading @tbsten/react-hooks@2.1.0" },
   { type: "output", text: "extracting files..." },
@@ -45,7 +45,7 @@ export default createRoute(async (c) => {
             href="/docs"
             class="bg-sky-500 px-6 py-3 font-mono text-sm font-medium text-white hover:bg-sky-600"
           >
-            $ snpt install snpt
+            $ mir install mir
           </a>
           <a
             href="/docs"

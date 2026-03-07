@@ -4,7 +4,7 @@ import { INSTALL_COMMAND } from "../../lib/constants.js";
 const sections = [
   {
     title: "getting-started",
-    description: "Install and set up snpt in your project",
+    description: "Install and set up mir in your project",
     href: "/docs/getting-started",
   },
   {
@@ -39,7 +39,7 @@ export default createRoute((c) => {
     <div class="flex flex-col gap-8 px-8 py-12 lg:px-32">
       <div class="flex flex-col gap-2">
         <h1 class="font-mono text-2xl font-bold text-sky-900">
-          $ snpt docs
+          $ mir docs
         </h1>
         <p class="font-body text-sm text-sky-600">
           // learn how to create, publish, and install code snippets

@@ -8,7 +8,7 @@ import {
 
 describe("constants", () => {
   it("SITE_NAME が定義されている", () => {
-    expect(SITE_NAME).toBe("snpt");
+    expect(SITE_NAME).toBe("mir");
   });
 
   it("SITE_DESCRIPTION が空でない", () => {
