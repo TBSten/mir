@@ -4,14 +4,15 @@ import { CodeBlock } from "../../components/code-block.js";
 import { DirectoryTree } from "../../components/directory-tree.js";
 import { Tag } from "../../components/tag.js";
 import { NotFoundError, renderError } from "../../lib/errors.js";
-import { staticProvider } from "../../lib/provider.js";
+import { getProvider } from "../../lib/get-provider.js";
 import { serializeSnippetYaml } from "@tbsten/mir-core";
 import { GITHUB_ISSUES_URL } from "../../lib/constants.js";
 import yaml from "js-yaml";
 
 export default createRoute(async (c) => {
   const name = c.req.param("name") ?? "";
-  const detail = await staticProvider.get(name);
+  const provider = getProvider(c);
+  const detail = await provider.get(name);
 
   if (!detail) {
     return renderError(c, new NotFoundError(`Snippet "${name}" not found`));

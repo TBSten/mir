@@ -16,6 +16,7 @@ import {
   resolvePublishRegistry,
   resolveRegistryPath,
 } from "../lib/mirconfig.js";
+import { publishToRemoteRegistry } from "../lib/remote-publish.js";
 import { confirm } from "../lib/prompt.js";
 import { listLocalSnippets, selectSnippet } from "../lib/snippet-list.js";
 import * as logger from "../lib/logger.js";
@@ -45,10 +46,47 @@ export async function publishSnippet(
   }
 
   const yamlContent = fs.readFileSync(yamlPath, "utf-8");
-  parseSnippetYaml(yamlContent);
+  const definition = parseSnippetYaml(yamlContent);
 
   const config = loadMirConfig(configPath ? { configPath } : { cwd });
   const registryEntry = resolvePublishRegistry(config, opts.registry);
+
+  // リモート registry の場合
+  if (registryEntry.url) {
+    if (!registryEntry.publish_token) {
+      throw new Error(t("error.publish-token-required"));
+    }
+
+    // ファイルを読み込み
+    const files: Record<string, string> = {};
+    const templateDir = dirPath;
+    if (fs.existsSync(templateDir)) {
+      const readDir = (dir: string, prefix = "") => {
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+        for (const entry of entries) {
+          const filePath = `${prefix}${entry.name}`;
+          if (entry.isDirectory()) {
+            readDir(`${dir}/${entry.name}`, `${filePath}/`);
+          } else {
+            files[filePath] = fs.readFileSync(`${dir}/${entry.name}`, "utf-8");
+          }
+        }
+      };
+      readDir(templateDir);
+    }
+
+    // リモート publish
+    await publishToRemoteRegistry(registryEntry.url, registryEntry.publish_token, {
+      definition,
+      files,
+      force: opts.force,
+    }, t);
+
+    logger.success(t("publish.success", { name }));
+    return;
+  }
+
+  // ローカル registry の場合
   const registryPath = resolveRegistryPath(registryEntry);
 
   if (snippetExistsInRegistry(registryPath, name)) {

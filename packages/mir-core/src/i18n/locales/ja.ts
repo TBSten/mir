@@ -58,6 +58,11 @@ export const ja: MessageCatalog = {
 
   // error specific
   "error.no-failed-snippets": "失敗した snippet の履歴がありません",
+  "error.publish-token-required": "リモート registry への publish には publish_token が必要です。~/.mir/mirconfig.yaml で設定してください",
+  "error.publish-auth-failed": "publish 認証に失敗しました。publish_token を確認してください",
+  "error.publish-token-invalid": "publish_token が無効です。registry の設定を確認してください",
+  "error.publish-failed": "Snippet の publish に失敗しました: {error}",
+  "error.publish-network-error": "ネットワークエラー: {message}",
 
   // clone
   "clone.success": "Snippet \"{name}\" を \"{alias}\" として複製しました",

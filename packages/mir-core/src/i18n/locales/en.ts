@@ -58,6 +58,11 @@ export const en: MessageCatalog = {
 
   // error specific
   "error.no-failed-snippets": "No failed snippet history",
+  "error.publish-token-required": "publish_token is required to publish to remote registry. Configure it in ~/.mir/mirconfig.yaml",
+  "error.publish-auth-failed": "Publish authentication failed. Please verify your publish_token",
+  "error.publish-token-invalid": "Invalid publish_token. Check your registry configuration",
+  "error.publish-failed": "Failed to publish snippet: {error}",
+  "error.publish-network-error": "Network error: {message}",
 
   // clone
   "clone.success": "Cloned snippet \"{name}\" to \"{alias}\"",

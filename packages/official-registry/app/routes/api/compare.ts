@@ -3,7 +3,7 @@
  */
 
 import { createRoute } from "honox/factory";
-import { staticProvider } from "../../lib/provider.js";
+import { getProvider } from "../../lib/get-provider.js";
 
 interface ComparisonData {
   snippets: Array<{
@@ -43,9 +43,12 @@ export default createRoute(async (c) => {
   // 重複を排除
   const uniqueNames = Array.from(new Set(names));
 
+  // provider を取得
+  const provider = getProvider(c);
+
   // 各 snippet の詳細を取得
   const snippetDetails = await Promise.all(
-    uniqueNames.map((name) => staticProvider.get(name))
+    uniqueNames.map((name) => provider.get(name))
   );
 
   // 比較データを構築

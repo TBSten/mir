@@ -1,7 +1,7 @@
 import { createRoute } from "honox/factory";
 import { SearchInput } from "../../components/search-input.js";
 import { SnippetCard } from "../../components/snippet-card.js";
-import { staticProvider } from "../../lib/provider.js";
+import { getProvider } from "../../lib/get-provider.js";
 import { GITHUB_ISSUES_URL } from "../../lib/constants.js";
 
 const DEFAULT_PAGE_SIZE = 20;
@@ -12,9 +12,10 @@ export default createRoute(async (c) => {
   const limit = DEFAULT_PAGE_SIZE;
   const offset = (page - 1) * limit;
 
+  const provider = getProvider(c);
   const all = query
-    ? await (staticProvider.search?.(query) ?? staticProvider.list())
-    : await staticProvider.list();
+    ? await (provider.search?.(query) ?? provider.list())
+    : await provider.list();
 
   const total = all.length;
   const totalPages = Math.max(1, Math.ceil(total / limit));

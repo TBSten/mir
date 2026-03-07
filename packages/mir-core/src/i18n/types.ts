@@ -56,6 +56,11 @@ export interface MessageCatalog {
 
   // error specific
   "error.no-failed-snippets": string;
+  "error.publish-token-required": string;
+  "error.publish-auth-failed": string;
+  "error.publish-token-invalid": string;
+  "error.publish-failed": string;
+  "error.publish-network-error": string;
 
   // clone
   "clone.success": string;

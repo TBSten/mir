@@ -1,9 +1,10 @@
 import type {} from "hono";
 
 type Bindings = {
-  // D1: D1Database;
+  D1?: D1Database;
   // R2: R2Bucket;
   STATS_KV?: KVNamespace;
+  PUBLISH_API_TOKEN?: string;
 };
 
 type RendererProps = {
