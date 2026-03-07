@@ -12,6 +12,7 @@ export interface RegistryEntry {
   name?: string;
   path?: string;
   url?: string;
+  publish_token?: string;
 }
 
 export interface MirConfig {
@@ -21,7 +22,7 @@ export interface MirConfig {
 }
 
 const DEFAULT_CONFIG: MirConfig = {
-  registries: [{ path: "~/.mir/registry" }],
+  registries: [{ name: "default", path: "~/.mir/registry" }],
 };
 
 export interface LoadMirConfigOptions {
@@ -101,10 +102,17 @@ export function resolvePublishRegistry(
     if (!entry) {
       throw new RegistryNotFoundError(registryName);
     }
-    if (entry.url) {
+    // URL エントリの場合、publish_token がなければエラー
+    if (entry.url && !entry.publish_token) {
       throw new RegistryRemoteError(registryName);
     }
     return entry;
+  }
+
+  // publish_token ありの URL エントリを優先、なければローカルパスを使用
+  const remoteEntry = config.registries.find((r) => r.url && r.publish_token);
+  if (remoteEntry) {
+    return remoteEntry;
   }
 
   const localEntry = config.registries.find((r) => r.path);
