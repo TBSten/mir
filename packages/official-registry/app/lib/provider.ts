@@ -248,12 +248,8 @@ const versionHistories: Record<string, SnippetVersionEntry[]> = {
   ],
 };
 
-// Default summaries from snippets (used as fallback)
-const summaries: RegistrySnippetSummary[] = snippets.map((s) => ({
-  name: s.definition.name,
-  version: s.definition.version,
-  description: s.definition.description,
-}));
+// Empty summaries - only show published snippets from D1
+const summaries: RegistrySnippetSummary[] = [];
 
 export const staticProvider: RegistryProvider = {
   async list() {
