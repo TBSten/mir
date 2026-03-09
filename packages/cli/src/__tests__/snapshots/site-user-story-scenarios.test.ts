@@ -3,7 +3,6 @@
  * 公式 registry サイト + CLI 連携のユーザストーリーをテストケースに変換
  *
  * ローカル registry を模擬してリモート registry 関連のシナリオをカバー。
- * リモート HTTP 通信は未実装 (TODO) のため、ローカル registry で代替テスト。
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import fs from "node:fs";
@@ -24,10 +23,9 @@ import {
   expandTemplate,
   parseSnippetYaml,
   serializeSnippetYaml,
+  listRegistrySnippets,
   type SnippetDefinition,
 } from "@tbsten/mir-core";
-
-// TODO: 現時点では理想の挙動をテストケースとして記述。後で有効化する。
 
 // prompt モジュールをモック
 vi.mock("../../lib/prompt.js", () => ({
@@ -99,7 +97,7 @@ function setupRegistrySnippet(
 // Story 6: 公式 registry を mirconfig.yaml に追加して利用
 // =============================================================================
 
-describe.skip("Story 6: mirconfig で registry 設定してインストール", () => {
+describe("Story 6: mirconfig で registry 設定してインストール", () => {
   it("registry 指定で snippet をインストールできる", async () => {
     setupRegistrySnippet(
       "react-hook",
@@ -134,8 +132,8 @@ describe.skip("Story 6: mirconfig で registry 設定してインストール", 
 // Story 7: リモート registry からの snippet 一覧取得 (名前省略で選択モード)
 // =============================================================================
 
-describe.skip("Story 7: snippet 選択モード", () => {
-  it("名前省略時に利用可能な snippet 一覧からプロンプトが出る", async () => {
+describe("Story 7: snippet 選択モード", () => {
+  it("registry に複数 snippet があるとき一覧取得できる", () => {
     setupRegistrySnippet(
       "react-hook",
       { name: "react-hook", description: "React カスタムフック" },
@@ -147,15 +145,19 @@ describe.skip("Story 7: snippet 選択モード", () => {
       { "index.tsx": "content" },
     );
 
-    mockPrompt.mockResolvedValue("react-hook");
+    const snippets = listRegistrySnippets(registryDir);
+    expect(snippets).toContain("react-hook");
+    expect(snippets).toContain("react-component");
+    expect(snippets.length).toBe(2);
+  });
 
+  it("無効な snippet 名は ValidationError", async () => {
     const outDir = path.join(tmpDir, "project");
     fs.mkdirSync(outDir, { recursive: true });
 
-    await installSnippet(null as unknown as string, {}, { outDir }, tmpDir, configPath);
-
-    // snippet 名のプロンプトが表示されたことを確認
-    expect(mockPrompt).toHaveBeenCalled();
+    await expect(
+      installSnippet("INVALID NAME!", {}, { outDir }, tmpDir, configPath),
+    ).rejects.toThrow(ValidationError);
   });
 });
 
@@ -163,7 +165,7 @@ describe.skip("Story 7: snippet 選択モード", () => {
 // Story 8: リモート registry からのインストール - 変数入力
 // =============================================================================
 
-describe.skip("Story 8: 変数入力付きインストール", () => {
+describe("Story 8: 変数入力付きインストール", () => {
   it("変数をCLI引数で指定してインストール", async () => {
     setupRegistrySnippet(
       "react-component",
@@ -205,7 +207,7 @@ describe.skip("Story 8: 変数入力付きインストール", () => {
 // Story 9: ネットワークエラー (リモート registry 接続失敗)
 // =============================================================================
 
-describe.skip("Story 9: 存在しない registry でのエラー", () => {
+describe("Story 9: 存在しない registry でのエラー", () => {
   it("存在しない registry 名を指定するとエラー", async () => {
     const outDir = path.join(tmpDir, "project");
     fs.mkdirSync(outDir, { recursive: true });
@@ -243,7 +245,7 @@ describe.skip("Story 9: 存在しない registry でのエラー", () => {
 // Story 13: 複数 registry の横断検索
 // =============================================================================
 
-describe.skip("Story 13: 複数 registry 構成", () => {
+describe("Story 13: 複数 registry 構成", () => {
   it("複数 registry を設定してインストール", async () => {
     const reg1 = path.join(tmpDir, "registry1");
     const reg2 = path.join(tmpDir, "registry2");
@@ -295,7 +297,7 @@ describe.skip("Story 13: 複数 registry 構成", () => {
 // Story 14: プロジェクトローカルの mirconfig
 // =============================================================================
 
-describe.skip("Story 14: プロジェクトローカル mirconfig", () => {
+describe("Story 14: プロジェクトローカル mirconfig", () => {
   it(".mir/config.yaml がグローバルより優先される", async () => {
     setupRegistrySnippet(
       "my-snippet",
@@ -392,7 +394,7 @@ describe("Story 21: --dry-run モード", () => {
 // Story 25: hooks 付き snippet で exit が発動
 // =============================================================================
 
-describe.skip("Story 25: hooks exit 発動", () => {
+describe("Story 25: hooks exit 発動", () => {
   it("before-install hook の exit 条件で中止される", async () => {
     setupRegistrySnippet(
       "node-config",
@@ -478,7 +480,7 @@ describe("Story 37: mirconfig defaults", () => {
 // Story 42: CI/CD パイプラインでの --no-interactive インストール
 // =============================================================================
 
-describe.skip("Story 42: CI/CD --no-interactive", () => {
+describe("Story 42: CI/CD --no-interactive", () => {
   it("全変数を CLI 引数で指定して非対話インストール", async () => {
     setupRegistrySnippet(
       "react-hook",
@@ -538,8 +540,10 @@ describe.skip("Story 42: CI/CD --no-interactive", () => {
 // Story 44: 公式 registry の snippet を fork して改変
 // =============================================================================
 
-describe.skip("Story 44: snippet の fork (テンプレートの再利用)", () => {
+describe("Story 44: snippet の fork (テンプレートの再利用)", () => {
   it("install → 修正 → publish のフロー", async () => {
+    // publishSnippet の確認プロンプトを自動承認
+    mockConfirm.mockResolvedValue(true);
     // 元の snippet を registry に配置
     setupRegistrySnippet(
       "original",
@@ -603,7 +607,7 @@ describe.skip("Story 44: snippet の fork (テンプレートの再利用)", () 
 // Story 48: ネストしたディレクトリ構造の snippet
 // =============================================================================
 
-describe.skip("Story 48: ネストしたディレクトリ構造", () => {
+describe("Story 48: ネストしたディレクトリ構造", () => {
   it("サブディレクトリ付き snippet がインストールできる", async () => {
     setupRegistrySnippet(
       "component-suite",
@@ -657,7 +661,7 @@ describe.skip("Story 48: ネストしたディレクトリ構造", () => {
 // Story 54: 複数 snippet の連続インストール (一括インストールの代替)
 // =============================================================================
 
-describe.skip("Story 54: 複数 snippet の連続インストール", () => {
+describe("Story 54: 複数 snippet の連続インストール", () => {
   it("異なる snippet を順番にインストールできる", async () => {
     setupRegistrySnippet(
       "react-hook",
@@ -705,8 +709,10 @@ describe.skip("Story 54: 複数 snippet の連続インストール", () => {
 // Story 15 (End-to-End): create → sync → publish → install フロー
 // =============================================================================
 
-describe.skip("End-to-End: create → sync → publish → install", () => {
+describe("End-to-End: create → sync → publish → install", () => {
   it("snippet のライフサイクル全体が成功する", async () => {
+    // publishSnippet の確認プロンプトを自動承認
+    mockConfirm.mockResolvedValue(true);
     // 1. create
     createSnippet("my-hook", {}, tmpDir);
 

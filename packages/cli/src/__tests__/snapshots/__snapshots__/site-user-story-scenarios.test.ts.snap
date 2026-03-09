@@ -1,6 +1,41 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`End-to-End: create → sync → publish → install > snippet のライフサイクル全体が成功する 1`] = `
+"import { useState } from "react";
+
+/**
+ * カウンターフック
+ */
+export function useCounter() {
+  const [state, setState] = useState(null);
+  return { state, setState };
+}"
+`;
+
+exports[`End-to-End: create → sync → publish → install > snippet のライフサイクル全体が成功する 2`] = `
+"import { useCounter } from "./useCounter";
+
+describe("useCounter", () => {
+  it("should work", () => {
+    const result = useCounter();
+    expect(result.state).toBeNull();
+  });
+});"
+`;
+
+exports[`Story 6: mirconfig で registry 設定してインストール > registry 指定で snippet をインストールできる 1`] = `"export function useAuth() { return null; }"`;
+
+exports[`Story 8: 変数入力付きインストール > 変数をCLI引数で指定してインストール 1`] = `"<div>Button</div>"`;
+
+exports[`Story 8: 変数入力付きインストール > 変数をCLI引数で指定してインストール 2`] = `".Button {}"`;
+
+exports[`Story 9: 存在しない registry でのエラー > エラーメッセージに registry 名が含まれる 1`] = `"Registry "nonexistent-registry" が見つかりません。\`~/.mir/mirconfig.yaml\` で registry を設定してください"`;
+
 exports[`Story 37: mirconfig defaults > defaults で共通変数が自動設定される 1`] = `
 "// Author: tbsten
 export function myFunc() {}"
 `;
+
+exports[`Story 48: ネストしたディレクトリ構造 > サブディレクトリ付き snippet がインストールできる 1`] = `"export { Button } from './Button';"`;
+
+exports[`Story 48: ネストしたディレクトリ構造 > サブディレクトリ付き snippet がインストールできる 2`] = `"<div>Button</div>"`;
