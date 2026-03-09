@@ -38,16 +38,8 @@ jobs:
 
       - name: Unit Tests
         run: npm test
-
-      - name: Test Coverage
-        run: npm test -- --coverage
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./coverage/coverage-final.json
-          flags: unittests
-          name: codecov-umbrella
+        env:
+          NODE_OPTIONS: "--max-old-space-size=4096"
 
   build-artifacts:
     runs-on: ubuntu-latest
