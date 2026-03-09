@@ -148,6 +148,7 @@ export function registerListCommand(program: Command): void {
   program
     .command("list")
     .alias("ls")
+    .alias("l")
     .description("利用可能な snippet を一覧表示する")
     .option("-r, --registry <name>", "検索対象 registry の名前")
     .option("--json", "JSON 形式で出力")

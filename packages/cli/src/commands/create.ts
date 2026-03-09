@@ -54,6 +54,7 @@ export function createSnippet(
 export function registerCreateCommand(program: Command): void {
   program
     .command("create [name]")
+    .alias("c")
     .description("snippet の雛形を作成する")
     .option("-d, --description <description>", "snippet の説明文", "")
     .action(async (name: string | undefined, opts: CreateOptions) => {

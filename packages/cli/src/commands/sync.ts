@@ -57,6 +57,7 @@ export function syncSnippet(
 export function registerSyncCommand(program: Command): void {
   program
     .command("sync [name]")
+    .alias("s")
     .description("テンプレートの変数を snippet 定義に同期する")
     .addHelpText("after", `
 Examples:

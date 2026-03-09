@@ -157,6 +157,7 @@ export async function searchSnippets(query: string, opts: SearchOptions = {}): P
 export function registerSearchCommand(program: Command): void {
   program
     .command("search <query>")
+    .alias("q")
     .description("snippet をキーワードで検索する")
     .option("-r, --registry <name>", "検索対象 registry の名前")
     .option("--json", "JSON 形式で出力")
