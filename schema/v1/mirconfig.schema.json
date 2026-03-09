@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema#",
-  "$id": "https://github.com/tbsten/mir/blob/main/schema/v1/mirconfig.schema.json",
+  "$id": "https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/mirconfig.schema.json",
   "title": "mir global configuration",
   "description": "mir の設定ファイル（~/.mir/config.yaml または .mir/config.yaml）のスキーマ",
   "type": "object",

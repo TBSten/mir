@@ -52,6 +52,7 @@ mir create <name>
 変数は `.mir/snippets/<name>.yaml` の `variables` 内に JSON Schema で定義できます (任意)。
 
 ```yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/snippet.schema.json
 variables:
   my-option1:
     description: "..."
@@ -103,6 +104,7 @@ snippet の所有権は最初に publish したユーザーに帰属します。
 `.mir/snippets/<name>.yaml` の `hooks` で install 前後の処理を定義できます。
 
 ```yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/snippet.schema.json
 hooks:
   before-install:
     - echo: "Installing {{ name }}..."

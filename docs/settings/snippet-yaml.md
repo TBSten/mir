@@ -15,7 +15,7 @@ snippet の設定・変数・hooks を定義する YAML ファイルの仕様。
 エディタで補完を有効にするには、ファイル先頭に以下を追加する:
 
 ```yaml
-# yaml-language-server: $schema=../../schema/v1/snippet.schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/snippet.schema.json
 ```
 
 ## フィールド一覧
@@ -31,6 +31,8 @@ snippet の設定・変数・hooks を定義する YAML ファイルの仕様。
 ## スキーマ概要
 
 ```yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/snippet.schema.json
+
 # snippet 名（必須）
 name: string
 
@@ -256,6 +258,7 @@ useAuth.test.ts
 ### snippet 定義ファイル
 
 ```yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/snippet.schema.json
 name: react-hook
 description: "React カスタムフック用テンプレート"
 variables:

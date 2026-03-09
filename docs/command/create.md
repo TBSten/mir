@@ -33,6 +33,7 @@ mir create <name>
 #### `.mir/snippets/<name>.yaml`
 
 ```yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/snippet.schema.json
 name: <name>
 description: ""
 variables: {}

@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import yaml from "js-yaml";
-import { RegistryNotFoundError, RegistryRemoteError } from "@tbsten/mir-core";
+import { RegistryNotFoundError, RegistryRemoteError, validateMirconfigBySchema } from "@tbsten/mir-core";
 import {
   expandTilde,
   globalConfigPath,
@@ -63,6 +63,7 @@ function loadOptionalConfig(filePath: string): MirConfig {
   if (!parsed) {
     return { ...EMPTY_CONFIG };
   }
+  warnIfInvalidConfig(parsed, filePath);
   return {
     registries: parsed.registries ?? [],
     defaults: parsed.defaults,
@@ -79,11 +80,21 @@ export function loadSingleConfig(filePath: string): MirConfig {
   if (!parsed) {
     return { ...DEFAULT_CONFIG };
   }
+  warnIfInvalidConfig(parsed, filePath);
   return {
     registries: parsed.registries ?? DEFAULT_CONFIG.registries,
     defaults: parsed.defaults,
     locale: parsed.locale,
   };
+}
+
+function warnIfInvalidConfig(data: unknown, filePath: string): void {
+  try {
+    validateMirconfigBySchema(data);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    console.warn(`[mir] config warning (${filePath}): ${message}`);
+  }
 }
 
 export function mergeConfigs(

@@ -1,7 +1,8 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`snippet YAML シリアライズ snapshot > hooks 付き snippet 定義 1`] = `
-"name: with-hooks
+"# yaml-language-server: $schema=https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/snippet.schema.json
+name: with-hooks
 variables:
   name:
     schema:
@@ -17,7 +18,8 @@ hooks:
 `;
 
 exports[`snippet YAML シリアライズ snapshot > 全フィールドを含む snippet 定義 1`] = `
-"name: full-example
+"# yaml-language-server: $schema=https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/snippet.schema.json
+name: full-example
 description: 全フィールドを含む例
 variables:
   name:
@@ -54,7 +56,8 @@ hooks:
 `;
 
 exports[`snippet YAML シリアライズ snapshot > 変数付き snippet 定義 1`] = `
-"name: with-vars
+"# yaml-language-server: $schema=https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/snippet.schema.json
+name: with-vars
 description: テスト用 snippet
 variables:
   name:
@@ -77,6 +80,7 @@ variables:
 `;
 
 exports[`snippet YAML シリアライズ snapshot > 最小の snippet 定義 1`] = `
-"name: minimal
+"# yaml-language-server: $schema=https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/snippet.schema.json
+name: minimal
 "
 `;

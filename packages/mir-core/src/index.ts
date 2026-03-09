@@ -14,6 +14,7 @@ export {
 
 // snippet-schema
 export {
+  SNIPPET_SCHEMA_URL,
   parseSnippetYaml,
   serializeSnippetYaml,
   validateSnippetDefinition,
@@ -24,6 +25,12 @@ export type {
   Action,
   SnippetDefinition,
 } from "./snippet-schema.js";
+
+// schema-validator
+export {
+  validateSnippetBySchema,
+  validateMirconfigBySchema,
+} from "./schema-validator.js";
 
 // validate-name
 export { validateSnippetName } from "./validate-name.js";
@@ -38,6 +45,7 @@ export {
 // template-engine
 export {
   expandTemplate,
+  expandDefaultValue,
   expandPath,
   extractVariables,
   extractVariablesFromDirectory,

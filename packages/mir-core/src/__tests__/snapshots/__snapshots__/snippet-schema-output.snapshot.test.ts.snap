@@ -1,7 +1,8 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`snippet スキーマ snapshot > hooks 付き snippet 定義の YAML 出力 1`] = `
-"name: with-hooks
+"# yaml-language-server: $schema=https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/snippet.schema.json
+name: with-hooks
 hooks:
   before-install:
     - echo: インストールを開始します
@@ -18,7 +19,8 @@ hooks:
 `;
 
 exports[`snippet スキーマ snapshot > suggests 付き変数の YAML 出力 1`] = `
-"name: css-setup
+"# yaml-language-server: $schema=https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/snippet.schema.json
+name: css-setup
 variables:
   framework:
     description: CSSフレームワーク
@@ -33,7 +35,8 @@ variables:
 `;
 
 exports[`snippet スキーマ snapshot > フル構成 YAML のパース → シリアライズ往復 1`] = `
-"name: full-example
+"# yaml-language-server: $schema=https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/snippet.schema.json
+name: full-example
 description: フル構成のサンプル
 variables:
   name:
@@ -57,7 +60,8 @@ hooks:
 `;
 
 exports[`snippet スキーマ snapshot > 変数付き snippet 定義の YAML 出力 1`] = `
-"name: react-hook
+"# yaml-language-server: $schema=https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/snippet.schema.json
+name: react-hook
 description: React カスタムフック雛形
 variables:
   name:
@@ -73,6 +77,7 @@ variables:
 `;
 
 exports[`snippet スキーマ snapshot > 最小限の snippet 定義の YAML 出力 1`] = `
-"name: minimal
+"# yaml-language-server: $schema=https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/snippet.schema.json
+name: minimal
 "
 `;

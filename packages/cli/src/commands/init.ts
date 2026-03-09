@@ -7,7 +7,10 @@ import { confirm } from "../lib/prompt.js";
 
 const SNIPPETS_SUBDIR = "snippets";
 const CONFIG_FILE = "mirconfig.yaml";
-const SAMPLE_SNIPPET_YAML = `name: hello-world
+const SNIPPET_SCHEMA_COMMENT = "# yaml-language-server: $schema=https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/snippet.schema.json";
+
+const SAMPLE_SNIPPET_YAML = `${SNIPPET_SCHEMA_COMMENT}
+name: hello-world
 description: シンプルな Hello World スニペット
 
 variables:
@@ -21,7 +24,10 @@ const SAMPLE_SNIPPET_FILES = {
   "index.js": "console.log('Hello {{name}}!');",
 };
 
-const SAMPLE_MIRCONFIG = `# mir config
+const MIRCONFIG_SCHEMA_COMMENT = "# yaml-language-server: $schema=https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/mirconfig.schema.json";
+
+const SAMPLE_MIRCONFIG = `${MIRCONFIG_SCHEMA_COMMENT}
+# mir config
 #
 # locale: ja
 

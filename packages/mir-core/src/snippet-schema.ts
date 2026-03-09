@@ -1,7 +1,7 @@
 import yaml from "js-yaml";
 import { ValidationError } from "./errors.js";
-import { validateSnippetName } from "./validate-name.js";
-import { safeParseYaml, checkNoRefInSchema } from "./safe-yaml-parser.js";
+import { safeParseYaml } from "./safe-yaml-parser.js";
+import { validateSnippetBySchema } from "./schema-validator.js";
 
 export interface VariableSchema {
   type?: "string" | "number" | "boolean";
@@ -51,67 +51,22 @@ export function parseSnippetYaml(content: string): SnippetDefinition {
   if (typeof parsed !== "object" || parsed === null) {
     throw new ValidationError("snippet YAML のパースに失敗しました");
   }
-  const def = parsed as SnippetDefinition;
-  validateSnippetDefinition(def);
-  return def;
+  validateSnippetDefinition(parsed as SnippetDefinition);
+  return parsed as SnippetDefinition;
 }
+
+export const SNIPPET_SCHEMA_URL =
+  "https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/snippet.schema.json";
 
 export function serializeSnippetYaml(def: SnippetDefinition): string {
-  return yaml.dump(def, { noRefs: true, lineWidth: -1 });
+  const header = `# yaml-language-server: $schema=${SNIPPET_SCHEMA_URL}\n`;
+  return header + yaml.dump(def, { noRefs: true, lineWidth: -1 });
 }
 
+/**
+ * JSON Schema ベースでバリデーションする。
+ * schema/v1/snippet.schema.json が single source of truth。
+ */
 export function validateSnippetDefinition(def: SnippetDefinition): void {
-  if (!def.name || typeof def.name !== "string") {
-    throw new ValidationError("snippet 定義に name フィールドが必要です");
-  }
-  validateSnippetName(def.name);
-  if (def.dependencies !== undefined) {
-    if (!Array.isArray(def.dependencies)) {
-      throw new ValidationError("dependencies は配列でなければなりません");
-    }
-    for (const dep of def.dependencies) {
-      if (typeof dep !== "string") {
-        throw new ValidationError(
-          `dependencies の各要素は文字列でなければなりません。受け取った値: ${typeof dep}`,
-        );
-      }
-      validateSnippetName(dep);
-    }
-  }
-  if (def.variables !== undefined) {
-    if (typeof def.variables !== "object" || def.variables === null) {
-      throw new ValidationError("variables はオブジェクトでなければなりません");
-    }
-    for (const [key, varDef] of Object.entries(def.variables)) {
-      if (typeof varDef !== "object" || varDef === null) {
-        throw new ValidationError(
-          `変数 "${key}" の定義はオブジェクトでなければなりません`,
-        );
-      }
-      if (varDef.suggests !== undefined) {
-        if (!Array.isArray(varDef.suggests)) {
-          throw new ValidationError(
-            `変数 "${key}" の suggests は配列でなければなりません`,
-          );
-        }
-        for (const item of varDef.suggests) {
-          if (typeof item !== "string") {
-            throw new ValidationError(
-              `変数 "${key}" の suggests の各要素は文字列でなければなりません`,
-            );
-          }
-        }
-      }
-      // $ref によるJSON Schema外部参照攻撃を禁止
-      checkNoRefInSchema(varDef.schema);
-      if (varDef.schema?.type !== undefined) {
-        const validTypes = ["string", "number", "boolean"];
-        if (!validTypes.includes(varDef.schema.type)) {
-          throw new ValidationError(
-            `変数 "${key}" の type "${varDef.schema.type}" は無効です。string, number, boolean のいずれかを指定してください`,
-          );
-        }
-      }
-    }
-  }
+  validateSnippetBySchema(def);
 }

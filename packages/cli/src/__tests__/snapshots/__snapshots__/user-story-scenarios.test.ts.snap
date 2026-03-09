@@ -1,7 +1,8 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Story 1: 新規 snippet 作成 > create の成功メッセージとファイル構造 1`] = `
-"name: react-hook
+"# yaml-language-server: $schema=https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/snippet.schema.json
+name: react-hook
 description: ''
 variables: {}
 hooks:

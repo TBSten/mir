@@ -44,6 +44,7 @@
 ### 生成される snippet 定義ファイル
 
 ```yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/TBSten/mir/refs/heads/main/schema/v1/snippet.schema.json
 name: <name>
 description: ""
 variables: {}
