@@ -26,6 +26,7 @@ import {
   loadMirConfig,
   resolveInstallRegistries,
   resolveRegistryPath,
+  resolveRegistryUrl,
 } from "../lib/mirconfig.js";
 import { prompt, selectWithSuggests, confirmOverwrite } from "../lib/prompt.js";
 import { selectSnippet } from "../lib/snippet-list.js";
@@ -156,7 +157,7 @@ export async function installSnippet(
   for (const entry of registries) {
     if (entry.url) {
       try {
-        const remote = await fetchRemoteSnippet(entry.url, name, fetchOptions);
+        const remote = await fetchRemoteSnippet(resolveRegistryUrl(entry), name, fetchOptions);
         definition = remote.definition;
         authorizationStatus = remote.authorizationStatus;
         source = { type: "remote", files: remote.files };
@@ -406,14 +407,22 @@ async function resolveVariables(
           }),
         );
       }
-      // 対話モード: リトライループで空入力を許さない
+      // 対話モード: リトライループで空入力を許さない（最大3回）
       const description = def.description ?? def.name ?? key;
       let answer = "";
-      while (!answer) {
+      const maxRetries = 3;
+      for (let retry = 0; retry < maxRetries; retry++) {
         answer = await prompt(`${description} (${key}): `);
-        if (!answer) {
-          logger.warn(t("error.variable-empty", { key }));
-        }
+        if (answer) break;
+        logger.warn(t("error.variable-empty", { key }));
+      }
+      if (!answer) {
+        throw new MirError(
+          t("error.variable-required", {
+            key,
+            hint: `--${key}=<value>`,
+          }),
+        );
       }
       variables[key] = coerceValue(answer, def.schema?.type);
     }
@@ -675,7 +684,7 @@ Examples:
         for (const entry of registries) {
           if (entry.url) {
             try {
-              const remoteNames = await listRemoteSnippets(entry.url, fetchOptions);
+              const remoteNames = await listRemoteSnippets(resolveRegistryUrl(entry), fetchOptions);
               for (const s of remoteNames) {
                 if (!allSnippets.includes(s)) {
                   allSnippets.push(s);

@@ -1,6 +1,6 @@
 {
   "name": "@mir/official-registry",
-  "version": "0.0.2-alpha04",
+  "version": "0.0.2-alpha05",
   "description": "mir 公式 Registry（HonoX + Cloudflare Pages）",
   "private": true,
   "type": "module",
@@ -39,7 +39,7 @@
     "tailwindcss": "^4.2.1",
     "typescript": "^5",
     "vite": "^6",
-    "vitest": "^3",
+    "vitest": "^4",
     "wrangler": "^4.70.0"
   }
 }

@@ -179,7 +179,7 @@ describe("Story 4: 初回 publish", () => {
       "utf-8",
     );
 
-    await publishSnippet("react-hook", {}, tmpDir, configPath);
+    await publishSnippet("react-hook", { interactive: false }, tmpDir, configPath);
 
     expect(vi.mocked(logger.success)).toHaveBeenCalledWith(
       expect.stringContaining("react-hook"),
@@ -207,7 +207,7 @@ describe("Story 5: 上書き publish", () => {
       "utf-8",
     );
 
-    await publishSnippet("react-hook", {}, tmpDir, configPath);
+    await publishSnippet("react-hook", { interactive: false }, tmpDir, configPath);
     // v2 に更新
     fs.writeFileSync(
       path.join(snippetDir, "index.ts"),
@@ -215,7 +215,7 @@ describe("Story 5: 上書き publish", () => {
       "utf-8",
     );
 
-    await publishSnippet("react-hook", { force: true }, tmpDir, configPath);
+    await publishSnippet("react-hook", { force: true, interactive: false }, tmpDir, configPath);
 
     const content = fs.readFileSync(
       path.join(registryDir, "react-hook/index.ts"),
@@ -229,7 +229,7 @@ describe("Story 5: 上書き publish", () => {
     const snippetDir = path.join(tmpDir, ".mir/snippets/react-hook");
     fs.writeFileSync(path.join(snippetDir, "index.ts"), "v1", "utf-8");
 
-    await publishSnippet("react-hook", {}, tmpDir, configPath);
+    await publishSnippet("react-hook", { interactive: false }, tmpDir, configPath);
 
     mockConfirm.mockResolvedValue(false);
     await publishSnippet("react-hook", {}, tmpDir, configPath);
@@ -536,7 +536,7 @@ describe("Story 15: .mir/ なしでの一連フロー", () => {
     syncSnippet("hello", tmpDir);
 
     // 4. publish
-    await publishSnippet("hello", {}, tmpDir, configPath);
+    await publishSnippet("hello", { interactive: false }, tmpDir, configPath);
 
     // 5. install
     const outDir = path.join(tmpDir, "output");

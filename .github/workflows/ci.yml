@@ -37,11 +37,7 @@ jobs:
         run: npm run build
 
       - name: Unit Tests
-        run: |
-          npm test -w packages/mir-core
-          npm test -w packages/cli -- --pool=forks --fileParallelism=false
-          npm test -w packages/official-registry
-          npm test -w packages/registry-sdk
+        run: npm test
 
   build-artifacts:
     runs-on: ubuntu-latest
