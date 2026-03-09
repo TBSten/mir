@@ -1,3 +1,8 @@
+---
+name: find-skills
+description: 利用可能な mir skills を検索・一覧表示する。「mir でできることは？」「どんな skill がある？」「mir の機能を知りたい」「skill を探して」と言った場合に使用する。
+---
+
 # find-skills
 
 利用可能な mir skills を検索・表示する skill。
