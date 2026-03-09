@@ -108,15 +108,16 @@ Claude Code 等の AI Agent 向けの skills を提供しています。
 
 | Skill | 説明 |
 |---|---|
-| `create-snippet` | 新しい snippet を対話的に作成 |
-| `sync-variables` | テンプレートの変数を snippet.yaml に同期 |
-| `publish-snippet` | snippet をローカル registry に公開 |
-| `install-snippet` | registry から snippet をインストール |
-| `edit-variables` | snippet の変数定義を確認・編集 |
-| `list-snippets` | ローカル/registry の snippet 一覧を表示 |
-| `edit-hooks` | snippet の hooks を設定 |
-| `edit-config` | config.yaml の設定を確認・編集 |
-| `test-snippet` | snippet の動作テスト (dry-run) |
+| `error-handling` | mir CLI のエラー発生時のトラブルシューティング |
+| `search-snippet` | ユーザのリクエストから適切な snippet を検索・提案 |
+| `getting-started` | mir のインストールと基本的な使い方を案内 |
+| `extract-snippet` | 既存のプロジェクトコードから snippet を新規作成 |
+| `private-mir` | .mir を git に含めず自分だけで使う設定 |
+| `update-snippet` | 既存 snippet の品質チェック・最新化 |
+| `review-snippet` | snippet の品質レビューと改善提案 |
+| `publish-guide` | snippet の公開方法を案内 |
+| `publish-snippet` | snippet を registry に公開 |
+| `update-published-snippet` | 公開済の snippet を更新 |
 | `find-skills` | 利用可能な mir skills を検索・表示 |
 
 ### インストール
