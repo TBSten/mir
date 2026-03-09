@@ -86,6 +86,40 @@ describe("GET /:name.yaml", () => {
   });
 });
 
+describe("GET /index.json (authorizationStatus)", () => {
+  it("authorizationStatus がマニフェストに含まれる", async () => {
+    const providerWithAuth: RegistryProvider = {
+      async list() {
+        return [
+          { name: "approved-snippet", authorizationStatus: "approved" as const },
+          { name: "examination-snippet", authorizationStatus: "examination" as const },
+          { name: "rejected-snippet", authorizationStatus: "rejected" as const },
+        ];
+      },
+      async get(name) {
+        return {
+          definition: { name },
+          files: new Map([["index.ts", "// content"]]),
+          authorizationStatus: name.split("-")[0] as any,
+        };
+      },
+    };
+    const app = createStaticProtocolRoutes(providerWithAuth);
+    const res = await app.request("/index.json");
+    const data = await res.json();
+    expect(data.snippets["approved-snippet"].authorizationStatus).toBe("approved");
+    expect(data.snippets["examination-snippet"].authorizationStatus).toBe("examination");
+    expect(data.snippets["rejected-snippet"].authorizationStatus).toBe("rejected");
+  });
+
+  it("authorizationStatus が未設定の場合は undefined", async () => {
+    const app = createStaticProtocolRoutes(mockProvider);
+    const res = await app.request("/index.json");
+    const data = await res.json();
+    expect(data.snippets["react-hook"].authorizationStatus).toBeUndefined();
+  });
+});
+
 describe("GET /:name/:file", () => {
   it("テンプレートファイルの内容を返す", async () => {
     const app = createStaticProtocolRoutes(mockProvider);

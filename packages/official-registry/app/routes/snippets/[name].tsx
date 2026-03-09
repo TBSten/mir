@@ -18,7 +18,7 @@ export default createRoute(async (c) => {
     return renderError(c, new NotFoundError(`Snippet "${name}" not found`));
   }
 
-  const { definition, files } = detail;
+  const { definition, files, authorizationStatus } = detail;
   const fileEntries = Array.from(files.entries());
 
   // ディレクトリツリーを生成
@@ -52,6 +52,7 @@ export default createRoute(async (c) => {
               {`v${definition.version}`}
             </a>
           )}
+          <AuthorizationBadge status={authorizationStatus} />
           <PopularityBadge name={name} />
         </div>
         {definition.description && (
@@ -60,6 +61,21 @@ export default createRoute(async (c) => {
           </p>
         )}
       </div>
+
+      {/* Authorization Warning */}
+      {authorizationStatus && authorizationStatus !== "approved" && (
+        <div class={`flex items-center gap-2 p-4 rounded border ${
+          authorizationStatus === "rejected"
+            ? "bg-red-50 border-red-200 text-red-700"
+            : "bg-yellow-50 border-yellow-200 text-yellow-700"
+        }`}>
+          <span class="font-mono text-sm">
+            {authorizationStatus === "rejected"
+              ? "このスニペットは審査により却下されました。利用にはご注意ください。"
+              : "このスニペットはまだ審査中です。公式に承認されていません。"}
+          </span>
+        </div>
+      )}
 
       {/* Install Section */}
       <div class="flex flex-col gap-3 p-4 bg-sky-50 rounded border border-sky-200">
@@ -196,6 +212,31 @@ function buildTree(root: string, paths: string[]): string {
     lines.push(`  ${prefix}${path}`);
   });
   return lines.join("\n");
+}
+
+function AuthorizationBadge({ status }: { status?: string }) {
+  if (!status || status === "approved") {
+    if (status === "approved") {
+      return (
+        <span class="inline-block px-2 py-0.5 bg-green-100 text-green-700 text-xs font-mono rounded border border-green-200">
+          approved
+        </span>
+      );
+    }
+    return null;
+  }
+  if (status === "rejected") {
+    return (
+      <span class="inline-block px-2 py-0.5 bg-red-100 text-red-700 text-xs font-mono rounded border border-red-200">
+        rejected
+      </span>
+    );
+  }
+  return (
+    <span class="inline-block px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs font-mono rounded border border-yellow-200">
+      examination
+    </span>
+  );
 }
 
 function PopularityBadge({ name }: { name: string }) {

@@ -74,6 +74,7 @@ export function createRegistryRoutes(provider: RegistryProvider, options?: Regis
     return c.json({
       definition: detail.definition,
       files: filesObj,
+      authorizationStatus: detail.authorizationStatus,
     });
   });
 

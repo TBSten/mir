@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { serializeSnippetYaml } from "@tbsten/mir-core";
-import type { RegistryProvider } from "./types.js";
+import type { AuthorizationStatus, RegistryProvider } from "./types.js";
 
 /**
  * CLI が期待する静的プロトコルルートを作成する。
@@ -20,13 +20,14 @@ export function createStaticProtocolRoutes(
   // マニフェスト
   app.get("/index.json", async (c) => {
     const list = await provider.list();
-    const snippets: Record<string, { files: string[] }> = {};
+    const snippets: Record<string, { files: string[]; authorizationStatus?: AuthorizationStatus }> = {};
 
     for (const summary of list) {
       const detail = await provider.get(summary.name);
       if (detail) {
         snippets[summary.name] = {
           files: [...detail.files.keys()],
+          authorizationStatus: summary.authorizationStatus ?? detail.authorizationStatus,
         };
       }
     }

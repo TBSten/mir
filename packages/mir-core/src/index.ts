@@ -71,7 +71,7 @@ export {
   fetchRemoteSnippet,
   expandRemoteTemplateFiles,
 } from "./remote-registry.js";
-export type { RegistryManifest, RemoteSnippet, FetchOptions } from "./remote-registry.js";
+export type { AuthorizationStatus, RegistryManifest, RemoteSnippet, FetchOptions } from "./remote-registry.js";
 
 // symlink-checker
 export {

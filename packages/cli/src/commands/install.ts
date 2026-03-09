@@ -17,6 +17,7 @@ import {
   FileConflictError,
   findSymlinksInDirectory,
   t,
+  type AuthorizationStatus,
   type SnippetDefinition,
   type VariableDefinition,
   type FetchOptions,
@@ -150,12 +151,14 @@ export async function installSnippet(
 
   let source: ResolvedSource | undefined;
   let definition: SnippetDefinition | undefined;
+  let authorizationStatus: AuthorizationStatus | undefined;
 
   for (const entry of registries) {
     if (entry.url) {
       try {
         const remote = await fetchRemoteSnippet(entry.url, name, fetchOptions);
         definition = remote.definition;
+        authorizationStatus = remote.authorizationStatus;
         source = { type: "remote", files: remote.files };
         break;
       } catch {
@@ -197,6 +200,26 @@ export async function installSnippet(
   // 変数一覧を表示（quiet/json モードでは抑制）
   if (!quiet && !isJson) {
     logVariableSummary(name, variableDefs, variables, variableArgs);
+  }
+
+  // 認可ステータスが approved でない場合は警告を表示
+  if (authorizationStatus && authorizationStatus !== "approved") {
+    const statusLabel = authorizationStatus === "examination" ? "審査中" : "却下済み";
+    if (!quiet && !isJson) {
+      logger.warn(`このスニペットは現在「${statusLabel}」です。公式に承認されていません。`);
+    }
+    if (interactive) {
+      const answer = await prompt(`それでもインストールしますか？ (y/N): `);
+      if (!answer || !["y", "yes"].includes(answer.toLowerCase())) {
+        logger.info("インストールをキャンセルしました。");
+        return {
+          success: false,
+          snippet: name,
+          error: "User cancelled due to authorization status",
+          code: "AuthorizationCancelled",
+        };
+      }
+    }
   }
 
   // before-install hooks 実行 (safe モードではスキップ)

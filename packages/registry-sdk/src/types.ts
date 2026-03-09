@@ -1,16 +1,21 @@
 import type { SnippetDefinition } from "@tbsten/mir-core";
 
+/** 認可ステータス */
+export type AuthorizationStatus = "examination" | "approved" | "rejected";
+
 /** snippet のメタ情報 (一覧用) */
 export interface RegistrySnippetSummary {
   name: string;
   version?: string;
   description?: string;
+  authorizationStatus?: AuthorizationStatus;
 }
 
 /** snippet の詳細 (インストール用) */
 export interface RegistrySnippetDetail {
   definition: SnippetDefinition;
   files: Map<string, string>;
+  authorizationStatus?: AuthorizationStatus;
 }
 
 /** バージョン履歴のエントリ */

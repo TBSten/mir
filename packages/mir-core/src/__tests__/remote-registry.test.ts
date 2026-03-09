@@ -199,6 +199,7 @@ describe("fetchRemoteFiles", () => {
 describe("fetchRemoteSnippet", () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    clearAllRemoteRegistryCaches();
   });
 
   it("definition + files を統合して返す", async () => {
@@ -242,6 +243,71 @@ describe("fetchRemoteSnippet", () => {
     await expect(
       fetchRemoteSnippet(BASE_URL, "nonexistent"),
     ).rejects.toThrow(RemoteRegistryFetchError);
+  });
+
+  it("マニフェストの authorizationStatus を返す", async () => {
+    const manifestWithAuth = {
+      snippets: {
+        "react-hook": {
+          files: ["{{ name }}.ts"],
+          authorizationStatus: "approved",
+        },
+        "untrusted-snippet": {
+          files: ["index.ts"],
+          authorizationStatus: "examination",
+        },
+        "rejected-snippet": {
+          files: ["index.ts"],
+          authorizationStatus: "rejected",
+        },
+      },
+    };
+    vi.stubGlobal(
+      "fetch",
+      mockFetch({
+        [`${BASE_URL}/index.json`]: {
+          status: 200,
+          body: JSON.stringify(manifestWithAuth),
+        },
+        [`${BASE_URL}/react-hook.yaml`]: {
+          status: 200,
+          body: reactHookYaml,
+        },
+        [`${BASE_URL}/react-hook/${encodeURIComponent("{{ name }}.ts")}`]: {
+          status: 200,
+          body: "export function {{ name }}() {}",
+        },
+      }),
+    );
+    const snippet = await fetchRemoteSnippet(BASE_URL, "react-hook");
+    expect(snippet.authorizationStatus).toBe("approved");
+  });
+
+  it("authorizationStatus が未指定の場合は undefined", async () => {
+    vi.stubGlobal(
+      "fetch",
+      mockFetch({
+        [`${BASE_URL}/index.json`]: {
+          status: 200,
+          body: JSON.stringify(validManifest),
+        },
+        [`${BASE_URL}/react-hook.yaml`]: {
+          status: 200,
+          body: reactHookYaml,
+        },
+        [`${BASE_URL}/react-hook/${encodeURIComponent("{{ name }}.ts")}`]: {
+          status: 200,
+          body: "export function {{ name }}() {}",
+        },
+        [`${BASE_URL}/react-hook/${encodeURIComponent("{{ name }}.test.ts")}`]:
+          {
+            status: 200,
+            body: 'test("{{ name }}", () => {});',
+          },
+      }),
+    );
+    const snippet = await fetchRemoteSnippet(BASE_URL, "react-hook");
+    expect(snippet.authorizationStatus).toBeUndefined();
   });
 });
 

@@ -4,11 +4,14 @@ import { expandTemplate, expandPath } from "./template-engine.js";
 import { t } from "./i18n/index.js";
 import type { SnippetDefinition } from "./snippet-schema.js";
 
+/** 認可ステータス */
+export type AuthorizationStatus = "examination" | "approved" | "rejected";
+
 /**
  * リモート registry のマニフェスト (index.json) の型
  */
 export interface RegistryManifest {
-  snippets: Record<string, { files: string[] }>;
+  snippets: Record<string, { files: string[]; authorizationStatus?: AuthorizationStatus }>;
 }
 
 /**
@@ -25,6 +28,7 @@ export interface FetchOptions {
 export interface RemoteSnippet {
   definition: SnippetDefinition;
   files: Map<string, string>;
+  authorizationStatus?: AuthorizationStatus;
 }
 
 /**
@@ -240,7 +244,11 @@ export async function fetchRemoteSnippet(
     fetchRemoteFiles(baseUrl, name, snippetEntry.files, options),
   ]);
 
-  return { definition, files };
+  return {
+    definition,
+    files,
+    authorizationStatus: snippetEntry.authorizationStatus,
+  };
 }
 
 /**
