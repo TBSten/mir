@@ -27,7 +27,56 @@ program
   .showHelpAfterError(true)
   .option("--config <path>", "設定ファイルパス (デフォルト: ~/.mir/config.yaml)")
   .option("--locale <lang>", "UI 言語 (ja|en)")
-  .option("--no-interactive", "非対話モード");
+  .option("--no-interactive", "非対話モード")
+  .configureHelp({
+    formatHelp(cmd, helper) {
+      const bold = "\x1b[1m";
+      const cyan = "\x1b[36m";
+      const yellow = "\x1b[33m";
+      const dim = "\x1b[2m";
+      const reset = "\x1b[0m";
+
+      const title = `${bold}${cyan}${cmd.name()}${reset}`;
+      const desc = cmd.description();
+      const lines: string[] = [];
+
+      lines.push(`${title}${desc ? ` - ${desc}` : ""}`);
+      lines.push("");
+
+      // Usage
+      const usage = helper.commandUsage(cmd);
+      lines.push(`${bold}Usage:${reset}  ${usage}`);
+      lines.push("");
+
+      // Commands
+      const cmds = helper.visibleCommands(cmd);
+      if (cmds.length > 0) {
+        lines.push(`${bold}Commands:${reset}`);
+        const padWidth = helper.padWidth(cmd, helper);
+        for (const sub of cmds) {
+          const name = helper.subcommandTerm(sub).padEnd(padWidth);
+          const subDesc = helper.subcommandDescription(sub);
+          lines.push(`  ${cyan}${name}${reset}  ${dim}${subDesc}${reset}`);
+        }
+        lines.push("");
+      }
+
+      // Options
+      const opts = helper.visibleOptions(cmd);
+      if (opts.length > 0) {
+        lines.push(`${bold}Options:${reset}`);
+        const padWidth = helper.padWidth(cmd, helper);
+        for (const opt of opts) {
+          const flags = helper.optionTerm(opt).padEnd(padWidth);
+          const optDesc = helper.optionDescription(opt);
+          lines.push(`  ${yellow}${flags}${reset}  ${dim}${optDesc}${reset}`);
+        }
+        lines.push("");
+      }
+
+      return lines.join("\n");
+    },
+  });
 
 // CLI オプション、環境変数、config ファイルから locale を解決
 const opts = program.opts();

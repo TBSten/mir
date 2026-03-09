@@ -105,11 +105,12 @@ async function startLoginFlow(registryUrl: string): Promise<LoginResult> {
       logger.info(`ブラウザを開いています: ${loginUrl}`);
       openBrowser(loginUrl);
 
-      // 5 分タイムアウト
-      setTimeout(() => {
+      // 5 分タイムアウト (unref で正常終了時にプロセスをブロックしない)
+      const timeout = setTimeout(() => {
         server.close();
         reject(new Error("ログインがタイムアウトしました"));
       }, 5 * 60 * 1000);
+      timeout.unref();
     });
 
     server.on("error", (err) => {

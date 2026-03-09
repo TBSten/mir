@@ -55,7 +55,7 @@ export async function publishSnippet(
   if (opts.interactive !== false) {
     const registryDisplay = registryEntry.url || resolveRegistryPath(registryEntry);
     const shouldProceed = await confirm(
-      `\nSnippet: ${name}\nLocation: ${dirPath}\nRegistry: ${registryDisplay}\n\nこれで公開していい?`,
+      `\nSnippet: ${name}\nLocation: ${dirPath}\nRegistry: ${registryDisplay}\n\nこれで公開してもよろしいですか?`,
     );
     if (!shouldProceed) {
       logger.info(t("publish.cancelled"));

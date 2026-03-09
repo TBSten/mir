@@ -23,13 +23,11 @@ const SAMPLE_SNIPPET_FILES = {
 
 const SAMPLE_MIRCONFIG = `# mir config
 #
-# registry:
-#   - name: default
-#     path: ~/.mir/registry
-#
 # locale: ja
 
-registry:
+registries:
+  - name: official
+    url: https://mir.tbsten.me
   - name: default
     path: ~/.mir/registry
 `;
