@@ -39,11 +39,9 @@ jobs:
       - name: Unit Tests
         run: |
           npm test -w packages/mir-core
-          npm test -w packages/cli -- --pool=forks --poolOptions.forks.singleFork
+          npm test -w packages/cli -- --pool=forks --fileParallelism=false
           npm test -w packages/official-registry
           npm test -w packages/registry-sdk
-        env:
-          NODE_OPTIONS: "--max-old-space-size=4096"
 
   build-artifacts:
     runs-on: ubuntu-latest
