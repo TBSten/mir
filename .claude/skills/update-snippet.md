@@ -27,6 +27,7 @@ description: 既存の mir snippet を品質チェックリストに基づいて
 
 - [ ] variable に適切な schema (type, default, enum), description, suggests が設定されている
 - [ ] snippet.yaml に description, tags, version が適切に設定されている
+- [ ] snippet 定義 YAML に保守用コメントが記述されている（参考にしたファイルパス、設計意図・経緯など）
 - [ ] 生成されるコードがそのまま動く
   - 一時ディレクトリにインストールして動作を確認する
     ```bash

@@ -36,11 +36,23 @@ description: 既存のプロジェクトコードから mir snippet を新規作
    - テンプレートヘルパーを活用（camelCase, pascalCase, kebabCase 等）
 7. `.mir/snippets/<name>.yaml` に変数定義を記述する
    - 各変数に description, schema (type, default, enum), suggests を設定
-8. `mir sync <name>` で変数定義を同期する
+8. snippet 定義 YAML の末尾に保守用コメントを追加する
+   - 各テンプレートファイルの元となったファイルパスを記録する
+   - snippet の意図や設計判断の経緯を残す
+   - 例:
+     ```yaml
+     # 参考にしたファイル
+     # <name>/component.tsx ... from src/components/Button.tsx
+     # <name>/styles.css ... from src/styles/button.css
+     #
+     # 設計メモ
+     # - コンポーネント名を変数化して再利用可能にした
+     ```
+9. `mir sync <name>` で変数定義を同期する
    ```bash
    npx mir sync <name>
    ```
-9. 動作確認: 一時ディレクトリにインストールして展開結果を確認する
+10. 動作確認: 一時ディレクトリにインストールして展開結果を確認する
    ```bash
    npx mir install <name> --out-dir=/tmp/mir-test-<name>
    ```
