@@ -16,7 +16,7 @@ npx @tbsten/mir <options>
 
 # AI Agent 経由で利用する
 # skills を追加
-npx skills add https://github.com/TBSten/mir --skills mir-get-started
+npx skills add https://github.com/TBSten/mir --skill mir-get-started
 # TODO AI Agent に "mir がインストールできたか確認して バージョンを表示して" のように質問する
 ```
 
