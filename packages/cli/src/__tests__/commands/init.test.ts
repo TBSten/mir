@@ -6,7 +6,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { initProject } from "../../commands/init.js";
+import { initProject, addToGitignore } from "../../commands/init.js";
 import { MirError } from "@tbsten/mir-core";
 
 // prompt モジュールをモック
@@ -217,5 +217,81 @@ describe("initProject", () => {
       fs.existsSync(path.join(tmpDir, ".mir/snippets/hello-world/hello.txt"))
     ).toBe(true);
     expect(fs.existsSync(path.join(tmpDir, "mirconfig.yaml"))).toBe(true);
+  });
+
+  it("初期化時に .gitignore に .mir/config.local.yaml が追加される", async () => {
+    await initProject(tmpDir, { force: false, interactive: false });
+
+    const gitignorePath = path.join(tmpDir, ".gitignore");
+    expect(fs.existsSync(gitignorePath)).toBe(true);
+    const content = fs.readFileSync(gitignorePath, "utf-8");
+    expect(content).toContain(".mir/config.local.yaml");
+  });
+
+  it("--force で再初期化した場合でも .gitignore のエントリが維持される", async () => {
+    await initProject(tmpDir, { force: false, interactive: false });
+    const gitignorePath = path.join(tmpDir, ".gitignore");
+    fs.appendFileSync(gitignorePath, "node_modules/\n", "utf-8");
+
+    await initProject(tmpDir, { force: true, interactive: false });
+
+    const content = fs.readFileSync(gitignorePath, "utf-8");
+    expect(content).toContain(".mir/config.local.yaml");
+    expect(content).toContain("node_modules/");
+  });
+});
+
+describe("addToGitignore", () => {
+  it(".gitignore が存在しない場合 → 新規作成", () => {
+    addToGitignore(tmpDir, ".mir/config.local.yaml");
+
+    const gitignorePath = path.join(tmpDir, ".gitignore");
+    expect(fs.existsSync(gitignorePath)).toBe(true);
+    const content = fs.readFileSync(gitignorePath, "utf-8");
+    expect(content).toBe(".mir/config.local.yaml\n");
+  });
+
+  it(".gitignore に未記載 → 追記される", () => {
+    const gitignorePath = path.join(tmpDir, ".gitignore");
+    fs.writeFileSync(gitignorePath, "node_modules/\n", "utf-8");
+
+    addToGitignore(tmpDir, ".mir/config.local.yaml");
+
+    const content = fs.readFileSync(gitignorePath, "utf-8");
+    expect(content).toBe("node_modules/\n.mir/config.local.yaml\n");
+  });
+
+  it("既に記載済み → 重複追加されない", () => {
+    const gitignorePath = path.join(tmpDir, ".gitignore");
+    fs.writeFileSync(gitignorePath, ".mir/config.local.yaml\n", "utf-8");
+
+    addToGitignore(tmpDir, ".mir/config.local.yaml");
+
+    const content = fs.readFileSync(gitignorePath, "utf-8");
+    const lines = content.split("\n").filter((l) => l === ".mir/config.local.yaml");
+    expect(lines).toHaveLength(1);
+  });
+
+  it("他のエントリが消えない", () => {
+    const gitignorePath = path.join(tmpDir, ".gitignore");
+    fs.writeFileSync(gitignorePath, "node_modules/\ndist/\n.env\n", "utf-8");
+
+    addToGitignore(tmpDir, ".mir/config.local.yaml");
+
+    const content = fs.readFileSync(gitignorePath, "utf-8");
+    expect(content).toContain("node_modules/");
+    expect(content).toContain("dist/");
+    expect(content).toContain(".env");
+    expect(content).toContain(".mir/config.local.yaml");
+  });
+
+  it("末尾に改行がない場合 → 正しく改行してから追記", () => {
+    const gitignorePath = path.join(tmpDir, ".gitignore");
+    fs.writeFileSync(gitignorePath, "node_modules/", "utf-8");
+
+    addToGitignore(tmpDir, ".mir/config.local.yaml");
+
+    const content = fs.readFileSync(gitignorePath, "utf-8");
+    expect(content).toBe("node_modules/\n.mir/config.local.yaml\n");
   });
 });

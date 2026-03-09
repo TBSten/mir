@@ -1,7 +1,8 @@
 import type { Command } from "commander";
 import http from "node:http";
-import { loadMirConfig } from "../lib/mirconfig.js";
-import { saveRegistryToken } from "../lib/mirconfig.js";
+import fs from "node:fs";
+import { loadMirConfig, saveRegistryToken } from "../lib/mirconfig.js";
+import { localPersonalConfigPath } from "../lib/paths.js";
 import * as logger from "../lib/logger.js";
 
 export function registerLoginCommand(program: Command): void {
@@ -9,6 +10,7 @@ export function registerLoginCommand(program: Command): void {
     .command("login")
     .description("registry にログインして publish token を取得")
     .option("--registry <name>", "対象 registry 名 (デフォルト: official)")
+    .option("--local", "token をプロジェクトローカルの config.local.yaml に保存")
     .action(async (opts) => {
       const registryName = opts.registry || "official";
       const config = loadMirConfig();
@@ -19,14 +21,26 @@ export function registerLoginCommand(program: Command): void {
         process.exit(1);
       }
 
+      // --local 時は .mir/ の存在を確認
+      let targetConfigPath: string | undefined;
+      if (opts.local) {
+        const mirDir = localPersonalConfigPath(process.cwd()).replace(/\/[^/]+$/, "");
+        if (!fs.existsSync(mirDir)) {
+          logger.error(".mir/ ディレクトリが存在しません。先に `mir init` を実行してください");
+          process.exit(1);
+        }
+        targetConfigPath = localPersonalConfigPath(process.cwd());
+      }
+
       const registryUrl = registry.url;
       logger.info(`${registryName} (${registryUrl}) にログインします...`);
 
       try {
         const { token, username } = await startLoginFlow(registryUrl);
-        saveRegistryToken(registryName, token);
+        saveRegistryToken(registryName, token, targetConfigPath);
         logger.success(`ログイン成功: ${username}`);
-        logger.info("publish token が設定に保存されました");
+        const dest = opts.local ? ".mir/config.local.yaml" : "グローバル設定";
+        logger.info(`publish token が ${dest} に保存されました`);
       } catch (error) {
         if (error instanceof Error) {
           logger.error(`ログイン失敗: ${error.message}`);

@@ -8,6 +8,7 @@ import {
   snippetsBasePath,
   globalConfigPath,
   localConfigPath,
+  localPersonalConfigPath,
   defaultRegistryPath,
 } from "../../lib/paths.js";
 
@@ -59,6 +60,14 @@ describe("globalConfigPath", () => {
 describe("localConfigPath", () => {
   it(".mir/config.yaml のパスを返す", () => {
     expect(localConfigPath("/project")).toBe("/project/.mir/config.yaml");
+  });
+});
+
+describe("localPersonalConfigPath", () => {
+  it(".mir/config.local.yaml のパスを返す", () => {
+    expect(localPersonalConfigPath("/project")).toBe(
+      "/project/.mir/config.local.yaml",
+    );
   });
 });
 

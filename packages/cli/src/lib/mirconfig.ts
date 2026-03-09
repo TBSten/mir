@@ -5,6 +5,7 @@ import {
   expandTilde,
   globalConfigPath,
   localConfigPath,
+  localPersonalConfigPath,
   defaultRegistryPath,
 } from "./paths.js";
 
@@ -44,7 +45,8 @@ export function loadMirConfig(opts?: LoadMirConfigOptions): MirConfig {
   const cwd = opts?.cwd ?? process.cwd();
   const globalConf = loadSingleConfig(globalConfigPath());
   const localConf = loadSingleConfig(localConfigPath(cwd));
-  return mergeConfigs(localConf, globalConf);
+  const localPersonalConf = loadSingleConfig(localPersonalConfigPath(cwd));
+  return mergeConfigs(localPersonalConf, mergeConfigs(localConf, globalConf));
 }
 
 export function loadSingleConfig(filePath: string): MirConfig {
@@ -163,10 +165,15 @@ export function ensureDefaultRegistryDir(): void {
 }
 
 /**
- * グローバル config の指定 registry に publish_token を保存
+ * 指定 config ファイルの registry に publish_token を保存
+ * @param targetConfigPath 省略時はグローバル config
  */
-export function saveRegistryToken(registryName: string, token: string): void {
-  const configPath = globalConfigPath();
+export function saveRegistryToken(
+  registryName: string,
+  token: string,
+  targetConfigPath?: string,
+): void {
+  const configPath = targetConfigPath ?? globalConfigPath();
   const config = loadSingleConfig(configPath);
 
   const entry = config.registries.find((r) => r.name === registryName);
@@ -176,14 +183,18 @@ export function saveRegistryToken(registryName: string, token: string): void {
     config.registries.push({ name: registryName, publish_token: token });
   }
 
-  writeGlobalConfig(config);
+  writeConfig(configPath, config);
 }
 
 /**
- * グローバル config の指定 registry から publish_token を削除
+ * 指定 config ファイルの registry から publish_token を削除
+ * @param targetConfigPath 省略時はグローバル config
  */
-export function removeRegistryToken(registryName: string): void {
-  const configPath = globalConfigPath();
+export function removeRegistryToken(
+  registryName: string,
+  targetConfigPath?: string,
+): void {
+  const configPath = targetConfigPath ?? globalConfigPath();
   const config = loadSingleConfig(configPath);
 
   const entry = config.registries.find((r) => r.name === registryName);
@@ -191,11 +202,10 @@ export function removeRegistryToken(registryName: string): void {
     delete entry.publish_token;
   }
 
-  writeGlobalConfig(config);
+  writeConfig(configPath, config);
 }
 
-function writeGlobalConfig(config: MirConfig): void {
-  const configPath = globalConfigPath();
+export function writeConfig(configPath: string, config: MirConfig): void {
   const dir = configPath.replace(/\/[^/]+$/, "");
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });

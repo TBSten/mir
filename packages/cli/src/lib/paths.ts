@@ -28,6 +28,10 @@ export function localConfigPath(cwd: string): string {
   return path.join(cwd, ".mir", "config.yaml");
 }
 
+export function localPersonalConfigPath(cwd: string): string {
+  return path.join(cwd, ".mir", "config.local.yaml");
+}
+
 /** @deprecated Use globalConfigPath() instead */
 export function mirconfigPath(): string {
   return globalConfigPath();

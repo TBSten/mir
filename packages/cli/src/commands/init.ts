@@ -96,6 +96,9 @@ export async function initProject(
       logger.success("✓ mirconfig.yaml を作成しました");
     }
 
+    // .gitignore に .mir/config.local.yaml を追加
+    addToGitignore(cwd, ".mir/config.local.yaml");
+
     logger.info("");
     logger.step("初期化が完了しました!");
     logger.info("\n次のステップ:");
@@ -116,6 +119,22 @@ export async function initProject(
     }
     throw new MirError("初期化に失敗しました");
   }
+}
+
+export function addToGitignore(cwd: string, entry: string): void {
+  const gitignorePath = path.join(cwd, ".gitignore");
+  if (fs.existsSync(gitignorePath)) {
+    const content = fs.readFileSync(gitignorePath, "utf-8");
+    const lines = content.split("\n").map((l) => l.trim());
+    if (lines.includes(entry)) {
+      return;
+    }
+    const separator = content.length > 0 && !content.endsWith("\n") ? "\n" : "";
+    fs.appendFileSync(gitignorePath, `${separator}${entry}\n`, "utf-8");
+  } else {
+    fs.writeFileSync(gitignorePath, `${entry}\n`, "utf-8");
+  }
+  logger.success(`✓ .gitignore に ${entry} を追加しました`);
 }
 
 export function registerInitCommand(program: Command): void {
