@@ -39,7 +39,7 @@ jobs:
       - name: Unit Tests
         run: npm test
         env:
-          NODE_OPTIONS: "--max-old-space-size=4096"
+          NODE_OPTIONS: "--max-old-space-size=8192"
 
   build-artifacts:
     runs-on: ubuntu-latest
