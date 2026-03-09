@@ -7,19 +7,20 @@ import { GITHUB_ISSUES_URL } from "../../lib/constants.js";
 const DEFAULT_PAGE_SIZE = 20;
 
 export default createRoute(async (c) => {
-  const query = c.req.query("q") ?? "";
-  const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10) || 1);
-  const limit = DEFAULT_PAGE_SIZE;
-  const offset = (page - 1) * limit;
+  try {
+    const query = c.req.query("q") ?? "";
+    const page = Math.max(1, parseInt(c.req.query("page") ?? "1", 10) || 1);
+    const limit = DEFAULT_PAGE_SIZE;
+    const offset = (page - 1) * limit;
 
-  const provider = getProvider(c);
-  const all = query
-    ? await (provider.search?.(query) ?? provider.list())
-    : await provider.list();
+    const provider = getProvider(c);
+    const all = query
+      ? await (provider.search?.(query) ?? provider.list())
+      : await provider.list();
 
-  const total = all.length;
-  const totalPages = Math.max(1, Math.ceil(total / limit));
-  const snippets = all.slice(offset, offset + limit);
+    const total = all.length;
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    const snippets = all.slice(offset, offset + limit);
 
   const buildPageUrl = (p: number) => {
     const params = new URLSearchParams();
@@ -143,4 +144,36 @@ export default createRoute(async (c) => {
       path: "/snippets",
     },
   );
+  } catch (error) {
+    console.error("Error loading snippets:", error);
+    return c.render(
+      <div class="flex flex-col gap-6 px-8 py-12 lg:px-32">
+        <div class="flex flex-col gap-1">
+          <p class="font-mono text-2xl font-bold text-red-900">
+            $ error loading snippets
+          </p>
+          <p class="font-body text-xs text-red-500">
+            // failed to load snippet data
+          </p>
+        </div>
+        <div class="flex flex-col items-center gap-4 py-16">
+          <p class="font-mono text-lg text-red-300">// service error</p>
+          <p class="font-body text-sm text-red-400">
+            Please try again later
+          </p>
+          <a
+            href="/"
+            class="text-red-400 hover:text-red-300 underline text-sm"
+          >
+            Back to Home
+          </a>
+        </div>
+      </div>,
+      {
+        title: "snippets - error",
+        description: "Error loading snippets",
+        path: "/snippets",
+      },
+    );
+  }
 });
