@@ -27,7 +27,6 @@ const DEFAULT_CONFIG: MirConfig = {
     {
       name: "official",
       url: "https://mir.tbsten.me",
-      publish_token: process.env.MIR_PUBLISH_TOKEN || "",
     },
     { name: "default", path: "~/.mir/registry" },
   ],
@@ -44,9 +43,31 @@ export function loadMirConfig(opts?: LoadMirConfigOptions): MirConfig {
   }
   const cwd = opts?.cwd ?? process.cwd();
   const globalConf = loadSingleConfig(globalConfigPath());
-  const localConf = loadSingleConfig(localConfigPath(cwd));
-  const localPersonalConf = loadSingleConfig(localPersonalConfigPath(cwd));
+  const localConf = loadOptionalConfig(localConfigPath(cwd));
+  const localPersonalConf = loadOptionalConfig(localPersonalConfigPath(cwd));
   return mergeConfigs(localPersonalConf, mergeConfigs(localConf, globalConf));
+}
+
+const EMPTY_CONFIG: MirConfig = { registries: [] };
+
+/**
+ * オプショナルな config を読み込む。ファイルが存在しない場合は空 config を返す。
+ * local / localPersonal config 用。DEFAULT_CONFIG でマージ結果を汚染しない。
+ */
+function loadOptionalConfig(filePath: string): MirConfig {
+  if (!fs.existsSync(filePath)) {
+    return { ...EMPTY_CONFIG };
+  }
+  const content = fs.readFileSync(filePath, "utf-8");
+  const parsed = yaml.load(content) as Partial<MirConfig> | null;
+  if (!parsed) {
+    return { ...EMPTY_CONFIG };
+  }
+  return {
+    registries: parsed.registries ?? [],
+    defaults: parsed.defaults,
+    locale: parsed.locale,
+  };
 }
 
 export function loadSingleConfig(filePath: string): MirConfig {
@@ -93,6 +114,22 @@ export function mergeConfigs(
     defaults: Object.keys(mergedDefaults).length > 0 ? mergedDefaults : undefined,
     locale: local.locale ?? global.locale,
   };
+}
+
+/**
+ * registry エントリの URL から静的プロトコル URL を解決する。
+ * サイト本体 URL (例: https://mir.tbsten.me) に /registry を付与。
+ * 既に /registry が含まれている場合はそのまま返す。
+ */
+export function resolveRegistryUrl(entry: RegistryEntry): string {
+  if (!entry.url) {
+    throw new RegistryRemoteError(entry.name);
+  }
+  const url = entry.url.replace(/\/+$/, "");
+  if (url.endsWith("/registry")) {
+    return url;
+  }
+  return `${url}/registry`;
 }
 
 export function resolveRegistryPath(entry: RegistryEntry): string {
