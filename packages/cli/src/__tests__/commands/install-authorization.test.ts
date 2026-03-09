@@ -6,6 +6,11 @@ import yaml from "js-yaml";
 import { installSnippet } from "../../commands/install.js";
 import type { SnippetDefinition } from "@tbsten/mir-core";
 
+// CI 環境検出をモック (テスト中は safe モードを無効化)
+vi.mock("../../lib/ci-detector.js", () => ({
+  isCIEnvironment: vi.fn().mockReturnValue(false),
+}));
+
 // fetchRemoteSnippet をモック
 vi.mock("@tbsten/mir-core", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@tbsten/mir-core")>();

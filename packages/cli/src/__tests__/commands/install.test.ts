@@ -13,6 +13,11 @@ import {
   type SnippetDefinition,
 } from "@tbsten/mir-core";
 
+// CI 環境検出をモック (テスト中は safe モードを無効化)
+vi.mock("../../lib/ci-detector.js", () => ({
+  isCIEnvironment: vi.fn().mockReturnValue(false),
+}));
+
 // prompt モジュールをモック
 vi.mock("../../lib/prompt.js", () => ({
   prompt: vi.fn(),
