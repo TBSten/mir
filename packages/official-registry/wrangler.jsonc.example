@@ -1,0 +1,13 @@
+{
+  "name": "mir-official-registry",
+  "compatibility_date": "2025-01-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "pages_build_output_dir": "./dist",
+  "d1_databases": [
+    {
+      "binding": "D1",
+      "database_name": "mir-snippets",
+      "database_id": "<YOUR_DATABASE_ID>"
+    }
+  ]
+}

@@ -75,10 +75,14 @@ export async function fetchGitHubUser(
   accessToken: string,
 ): Promise<GitHubUser> {
   const res = await fetch("https://api.github.com/user", {
-    headers: { Authorization: `Bearer ${accessToken}` },
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "User-Agent": "mir-official-registry",
+    },
   });
   if (!res.ok) {
-    throw new Error("Failed to fetch GitHub user");
+    const body = await res.text();
+    throw new Error(`Failed to fetch GitHub user: ${res.status} ${body}`);
   }
   return res.json() as Promise<GitHubUser>;
 }
