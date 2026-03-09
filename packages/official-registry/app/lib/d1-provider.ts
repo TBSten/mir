@@ -1,4 +1,5 @@
 import type {
+  AuthorizationStatus,
   RegistryProvider,
   RegistrySnippetDetail,
   RegistrySnippetSummary,
@@ -10,7 +11,7 @@ export function createD1Provider(db: D1Database): RegistryProvider {
     async list(): Promise<RegistrySnippetSummary[]> {
       try {
         const result = await db
-          .prepare("SELECT name, version, description FROM snippets ORDER BY name")
+          .prepare("SELECT name, version, description, authorization_status FROM snippets ORDER BY name")
           .all();
 
         if (!result.success) {
@@ -22,6 +23,7 @@ export function createD1Provider(db: D1Database): RegistryProvider {
           name: row.name,
           version: row.version || undefined,
           description: row.description || undefined,
+          authorizationStatus: (row.authorization_status || "examination") as AuthorizationStatus,
         }));
       } catch (e) {
         console.error("D1 list() error:", e);
@@ -67,6 +69,7 @@ export function createD1Provider(db: D1Database): RegistryProvider {
             hooks: snippetResult.hooks ? JSON.parse(String(snippetResult.hooks)) : undefined,
           },
           files,
+          authorizationStatus: (String(snippetResult.authorization_status || "examination")) as AuthorizationStatus,
         };
       } catch (e) {
         console.error("D1 get() error:", e);
@@ -79,7 +82,7 @@ export function createD1Provider(db: D1Database): RegistryProvider {
         const searchQuery = `%${query}%`;
         const result = await db
           .prepare(
-            `SELECT name, version, description FROM snippets
+            `SELECT name, version, description, authorization_status FROM snippets
              WHERE name LIKE ? OR description LIKE ?
              ORDER BY name`,
           )
@@ -94,6 +97,7 @@ export function createD1Provider(db: D1Database): RegistryProvider {
           name: row.name,
           version: row.version || undefined,
           description: row.description || undefined,
+          authorizationStatus: (row.authorization_status || "examination") as AuthorizationStatus,
         }));
       } catch (e) {
         console.error("D1 search() error:", e);
@@ -168,7 +172,7 @@ export function createD1Provider(db: D1Database): RegistryProvider {
         if (visited.has(current)) continue;
         visited.add(current);
 
-        const deps = await provider.getDependencies(current);
+        const deps = await provider.getDependencies!(current);
         for (const dep of deps) {
           if (!visited.has(dep)) {
             queue.push(dep);

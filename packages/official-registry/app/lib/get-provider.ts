@@ -69,33 +69,33 @@ function createFallbackProvider(
 
     async search(query: string) {
       try {
-        return await primaryProvider.search(query);
+        return await primaryProvider.search!(query);
       } catch (e) {
-        return await fallbackProvider.search(query);
+        return await fallbackProvider.search!(query);
       }
     },
 
     async getVersionHistory(name: string) {
       try {
-        return await primaryProvider.getVersionHistory(name);
+        return await primaryProvider.getVersionHistory!(name);
       } catch (e) {
-        return await fallbackProvider.getVersionHistory(name);
+        return await fallbackProvider.getVersionHistory!(name);
       }
     },
 
     async getDependencies(name: string) {
       try {
-        return await primaryProvider.getDependencies(name);
+        return await primaryProvider.getDependencies!(name);
       } catch (e) {
-        return await fallbackProvider.getDependencies(name);
+        return await fallbackProvider.getDependencies!(name);
       }
     },
 
     async getTransitiveDependencies(name: string) {
       try {
-        return await primaryProvider.getTransitiveDependencies(name);
+        return await primaryProvider.getTransitiveDependencies!(name);
       } catch (e) {
-        return await fallbackProvider.getTransitiveDependencies(name);
+        return await fallbackProvider.getTransitiveDependencies!(name);
       }
     },
   };

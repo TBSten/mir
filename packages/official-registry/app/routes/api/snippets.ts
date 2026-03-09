@@ -3,6 +3,7 @@
  */
 
 import { createRoute } from "honox/factory";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
 import type { PublishPayload } from "../../lib/publish-handler.js";
 import {
   validateAuthToken,
@@ -63,7 +64,7 @@ export default createRoute(async (c) => {
     if (error instanceof PublishError) {
       return c.json(
         { error: error.message },
-        { status: error.statusCode }
+        { status: error.statusCode as ContentfulStatusCode }
       );
     }
 

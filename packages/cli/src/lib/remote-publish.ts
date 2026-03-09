@@ -1,4 +1,4 @@
-import type { SnippetDefinition } from "@tbsten/mir-core";
+import type { SnippetDefinition, MessageKey } from "@tbsten/mir-core";
 import { MirError } from "@tbsten/mir-core";
 
 export interface RemotePublishPayload {
@@ -14,7 +14,7 @@ export async function publishToRemoteRegistry(
   registryUrl: string,
   publishToken: string,
   payload: RemotePublishPayload,
-  t: (key: string, params?: Record<string, string>) => string,
+  t: (key: MessageKey, params?: Record<string, string | number>) => string,
 ): Promise<void> {
   const endpoint = new URL("/api/snippets", registryUrl).toString();
 
