@@ -51,6 +51,18 @@ export async function publishSnippet(
   const config = loadMirConfig(configPath ? { configPath } : { cwd });
   const registryEntry = resolvePublishRegistry(config, opts.registry);
 
+  // 確認ステップ（--no-interactive でない場合）
+  if (opts.interactive !== false) {
+    const registryDisplay = registryEntry.url || resolveRegistryPath(registryEntry);
+    const shouldProceed = await confirm(
+      `\nSnippet: ${name}\nLocation: ${dirPath}\nRegistry: ${registryDisplay}\n\nこれで公開していい?`,
+    );
+    if (!shouldProceed) {
+      logger.info(t("publish.cancelled"));
+      return;
+    }
+  }
+
   // リモート registry の場合
   if (registryEntry.url) {
     if (!registryEntry.publish_token) {
@@ -125,6 +137,11 @@ Examples:
   mir publish my-component --registry custom
   mir publish react-hook --no-interactive`)
     .action(async (name: string | undefined, opts: PublishOptions) => {
+      // --no-interactive フラグを process.argv から直接チェック
+      if (process.argv.includes("--no-interactive")) {
+        opts.interactive = false;
+      }
+
       let snippetName = name;
       if (!snippetName) {
         const snippets = listLocalSnippets(process.cwd());
