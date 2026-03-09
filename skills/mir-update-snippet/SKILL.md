@@ -1,5 +1,5 @@
 ---
-name: update-snippet
+name: mir-update-snippet
 description: 既存の mir snippet を品質チェックリストに基づいて最新化・改善する。「snippet を改善したい」「最新化したい」「品質を上げたい」「snippet をメンテナンスしたい」と言った場合に使用する。
 ---
 

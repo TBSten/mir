@@ -1,5 +1,5 @@
 ---
-name: publish-snippet
+name: mir-publish-snippet
 description: mir snippet を registry に公開する。「snippet を公開して」「publish して」「registry に登録して」と言った場合に使用する。公開前の品質レビューと動作確認を含む。
 ---
 

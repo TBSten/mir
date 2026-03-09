@@ -1,5 +1,5 @@
 ---
-name: private-mir
+name: mir-private-mir
 description: .mir ディレクトリを自分だけが使えるようにし、git には含めないように設定する。「.mir を git に含めたくない」「自分だけ使いたい」「チームメンバーには見せたくない」と言った場合に使用する。
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: publish-guide
+name: mir-publish-guide
 description: mir snippet の公開方法（ローカル registry・リモート registry）をユーザに教える。「snippet の公開方法を知りたい」「publish の手順は？」「registry に登録するには？」と言った場合に使用する。
 ---
 

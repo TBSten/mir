@@ -1,5 +1,5 @@
 ---
-name: extract-snippet
+name: mir-extract-snippet
 description: 既存のプロジェクトコードから mir snippet を新規作成する。「このコードを snippet にしたい」「テンプレート化したい」「コードを再利用可能にしたい」など、プロジェクト内のコードを snippet として切り出したい場合に使用する。
 ---
 

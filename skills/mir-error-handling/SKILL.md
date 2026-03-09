@@ -1,5 +1,5 @@
 ---
-name: error-handling
+name: mir-error-handling
 description: mir CLI でエラーが発生した際のトラブルシューティングを行う。SnippetNotFoundError, RegistryNotFoundError, FileConflictError 等のエラーメッセージが表示された場合や、ユーザが「エラーが出た」「動かない」「mir がうまくいかない」と言った場合に使用する。
 ---
 

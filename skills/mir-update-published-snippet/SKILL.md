@@ -1,5 +1,5 @@
 ---
-name: update-published-snippet
+name: mir-update-published-snippet
 description: 公開済の mir snippet を更新・バージョンアップする。「公開済の snippet を更新したい」「publish した snippet を修正したい」「snippet のバージョンを上げたい」と言った場合に使用する。
 ---
 

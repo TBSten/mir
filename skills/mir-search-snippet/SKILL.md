@@ -1,5 +1,5 @@
 ---
-name: search-snippet
+name: mir-search-snippet
 description: ユーザのリクエストから適切な mir snippet を検索・探索し、候補を提案する。「こういうコードが欲しい」「○○のテンプレートはある？」「snippet を探して」など、snippet を見つけたい場合に使用する。
 ---
 

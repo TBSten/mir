@@ -1,5 +1,5 @@
 ---
-name: review-snippet
+name: mir-review-snippet
 description: mir snippet の品質をレビューし、改善点を提案する。「snippet をレビューして」「品質を確認して」「公開前にチェックして」「snippet に問題がないか見て」と言った場合に使用する。
 ---
 
