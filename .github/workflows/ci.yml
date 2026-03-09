@@ -37,9 +37,9 @@ jobs:
         run: npm run build
 
       - name: Unit Tests
-        run: npm test
+        run: npm test -- --pool forks --poolOptions.forks.singleFork
         env:
-          NODE_OPTIONS: "--max-old-space-size=8192"
+          NODE_OPTIONS: "--max-old-space-size=4096"
 
   build-artifacts:
     runs-on: ubuntu-latest
