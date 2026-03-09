@@ -11,6 +11,11 @@ mir <options>
 # or
 
 npx @tbsten/mir <options>
+
+# or
+
+# skills を追加してやりたいことを AI Agent に伝える
+npx skills add https://github.com/TBSten/mir
 ```
 
 ## How to use

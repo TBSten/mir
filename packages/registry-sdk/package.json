@@ -1,6 +1,6 @@
 {
   "name": "@tbsten/mir-registry-sdk",
-  "version": "0.0.2-alpha02",
+  "version": "0.0.2-alpha03",
   "description": "mir Registry サーバー実装用 SDK（Hono ベース）",
   "type": "module",
   "keywords": [
@@ -21,6 +21,10 @@
   "bugs": {
     "url": "https://github.com/tbsten/mir/issues"
   },
+  "files": [
+    "src",
+    "README.md"
+  ],
   "exports": {
     ".": "./src/index.ts"
   },

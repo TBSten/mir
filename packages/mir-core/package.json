@@ -1,6 +1,6 @@
 {
   "name": "@tbsten/mir-core",
-  "version": "0.0.2-alpha02",
+  "version": "0.0.2-alpha03",
   "description": "スニペット配布・取得ツール mir のコアロジック（テンプレート、スキーマ、i18n）",
   "type": "module",
   "keywords": [
@@ -21,6 +21,10 @@
   "bugs": {
     "url": "https://github.com/tbsten/mir/issues"
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "exports": {
     ".": "./dist/index.js"
   },
@@ -35,6 +39,7 @@
     "js-yaml": "^4.1.1"
   },
   "scripts": {
+    "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
