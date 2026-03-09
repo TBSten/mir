@@ -1,0 +1,47 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`GET /api/snippets/:name レスポンス構造スナップショット > approved snippet のレスポンス構造 1`] = `
+{
+  "authorizationStatus": "approved",
+  "definition": {
+    "description": "A custom hook",
+    "name": "my-hook",
+    "variables": {
+      "name": {
+        "schema": {
+          "type": "string",
+        },
+      },
+    },
+    "version": "1.0.0",
+  },
+  "files": {
+    "{{ name }}.test.ts": "test('{{ name }}', () => {});",
+    "{{ name }}.ts": "export function {{ name }}() {}",
+  },
+}
+`;
+
+exports[`GET /api/snippets/:name レスポンス構造スナップショット > examination snippet のレスポンス構造 1`] = `
+{
+  "authorizationStatus": "examination",
+  "definition": {
+    "name": "untrusted",
+  },
+  "files": {
+    "index.ts": "// untrusted",
+  },
+}
+`;
+
+exports[`GET /api/snippets/:name レスポンス構造スナップショット > rejected snippet のレスポンス構造 1`] = `
+{
+  "authorizationStatus": "rejected",
+  "definition": {
+    "name": "bad-snippet",
+  },
+  "files": {
+    "index.ts": "// bad-snippet",
+  },
+}
+`;

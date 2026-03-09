@@ -1,0 +1,24 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`D1 Provider: list() レスポンス構造スナップショット > 全ステータスを含むリスト 1`] = `
+[
+  {
+    "authorizationStatus": "approved",
+    "description": "An approved snippet",
+    "name": "approved-snippet",
+    "version": "1.0.0",
+  },
+  {
+    "authorizationStatus": "examination",
+    "description": "Under review",
+    "name": "exam-snippet",
+    "version": undefined,
+  },
+  {
+    "authorizationStatus": "rejected",
+    "description": undefined,
+    "name": "rejected-snippet",
+    "version": "0.1.0",
+  },
+]
+`;

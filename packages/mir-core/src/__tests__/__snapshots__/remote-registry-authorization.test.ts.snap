@@ -1,0 +1,36 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`authorizationStatus スナップショット > マニフェスト構造 (status=approved) 1`] = `
+{
+  "authorizationStatus": "approved",
+  "files": [
+    "index.ts",
+  ],
+}
+`;
+
+exports[`authorizationStatus スナップショット > マニフェスト構造 (status=examination) 1`] = `
+{
+  "authorizationStatus": "examination",
+  "files": [
+    "index.ts",
+  ],
+}
+`;
+
+exports[`authorizationStatus スナップショット > マニフェスト構造 (status=rejected) 1`] = `
+{
+  "authorizationStatus": "rejected",
+  "files": [
+    "index.ts",
+  ],
+}
+`;
+
+exports[`authorizationStatus スナップショット > マニフェスト構造 (status=undefined) 1`] = `
+{
+  "files": [
+    "index.ts",
+  ],
+}
+`;

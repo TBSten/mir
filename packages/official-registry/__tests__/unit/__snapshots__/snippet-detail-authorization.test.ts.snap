@@ -1,0 +1,39 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`AuthorizationBadge ロジック > スナップショット > resolveBadge("approved") のスナップショット 1`] = `
+{
+  "color": "green",
+  "label": "approved",
+  "type": "approved",
+}
+`;
+
+exports[`AuthorizationBadge ロジック > スナップショット > resolveBadge("examination") のスナップショット 1`] = `
+{
+  "color": "yellow",
+  "label": "examination",
+  "type": "examination",
+}
+`;
+
+exports[`AuthorizationBadge ロジック > スナップショット > resolveBadge("rejected") のスナップショット 1`] = `
+{
+  "color": "red",
+  "label": "rejected",
+  "type": "rejected",
+}
+`;
+
+exports[`AuthorizationBadge ロジック > スナップショット > resolveBadge("undefined") のスナップショット 1`] = `
+{
+  "type": "none",
+}
+`;
+
+exports[`警告メッセージロジック > スナップショット > resolveWarning("approved") のスナップショット 1`] = `null`;
+
+exports[`警告メッセージロジック > スナップショット > resolveWarning("examination") のスナップショット 1`] = `"このスニペットはまだ審査中です。公式に承認されていません。"`;
+
+exports[`警告メッセージロジック > スナップショット > resolveWarning("rejected") のスナップショット 1`] = `"このスニペットは審査により却下されました。利用にはご注意ください。"`;
+
+exports[`警告メッセージロジック > スナップショット > resolveWarning("undefined") のスナップショット 1`] = `null`;
