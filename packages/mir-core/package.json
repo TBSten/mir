@@ -1,6 +1,6 @@
 {
   "name": "@tbsten/mir-core",
-  "version": "0.0.2-alpha06",
+  "version": "0.0.2-alpha07",
   "description": "スニペット配布・取得ツール mir のコアロジック（テンプレート、スキーマ、i18n）",
   "type": "module",
   "keywords": [
@@ -42,6 +42,8 @@
     "js-yaml": "^4.1.1"
   },
   "scripts": {
+    "generate:validators": "tsx scripts/generate-validators.ts",
+    "prebuild": "npm run generate:validators",
     "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -49,6 +51,9 @@
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
+    "ajv": "^8.18.0",
+    "ajv-formats": "^3.0.1",
+    "tsx": "^4.21.0",
     "typescript": "^5",
     "vitest": "^4"
   }

@@ -1,6 +1,6 @@
 {
   "name": "@tbsten/mir",
-  "version": "0.0.2-alpha06",
+  "version": "0.0.2-alpha07",
   "description": "スニペット(ディレクトリ構造含む)を配布・取得するCLIツール",
   "type": "module",
   "bin": {

@@ -1,6 +1,6 @@
 {
   "name": "@tbsten/mir-registry-sdk",
-  "version": "0.0.2-alpha06",
+  "version": "0.0.2-alpha07",
   "description": "mir Registry サーバー実装用 SDK（Hono ベース）",
   "type": "module",
   "keywords": [
