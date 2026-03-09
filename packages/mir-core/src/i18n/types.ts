@@ -88,6 +88,12 @@ export interface MessageCatalog {
   "batch-summary.counts": string;
   "batch-summary.retry-hint": string;
 
+  // validate
+  "validate.success": string;
+  "validate.no-template-dir": string;
+  "validate.undefined-vars": string;
+  "validate.unused-vars": string;
+
   // general
   "general.variables": string;
   "general.default": string;

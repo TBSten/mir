@@ -12,6 +12,7 @@ import { registerSearchCommand } from "./commands/search.js";
 import { registerCloneCommand } from "./commands/clone.js";
 import { registerLoginCommand } from "./commands/login.js";
 import { registerLogoutCommand } from "./commands/logout.js";
+import { registerValidateCommand } from "./commands/validate.js";
 import { loadMirConfig } from "./lib/mirconfig.js";
 import { getLocaleFromEnv } from "./lib/env.js";
 import * as logger from "./lib/logger.js";
@@ -116,6 +117,7 @@ registerInfoCommand(program);
 registerSearchCommand(program);
 registerCloneCommand(program);
 registerPreviewCommand(program);
+registerValidateCommand(program);
 registerLoginCommand(program);
 registerLogoutCommand(program);
 

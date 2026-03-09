@@ -90,6 +90,12 @@ export const ja: MessageCatalog = {
   "batch-summary.counts": "成功: {success}/{total}, 失敗: {failure}/{total}, スキップ: {skipped}/{total}",
   "batch-summary.retry-hint": "💡 失敗した snippet をもう一度インストールするには: mir install --retry-failed",
 
+  // validate
+  "validate.success": "Snippet \"{name}\" のバリデーションに成功しました",
+  "validate.no-template-dir": "テンプレートディレクトリが見つかりません: {path}",
+  "validate.undefined-vars": "テンプレートで使用されているが定義されていない変数があります: {vars}",
+  "validate.unused-vars": "定義されているがテンプレートで使用されていない変数があります: {vars}",
+
   // general
   "general.variables": "Variables:",
   "general.default": "(default)",

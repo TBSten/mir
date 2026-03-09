@@ -90,6 +90,12 @@ export const en: MessageCatalog = {
   "batch-summary.counts": "Success: {success}/{total}, Failed: {failure}/{total}, Skipped: {skipped}/{total}",
   "batch-summary.retry-hint": "💡 To retry failed snippets: mir install --retry-failed",
 
+  // validate
+  "validate.success": "Snippet \"{name}\" is valid",
+  "validate.no-template-dir": "Template directory not found: {path}",
+  "validate.undefined-vars": "Variables used in templates but not defined: {vars}",
+  "validate.unused-vars": "Variables defined but not used in templates: {vars}",
+
   // general
   "general.variables": "Variables:",
   "general.default": "(default)",

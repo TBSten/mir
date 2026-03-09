@@ -5,6 +5,7 @@ import { registerCreateCommand } from "../../commands/create.js";
 import { registerSyncCommand } from "../../commands/sync.js";
 import { registerSearchCommand } from "../../commands/search.js";
 import { registerInstallCommand } from "../../commands/install.js";
+import { registerValidateCommand } from "../../commands/validate.js";
 
 function createProgram(
   register: (program: Command) => void,
@@ -50,5 +51,11 @@ describe("コマンドエイリアス", () => {
     const program = createProgram(registerInstallCommand);
     const aliases = getAliases(program, "install");
     expect(aliases).toContain("i");
+  });
+
+  it("validate コマンドに v エイリアスがある", () => {
+    const program = createProgram(registerValidateCommand);
+    const aliases = getAliases(program, "validate");
+    expect(aliases).toContain("v");
   });
 });
