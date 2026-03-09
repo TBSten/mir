@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "skills": {
+    "getting-started": {
+      "source": "TBSten/mir",
+      "sourceType": "github",
+      "computedHash": "d9670478188334f04b5f90b7c56b1330dd759013814de16ed5fb379cbcb9d7b5"
+    },
+    "mir-getting-started": {
+      "source": "TBSten/mir",
+      "sourceType": "github",
+      "computedHash": "7620fdc56f244d88895508019e6e5d1971dd2906f991997751de10cbe51daac1"
+    }
+  }
+}
