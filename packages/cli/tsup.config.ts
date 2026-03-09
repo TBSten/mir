@@ -7,7 +7,7 @@ export default defineConfig({
   target: "node18",
   clean: true,
   dts: true,
-  external: ["@tbsten/mir-core"],
+  noExternal: ["@tbsten/mir-core"],
   define: {
     __PKG_VERSION__: JSON.stringify(pkg.version),
   },
