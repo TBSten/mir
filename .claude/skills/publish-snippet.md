@@ -49,5 +49,7 @@ snippet を registry に公開する skill。
 ## 注意事項
 
 - リモート registry に公開する場合は `--registry=<name>` を指定する
+- リモート registry には事前にログインが必要: `npx mir login [--registry=<name>]`
 - 公開前のレビューは省略しない（品質の低い snippet の公開を防ぐ）
 - 公開後は必ずインストールテストで動作を確認する
+- snippet の所有権は最初に publish したユーザーに帰属する（owner のみ上書き可能）

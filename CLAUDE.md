@@ -60,9 +60,11 @@ npm run mir -- --help              # CLI 動作確認
 | `mir list` / `mir ls` | 利用可能な snippet を一覧表示（ローカル・リモート） |
 | `mir info <name>` | snippet の詳細情報を表示（変数一覧など） |
 | `mir create <name>` | `.mir/snippets/` に snippet の雛形を作成 |
-| `mir publish <name>` | snippet をローカル registry に登録 |
+| `mir publish <name>` | snippet を registry に登録（ローカル・リモート両対応） |
 | `mir install <name>` | registry から snippet をインストール |
 | `mir sync <name>` | テンプレートの変数を snippet 定義に同期 |
+| `mir login` | リモート registry に GitHub OAuth でログイン |
+| `mir logout` | リモート registry からログアウト |
 
 ### Key Concepts
 

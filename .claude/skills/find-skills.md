@@ -18,9 +18,9 @@ description: 利用可能な mir skills を検索・一覧表示する。「mir 
 | `private-mir` | .mir を git に含めず自分だけで使う設定 |
 | `update-snippet` | 既存 snippet の品質チェック・最新化 |
 | `review-snippet` | snippet の品質レビューと改善提案 |
-| `publish-guide` | snippet の公開方法を案内 |
-| `publish-snippet` | snippet を registry に公開 |
-| `update-published-snippet` | 公開済の snippet を更新 |
+| `publish-guide` | snippet の公開方法を案内（ログイン・リモート registry 含む） |
+| `publish-snippet` | snippet を registry に公開（ローカル・リモート両対応） |
+| `update-published-snippet` | 公開済の snippet を更新（所有権・認証対応） |
 | `find-skills` | 利用可能な mir skills を検索・表示 |
 
 ## インストール方法

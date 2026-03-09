@@ -63,8 +63,14 @@ mir sync <name>
 # 動作確認
 mir install <name> --out-dir=/tmp/test
 
-# registry に公開
+# ローカル registry に公開
 mir publish <name>
+
+# リモート registry（official 等）に公開する場合:
+# 1. まずログイン（GitHub OAuth）
+mir login
+# 2. リモート registry に公開
+mir publish <name> --registry=official
 ```
 
 ## 注意事項

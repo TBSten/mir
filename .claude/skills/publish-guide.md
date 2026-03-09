@@ -43,18 +43,30 @@ snippet の公開方法をユーザに教える skill。
 
 リモート registry（HTTP ベース）に公開する方法:
 
-1. `mirconfig.yaml` に `url` と `publish_token` を持つ registry を設定する
+1. まずログインして publish token を取得する:
+   ```bash
+   npx mir login
+   # または特定の registry を指定:
+   npx mir login --registry=my-remote
+   ```
+   ブラウザで GitHub OAuth ログインが開き、自動的に token が設定に保存される。
+
+2. あるいは手動で `mirconfig.yaml` に `url` と `publish_token` を設定することも可能:
    ```yaml
    registries:
      - name: my-remote
        url: https://registry.example.com
        publish_token: "your-token-here"
    ```
-2. 公開を実行:
+3. 公開を実行:
    ```bash
    npx mir publish <name> --registry=my-remote
    ```
-3. POST `<url>/api/snippets` に snippet 定義とファイル群が送信される
+4. POST `<url>/api/snippets` に snippet 定義とファイル群が送信される
+5. ログアウトする場合:
+   ```bash
+   npx mir logout
+   ```
 
 ### 公開前の確認事項
 

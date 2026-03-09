@@ -17,7 +17,12 @@ description: 公開済の mir snippet を更新・バージョンアップする
    ```bash
    npx mir info <name>
    ```
-2. **更新先の registry を必ずユーザに確認する。** 以下の選択肢を提示すること:
+2. リモート registry に公開済みの場合、ログイン済みか確認する
+   ```bash
+   # ログインしていない場合は先にログインが必要
+   npx mir login
+   ```
+3. **更新先の registry を必ずユーザに確認する。** 以下の選択肢を提示すること:
    - **ローカル registry** (`~/.mir/registry/`): 自分の PC 内にのみ保存される
    - **⚠️🌍 official-registry ⚠️🌍**: **全世界の誰でも閲覧・インストール可能になります！** 更新して問題ないか十分に確認してください
 3. snippet のテンプレートや変数定義を修正する（ユーザの要件に応じて）
@@ -50,3 +55,5 @@ description: 公開済の mir snippet を更新・バージョンアップする
 - `--force` なしでは同名 snippet の上書きはできない
 - version の更新を忘れないようにする
 - 破壊的変更がある場合はユーザに明確に伝える
+- リモート registry への更新は snippet の owner のみ可能（最初に publish したユーザー）
+- リモート registry への publish には事前に `mir login` が必要

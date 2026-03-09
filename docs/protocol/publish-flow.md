@@ -1,15 +1,16 @@
 # publish フロー
 
-`mir publish <name>` 実行時のファイルシステム操作フローを定義する。
+`mir publish <name>` 実行時の操作フローを定義する。ローカル registry とリモート registry の両方に対応。
 
 ## フロー
 
 ```
 1. ソースファイル確認
 2. snippet 定義バリデーション
-3. registry 重複チェック
-4. registry へコピー
-5. 完了メッセージ表示
+3. 対象 registry の決定
+4. 確認プロンプト表示（interactive モード）
+5. registry へ登録
+6. 完了メッセージ表示
 ```
 
 ### Step 1: ソースファイル確認
@@ -20,26 +21,42 @@
 
 `.mir/snippets/<name>.yaml` を読み取り、スキーマに基づいてバリデーションを行う。
 
-### Step 3: 対象 registry の決定と重複チェック
+### Step 3: 対象 registry の決定
 
 登録先 registry を決定する:
 
 - `--registry` 指定時: 該当 registry を使用。存在しない場合はエラー
 - 未指定時: `registries` の先頭のローカル registry を使用
 
-**リモート registry（`url` 指定）は読み取り専用のため、publish 先に指定できない。** `--registry` でリモート registry を指定した場合、または全ての registry がリモートの場合はエラーになる。
+### Step 4: 確認プロンプト表示
 
-対象 registry に同名の snippet が存在するか確認する。
+interactive モード（デフォルト）では以下の情報を表示し、確認を求める:
 
-- 存在しない → Step 4 へ
-- 存在する + `--force` なし → エラー
-- 存在する + `--force` あり → 既存を削除して Step 4 へ
+- Snippet 名
+- テンプレートディレクトリの場所
+- 登録先 registry
 
-### Step 4: registry へコピー
+`--no-interactive` 指定時はスキップ。
+
+### Step 5: registry へ登録
+
+#### ローカル registry の場合
 
 ソースファイルを registry にコピーする。
 
-### Step 5: 完了メッセージ表示
+- 同名 snippet が存在しない → コピー
+- 存在する + `--force` なし → エラー（interactive モードでは上書き確認）
+- 存在する + `--force` あり → 既存を削除してコピー
+
+#### リモート registry の場合
+
+`POST <url>/api/snippets` に定義ファイルとテンプレートファイルを送信する。
+
+1. **認証**: `publish_token`（`mir login` で取得）を Bearer トークンとして送信。token がない場合はエラー
+2. **所有権チェック**: snippet の所有権は最初に publish したユーザーに帰属。owner 以外が `--force` で上書きしようとするとエラー
+3. **重複チェック**: 同名 snippet が存在する場合は `--force` が必要
+
+### Step 6: 完了メッセージ表示
 
 登録した snippet の情報を表示する。
 
@@ -66,11 +83,12 @@
 | バリデーション失敗 | YAML が snippet スキーマに適合しない | `Invalid snippet definition: <details>` |
 | 重複（force なし） | 対象 registry に同名 snippet が存在 | `Snippet "<name>" already exists in registry. Use --force to overwrite` |
 | registry 不在 | `--registry` で指定した名前の registry が存在しない | `Registry "<name>" not found in config` |
-| リモート registry | publish 先にリモート registry が指定された | `Cannot publish to remote registry "<name>"` |
-| ローカル registry なし | 全ての registry がリモートで publish 先がない | `No local registry available for publishing` |
+| 認証エラー | リモート registry に publish_token がない | `Authentication required. Run "mir login" first` |
+| 所有権エラー | owner 以外が --force で上書きしようとした | `You are not the owner of snippet "<name>"` |
 
 ## 関連
 
 - [mir publish コマンド](../command/publish.md) - コマンドの使用方法
+- [mir login コマンド](../command/login.md) - リモート registry へのログイン
 - [snippet-yaml 仕様](../settings/snippet-yaml.md) - 定義ファイルの仕様
 - [registry プロトコル](./registry.md) - registry の構造と規則

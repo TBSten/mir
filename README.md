@@ -14,8 +14,10 @@ npx @tbsten/mir <options>
 
 # or
 
-# skills を追加してやりたいことを AI Agent に伝える
+# AI Agent 経由で利用する
+# skills を追加
 npx skills add https://github.com/TBSten/mir
+# TODO AI Agent に "mir がインストールできたか確認して バージョンを表示して" のように質問する
 ```
 
 ## How to use
@@ -71,11 +73,30 @@ mir sync <name>
 
 作成した snippet を registry に公開するには `publish` コマンドを使用します。
 
+#### ローカル registry への公開
+
 ```shell
 mir publish <name>
 ```
 
 既に同名の snippet が存在する場合は上書き確認が表示されます。`--force` で確認をスキップできます。
+
+#### リモート registry への公開
+
+リモート registry（official registry など）に公開するには、事前にログインが必要です。
+
+```shell
+# GitHub OAuth でログイン（ブラウザが開きます）
+mir login
+
+# リモート registry に公開
+mir publish <name> --registry=official
+
+# ログアウト
+mir logout
+```
+
+snippet の所有権は最初に publish したユーザーに帰属します。owner のみが `--force` で上書きできます。
 
 ### Hooks
 
