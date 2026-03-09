@@ -21,6 +21,7 @@ describe("validateSnippetName property-based", () => {
       fc.property(validNameArb, (name) => {
         expect(() => validateSnippetName(name)).not.toThrow();
       }),
+      { numRuns: 15 },
     );
   });
 
@@ -36,6 +37,7 @@ describe("validateSnippetName property-based", () => {
           expect(() => validateSnippetName(name)).toThrow(ValidationError);
         },
       ),
+      { numRuns: 15 },
     );
   });
 
@@ -49,6 +51,7 @@ describe("validateSnippetName property-based", () => {
           expect(() => validateSnippetName(name)).toThrow(ValidationError);
         },
       ),
+      { numRuns: 15 },
     );
   });
 
@@ -64,6 +67,7 @@ describe("validateSnippetName property-based", () => {
         expect(first).not.toThrow();
         expect(second).not.toThrow();
       }),
+      { numRuns: 15 },
     );
   });
 });

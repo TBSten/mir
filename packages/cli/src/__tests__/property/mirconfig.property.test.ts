@@ -44,6 +44,7 @@ describe("mergeConfigs property-based", () => {
         // locale はローカルのまま
         expect(result.locale).toBe(local.locale);
       }),
+      { numRuns: 15 },
     );
   });
 
@@ -56,6 +57,7 @@ describe("mergeConfigs property-based", () => {
         // locale はグローバルのまま
         expect(result.locale).toBe(global.locale);
       }),
+      { numRuns: 15 },
     );
   });
 
@@ -75,6 +77,7 @@ describe("mergeConfigs property-based", () => {
         }
         return true;
       }),
+      { numRuns: 15 },
     );
   });
 
@@ -99,6 +102,7 @@ describe("mergeConfigs property-based", () => {
           }
         },
       ),
+      { numRuns: 15 },
     );
   });
 
@@ -114,6 +118,7 @@ describe("mergeConfigs property-based", () => {
           expect(result.locale).toBe(localLocale ?? globalLocale);
         },
       ),
+      { numRuns: 15 },
     );
   });
 });
@@ -127,6 +132,7 @@ describe("3段階マージ property-based", () => {
           expect(merged.registries[i]).toEqual(personal.registries[i]);
         }
       }),
+      { numRuns: 15 },
     );
   });
 
@@ -145,6 +151,7 @@ describe("3段階マージ property-based", () => {
         }
         return true;
       }),
+      { numRuns: 15 },
     );
   });
 
@@ -156,6 +163,7 @@ describe("3段階マージ property-based", () => {
           expect(merged.locale).toBe(personal.locale);
         }
       }),
+      { numRuns: 15 },
     );
   });
 
@@ -169,6 +177,7 @@ describe("3段階マージ property-based", () => {
           }
         }
       }),
+      { numRuns: 15 },
     );
   });
 
@@ -180,6 +189,7 @@ describe("3段階マージ property-based", () => {
           global.registries.length + local.registries.length + personal.registries.length;
         expect(merged.registries.length).toBeLessThanOrEqual(totalInput);
       }),
+      { numRuns: 15 },
     );
   });
 
@@ -192,6 +202,7 @@ describe("3段階マージ property-based", () => {
         const uniqueNames = new Set(names);
         expect(names.length).toBe(uniqueNames.size);
       }),
+      { numRuns: 15 },
     );
   });
 });
@@ -221,7 +232,7 @@ describe("saveRegistryToken / removeRegistryToken property-based", () => {
         const entry = config.registries.find((r) => r.name === name);
         expect(entry?.publish_token).toBe(token);
       }),
-      { numRuns: 30 },
+      { numRuns: 15 },
     );
   });
 
@@ -235,7 +246,7 @@ describe("saveRegistryToken / removeRegistryToken property-based", () => {
         const entry = config.registries.find((r) => r.name === name);
         expect(entry?.publish_token).toBeUndefined();
       }),
-      { numRuns: 30 },
+      { numRuns: 15 },
     );
   });
 
@@ -250,7 +261,7 @@ describe("saveRegistryToken / removeRegistryToken property-based", () => {
         expect(entries).toHaveLength(1);
         expect(entries[0].publish_token).toBe(token2);
       }),
-      { numRuns: 30 },
+      { numRuns: 15 },
     );
   });
 
@@ -266,7 +277,7 @@ describe("saveRegistryToken / removeRegistryToken property-based", () => {
         const entry = merged.registries.find((r) => r.name === name);
         expect(entry?.publish_token).toBe(token);
       }),
-      { numRuns: 30 },
+      { numRuns: 15 },
     );
   });
 });

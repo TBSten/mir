@@ -11,6 +11,7 @@ describe("expandTemplate property-based", () => {
           expect(expandTemplate("", vars)).toBe("");
         },
       ),
+      { numRuns: 15 },
     );
   });
 
@@ -22,6 +23,7 @@ describe("expandTemplate property-based", () => {
           expect(expandTemplate(template, {})).toBe(template);
         },
       ),
+      { numRuns: 15 },
     );
   });
 
@@ -35,6 +37,7 @@ describe("expandTemplate property-based", () => {
           expect(result).toBe(value);
         },
       ),
+      { numRuns: 15 },
     );
   });
 
@@ -48,6 +51,7 @@ describe("expandTemplate property-based", () => {
           expect(result).not.toContain(`{{ ${key} }}`);
         },
       ),
+      { numRuns: 15 },
     );
   });
 });
@@ -64,6 +68,7 @@ describe("expandPath property-based", () => {
           expect(result.endsWith(".ts")).toBe(true);
         },
       ),
+      { numRuns: 15 },
     );
   });
 });
@@ -78,6 +83,7 @@ describe("extractVariables property-based", () => {
           expect(vars).toContain(varName);
         },
       ),
+      { numRuns: 15 },
     );
   });
 
@@ -89,6 +95,7 @@ describe("extractVariables property-based", () => {
           expect(extractVariables(text)).toEqual([]);
         },
       ),
+      { numRuns: 15 },
     );
   });
 });

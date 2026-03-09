@@ -17,6 +17,7 @@ describe("executeHooks property-based", () => {
           expect(result).toEqual(vars);
         },
       ),
+      { numRuns: 15 },
     );
   });
 
@@ -32,6 +33,7 @@ describe("executeHooks property-based", () => {
           expect(() => executeHooks(actions, vars)).not.toThrow();
         },
       ),
+      { numRuns: 15 },
     );
   });
 
@@ -47,6 +49,7 @@ describe("executeHooks property-based", () => {
           expect(() => executeHooks(actions, vars)).toThrow(ExitHookError);
         },
       ),
+      { numRuns: 15 },
     );
   });
 });

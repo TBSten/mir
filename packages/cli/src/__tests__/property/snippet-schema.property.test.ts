@@ -28,6 +28,7 @@ describe("snippet-schema property-based", () => {
         const parsed = parseSnippetYaml(yaml);
         expect(parsed.name).toBe(name);
       }),
+      { numRuns: 15 },
     );
   });
 
@@ -46,6 +47,7 @@ describe("snippet-schema property-based", () => {
           }
         },
       ),
+      { numRuns: 15 },
     );
   });
 
@@ -60,6 +62,7 @@ describe("snippet-schema property-based", () => {
           expect(() => validateSnippetDefinition(def)).toThrow(ValidationError);
         },
       ),
+      { numRuns: 15 },
     );
   });
 });

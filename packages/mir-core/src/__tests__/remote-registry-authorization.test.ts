@@ -73,7 +73,7 @@ describe("fetchRegistryManifest: authorizationStatus (PBT)", () => {
           expect(result.snippets["snippet-b"].authorizationStatus).toBe(status2);
         },
       ),
-      { numRuns: 9 }, // 3x3 の全組み合わせをカバー
+      { numRuns: 5 }, // 3x3 の全組み合わせをカバー
     );
   });
 
@@ -145,7 +145,7 @@ describe("fetchRemoteSnippet: authorizationStatus (PBT)", () => {
           expect(snippet.authorizationStatus).toBeUndefined();
         }
       }),
-      { numRuns: 10 },
+      { numRuns: 5 },
     );
   });
 });

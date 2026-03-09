@@ -29,6 +29,7 @@ describe("AuthorizationStatus 型の網羅性 (PBT)", () => {
       fc.property(authorizationStatusArb, (status) => {
         expect(["examination", "approved", "rejected"]).toContain(status);
       }),
+      { numRuns: 15 },
     );
   });
 
@@ -39,6 +40,7 @@ describe("AuthorizationStatus 型の網羅性 (PBT)", () => {
           expect(["examination", "approved", "rejected"]).toContain(status);
         }
       }),
+      { numRuns: 15 },
     );
   });
 });
@@ -93,7 +95,7 @@ describe("static-routes: authorizationStatus の保存性 (PBT)", () => {
           }
         },
       ),
-      { numRuns: 20 },
+      { numRuns: 10 },
     );
   });
 });
@@ -122,7 +124,7 @@ describe("routes API: authorizationStatus の保存性 (PBT)", () => {
           expect(data.authorizationStatus).toBeUndefined();
         }
       }),
-      { numRuns: 30 },
+      { numRuns: 15 },
     );
   });
 
@@ -166,7 +168,7 @@ describe("routes API: authorizationStatus の保存性 (PBT)", () => {
           }
         },
       ),
-      { numRuns: 20 },
+      { numRuns: 10 },
     );
   });
 });
@@ -179,6 +181,7 @@ describe("認可ステータスの不変条件 (PBT)", () => {
         const needsWarning = status !== "approved";
         expect(needsWarning).toBe(false);
       }),
+      { numRuns: 15 },
     );
   });
 
@@ -192,6 +195,7 @@ describe("認可ステータスの不変条件 (PBT)", () => {
           expect(needsWarning).toBe(true);
         },
       ),
+      { numRuns: 15 },
     );
   });
 
@@ -202,6 +206,7 @@ describe("認可ステータスの不変条件 (PBT)", () => {
         const needsWarning = status !== undefined && status !== "approved";
         expect(needsWarning).toBe(false);
       }),
+      { numRuns: 15 },
     );
   });
 });

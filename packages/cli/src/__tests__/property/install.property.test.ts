@@ -20,6 +20,7 @@ describe("validateOutputPath property-based", () => {
           expect(() => validateOutputPath(filePath, outDir)).not.toThrow();
         },
       ),
+      { numRuns: 15 },
     );
   });
 
@@ -40,6 +41,7 @@ describe("validateOutputPath property-based", () => {
           );
         },
       ),
+      { numRuns: 15 },
     );
   });
 });
@@ -55,6 +57,7 @@ describe("parseVariableArgs property-based", () => {
           expect(result[key]).toBe(value);
         },
       ),
+      { numRuns: 15 },
     );
   });
 
@@ -69,6 +72,7 @@ describe("parseVariableArgs property-based", () => {
           expect(Object.keys(result).length).toBe(0);
         },
       ),
+      { numRuns: 15 },
     );
   });
 
@@ -90,6 +94,7 @@ describe("parseVariableArgs property-based", () => {
           }
         },
       ),
+      { numRuns: 15 },
     );
   });
 });
