@@ -22,7 +22,14 @@ export interface MirConfig {
 }
 
 const DEFAULT_CONFIG: MirConfig = {
-  registries: [{ name: "default", path: "~/.mir/registry" }],
+  registries: [
+    {
+      name: "official",
+      url: "https://mir.tbsten.me",
+      publish_token: process.env.MIR_PUBLISH_TOKEN || "",
+    },
+    { name: "default", path: "~/.mir/registry" },
+  ],
 };
 
 export interface LoadMirConfigOptions {
@@ -109,12 +116,19 @@ export function resolvePublishRegistry(
     return entry;
   }
 
-  // publish_token ありの URL エントリを優先、なければローカルパスを使用
+  // official registry（publish_token 付き）を優先
+  const officialEntry = config.registries.find((r) => r.name === "official" && r.publish_token);
+  if (officialEntry) {
+    return officialEntry;
+  }
+
+  // publish_token ありの URL エントリがあればそれを使用
   const remoteEntry = config.registries.find((r) => r.url && r.publish_token);
   if (remoteEntry) {
     return remoteEntry;
   }
 
+  // ローカルレジストリにフォールバック
   const localEntry = config.registries.find((r) => r.path);
   if (!localEntry) {
     throw new RegistryNotFoundError("(default)");
