@@ -17,6 +17,7 @@ import {
   loadMirConfig,
   resolveInstallRegistries,
   resolveRegistryPath,
+  resolveRegistryUrl,
 } from "../lib/mirconfig.js";
 import { selectSnippet } from "../lib/snippet-list.js";
 import * as logger from "../lib/logger.js";
@@ -46,7 +47,7 @@ export async function showSnippetInfo(name: string | undefined, opts: InfoOption
     for (const entry of registries) {
       if (entry.url) {
         try {
-          const remoteNames = await listRemoteSnippets(entry.url, fetchOptions);
+          const remoteNames = await listRemoteSnippets(resolveRegistryUrl(entry), fetchOptions);
           for (const s of remoteNames) {
             if (!allSnippets.includes(s)) {
               allSnippets.push(s);
@@ -79,7 +80,7 @@ export async function showSnippetInfo(name: string | undefined, opts: InfoOption
   for (const entry of registries) {
     if (entry.url) {
       try {
-        const remote = await fetchRemoteSnippet(entry.url, snippetName, fetchOptions);
+        const remote = await fetchRemoteSnippet(resolveRegistryUrl(entry), snippetName, fetchOptions);
         definition = remote.definition;
         break;
       } catch {

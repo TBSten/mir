@@ -6,7 +6,7 @@ import {
   listRegistrySnippets,
   t,
 } from "@tbsten/mir-core";
-import { loadMirConfig, resolveInstallRegistries, resolveRegistryPath } from "../lib/mirconfig.js";
+import { loadMirConfig, resolveInstallRegistries, resolveRegistryPath, resolveRegistryUrl } from "../lib/mirconfig.js";
 import * as logger from "../lib/logger.js";
 
 interface GlobalOptions {
@@ -58,7 +58,7 @@ export async function searchSnippets(query: string, opts: SearchOptions = {}): P
           snippets: [],
         };
         try {
-          const allSnippets = await listRemoteSnippets(entry.url);
+          const allSnippets = await listRemoteSnippets(resolveRegistryUrl(entry));
           const lowerQuery = query.toLowerCase();
           result.snippets = allSnippets.filter((name) =>
             name.toLowerCase().includes(lowerQuery),

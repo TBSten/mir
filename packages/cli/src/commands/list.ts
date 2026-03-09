@@ -7,7 +7,7 @@ import {
   t,
   type FetchOptions,
 } from "@tbsten/mir-core";
-import { loadMirConfig, resolveInstallRegistries, resolveRegistryPath } from "../lib/mirconfig.js";
+import { loadMirConfig, resolveInstallRegistries, resolveRegistryPath, resolveRegistryUrl } from "../lib/mirconfig.js";
 import * as logger from "../lib/logger.js";
 
 interface GlobalOptions {
@@ -58,7 +58,7 @@ export async function listSnippets(opts: ListOptions = {}): Promise<void> {
           snippets: [],
         };
         try {
-          regData.snippets = await listRemoteSnippets(entry.url, fetchOptions);
+          regData.snippets = await listRemoteSnippets(resolveRegistryUrl(entry), fetchOptions);
         } catch {
           // 取得失敗時は空配列のまま
         }
@@ -98,7 +98,7 @@ export async function listSnippets(opts: ListOptions = {}): Promise<void> {
         logger.step(`${entry.name ?? "remote"} (${entry.url}):`);
       }
       try {
-        const remoteSnippets = await listRemoteSnippets(entry.url, fetchOptions);
+        const remoteSnippets = await listRemoteSnippets(resolveRegistryUrl(entry), fetchOptions);
         for (const name of remoteSnippets) {
           if (!opts.quiet) {
             logger.fileItem(name);

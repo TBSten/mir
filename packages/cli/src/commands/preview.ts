@@ -16,6 +16,7 @@ import {
   loadMirConfig,
   resolveInstallRegistries,
   resolveRegistryPath,
+  resolveRegistryUrl,
 } from "../lib/mirconfig.js";
 import { prompt } from "../lib/prompt.js";
 import * as logger from "../lib/logger.js";
@@ -78,7 +79,7 @@ export async function previewSnippet(
   for (const entry of registries) {
     if (entry.url) {
       try {
-        const remote = await fetchRemoteSnippet(entry.url, name, fetchOptions);
+        const remote = await fetchRemoteSnippet(resolveRegistryUrl(entry), name, fetchOptions);
         definition = remote.definition;
         source = { type: "remote", files: remote.files };
         break;
