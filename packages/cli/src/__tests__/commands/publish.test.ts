@@ -59,7 +59,7 @@ describe("publishSnippet", () => {
   it("snippet を registry にコピーする", async () => {
     createSnippet("my-comp", {}, tmpDir);
 
-    await publishSnippet("my-comp", {}, tmpDir, configPath);
+    await publishSnippet("my-comp", { interactive: false }, tmpDir, configPath);
 
     expect(
       fs.existsSync(path.join(registryDir, "my-comp.yaml")),
@@ -79,7 +79,7 @@ describe("publishSnippet", () => {
       "utf-8",
     );
 
-    await publishSnippet("my-comp", {}, tmpDir, configPath);
+    await publishSnippet("my-comp", { interactive: false }, tmpDir, configPath);
 
     const copiedContent = fs.readFileSync(
       path.join(registryDir, "my-comp", "index.ts"),
@@ -112,7 +112,7 @@ describe("publishSnippet", () => {
 
   it("--force で上書きできる", async () => {
     createSnippet("dup", {}, tmpDir);
-    await publishSnippet("dup", {}, tmpDir, configPath);
+    await publishSnippet("dup", { interactive: false }, tmpDir, configPath);
 
     await expect(
       publishSnippet("dup", { force: true }, tmpDir, configPath),
@@ -121,7 +121,7 @@ describe("publishSnippet", () => {
 
   it("interactive で確認して上書きできる", async () => {
     createSnippet("dup-confirm", {}, tmpDir);
-    await publishSnippet("dup-confirm", {}, tmpDir, configPath);
+    await publishSnippet("dup-confirm", { interactive: false }, tmpDir, configPath);
 
     mockConfirm.mockResolvedValueOnce(true);
 
@@ -132,7 +132,7 @@ describe("publishSnippet", () => {
 
   it("interactive で確認してキャンセルできる", async () => {
     createSnippet("dup-cancel", {}, tmpDir);
-    await publishSnippet("dup-cancel", {}, tmpDir, configPath);
+    await publishSnippet("dup-cancel", { interactive: false }, tmpDir, configPath);
 
     mockConfirm.mockResolvedValueOnce(false);
 
@@ -143,7 +143,7 @@ describe("publishSnippet", () => {
 
   it("non-interactive で重複時にエラー", async () => {
     createSnippet("dup-error", {}, tmpDir);
-    await publishSnippet("dup-error", {}, tmpDir, configPath);
+    await publishSnippet("dup-error", { interactive: false }, tmpDir, configPath);
 
     await expect(
       publishSnippet("dup-error", { interactive: false }, tmpDir, configPath),

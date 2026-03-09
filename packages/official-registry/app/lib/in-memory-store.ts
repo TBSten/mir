@@ -2,6 +2,7 @@ import type {
   RegistryProvider,
   RegistrySnippetDetail,
   RegistrySnippetSummary,
+  SnippetVersionEntry,
 } from "@tbsten/mir-registry-sdk";
 
 /**
@@ -39,9 +40,11 @@ export function createInMemoryProvider(): RegistryProvider {
         }));
     },
 
-    async getVersionHistory(name: string): Promise<string[]> {
+    async getVersionHistory(name: string): Promise<SnippetVersionEntry[] | null> {
       const detail = store.get(name);
-      return detail ? [detail.definition.version] : [];
+      if (!detail) return null;
+      const version = detail.definition.version;
+      return version ? [{ version }] : [];
     },
 
     async getDependencies(name: string): Promise<string[]> {

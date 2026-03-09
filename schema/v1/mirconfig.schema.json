@@ -53,6 +53,10 @@
           "format": "uri",
           "description": "リモート registry の URL。path と排他。読み取り専用",
           "pattern": "^https?://"
+        },
+        "publish_token": {
+          "type": "string",
+          "description": "リモート registry への publish 用 API トークン。mir login コマンドで自動設定される"
         }
       },
       "oneOf": [

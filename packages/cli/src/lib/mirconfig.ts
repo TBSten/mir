@@ -161,3 +161,44 @@ export function ensureDefaultRegistryDir(): void {
     fs.mkdirSync(registryDir, { recursive: true });
   }
 }
+
+/**
+ * グローバル config の指定 registry に publish_token を保存
+ */
+export function saveRegistryToken(registryName: string, token: string): void {
+  const configPath = globalConfigPath();
+  const config = loadSingleConfig(configPath);
+
+  const entry = config.registries.find((r) => r.name === registryName);
+  if (entry) {
+    entry.publish_token = token;
+  } else {
+    config.registries.push({ name: registryName, publish_token: token });
+  }
+
+  writeGlobalConfig(config);
+}
+
+/**
+ * グローバル config の指定 registry から publish_token を削除
+ */
+export function removeRegistryToken(registryName: string): void {
+  const configPath = globalConfigPath();
+  const config = loadSingleConfig(configPath);
+
+  const entry = config.registries.find((r) => r.name === registryName);
+  if (entry) {
+    delete entry.publish_token;
+  }
+
+  writeGlobalConfig(config);
+}
+
+function writeGlobalConfig(config: MirConfig): void {
+  const configPath = globalConfigPath();
+  const dir = configPath.replace(/\/[^/]+$/, "");
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  fs.writeFileSync(configPath, yaml.dump(config), "utf-8");
+}

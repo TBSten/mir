@@ -5,6 +5,9 @@ type Bindings = {
   // R2: R2Bucket;
   STATS_KV?: KVNamespace;
   PUBLISH_API_TOKEN?: string;
+  GITHUB_CLIENT_ID?: string;
+  GITHUB_CLIENT_SECRET?: string;
+  AUTH_SECRET?: string;
 };
 
 type RendererProps = {

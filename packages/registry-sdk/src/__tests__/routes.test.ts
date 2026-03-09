@@ -4,7 +4,12 @@
  */
 import { describe, it, expect } from "vitest";
 import { createRegistryRoutes } from "../routes.js";
-import type { RegistryProvider, RegistrySnippetDetail } from "../types.js";
+import type {
+  RegistryProvider,
+  RegistrySnippetDetail,
+  PublishableRegistryProvider,
+  AuthContext,
+} from "../types.js";
 import type { SnippetDefinition } from "@tbsten/mir-core";
 
 function createMockProvider(
@@ -398,5 +403,152 @@ describe("GET /api/snippets/:name/dependencies (S052)", () => {
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data.transitive).toEqual([]);
+  });
+});
+
+describe("POST /api/snippets (publish with auth)", () => {
+  function createMockPublisher(): PublishableRegistryProvider {
+    const store = new Map<string, { ownerId?: number }>();
+    const base = createMockProvider(testSnippets);
+    return {
+      ...base,
+      async publish(detail, force, ownerId) {
+        const name = detail.definition.name;
+        const existing = store.get(name);
+        if (existing && !force) {
+          throw new Error(`Snippet '${name}' already exists`);
+        }
+        if (existing && existing.ownerId && existing.ownerId !== ownerId) {
+          throw new Error(`Snippet '${name}' is owned by another user`);
+        }
+        store.set(name, { ownerId });
+      },
+    };
+  }
+
+  const validAuth = async (req: Request): Promise<AuthContext | null> => {
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader === "Bearer valid-token") {
+      return { userId: 1, username: "testuser" };
+    }
+    return null;
+  };
+
+  it("認証なしの場合 401 を返す", async () => {
+    const publisher = createMockPublisher();
+    const app = createRegistryRoutes(publisher, {
+      auth: { authenticate: validAuth },
+      publisher,
+    });
+    const res = await app.request("/api/snippets", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        definition: { name: "test" },
+        files: { "index.ts": "hello" },
+      }),
+    });
+    expect(res.status).toBe(401);
+  });
+
+  it("認証ありで publish 成功する", async () => {
+    const publisher = createMockPublisher();
+    const app = createRegistryRoutes(publisher, {
+      auth: { authenticate: validAuth },
+      publisher,
+    });
+    const res = await app.request("/api/snippets", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer valid-token",
+      },
+      body: JSON.stringify({
+        definition: { name: "new-snippet" },
+        files: { "index.ts": "hello" },
+      }),
+    });
+    expect(res.status).toBe(201);
+    const data = await res.json();
+    expect(data.name).toBe("new-snippet");
+  });
+
+  it("不正なペイロードで 400 を返す", async () => {
+    const publisher = createMockPublisher();
+    const app = createRegistryRoutes(publisher, {
+      auth: { authenticate: validAuth },
+      publisher,
+    });
+    const res = await app.request("/api/snippets", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer valid-token",
+      },
+      body: JSON.stringify({ invalid: true }),
+    });
+    expect(res.status).toBe(400);
+  });
+
+  it("auth/publisher 未設定の場合は publish ルートが存在しない", async () => {
+    const app = createRegistryRoutes(createMockProvider(testSnippets));
+    const res = await app.request("/api/snippets", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        definition: { name: "test" },
+        files: { "index.ts": "hello" },
+      }),
+    });
+    // POST が未定義なので 404 になる
+    expect(res.status).toBe(404);
+  });
+
+  it("所有権エラー時に 400 を返す", async () => {
+    const publisher = createMockPublisher();
+    // まず user1 として publish
+    const app = createRegistryRoutes(publisher, {
+      auth: {
+        authenticate: async (req) => {
+          const authHeader = req.headers.get("Authorization");
+          if (authHeader === "Bearer user1-token") {
+            return { userId: 1, username: "user1" };
+          }
+          if (authHeader === "Bearer user2-token") {
+            return { userId: 2, username: "user2" };
+          }
+          return null;
+        },
+      },
+      publisher,
+    });
+
+    // user1 が publish
+    await app.request("/api/snippets", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer user1-token",
+      },
+      body: JSON.stringify({
+        definition: { name: "owned-snippet" },
+        files: { "index.ts": "hello" },
+      }),
+    });
+
+    // user2 が force で上書き → 所有権エラー
+    const res = await app.request("/api/snippets", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer user2-token",
+      },
+      body: JSON.stringify({
+        definition: { name: "owned-snippet" },
+        files: { "index.ts": "updated" },
+        force: true,
+      }),
+    });
+    expect(res.status).toBe(400);
   });
 });

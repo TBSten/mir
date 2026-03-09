@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import type { RegistryProvider } from "./types.js";
+import type { RegistryProvider, RegistryRoutesOptions } from "./types.js";
 
 /**
  * クエリパラメータから limit/offset を解析する。
@@ -19,7 +19,7 @@ function parsePagination(
 }
 
 /** Hono 用ルートファクトリ */
-export function createRegistryRoutes(provider: RegistryProvider): Hono {
+export function createRegistryRoutes(provider: RegistryProvider, options?: RegistryRoutesOptions): Hono {
   const app = new Hono();
 
   // snippet 一覧 (S038: limit/offset ページネーション対応)
@@ -108,6 +108,48 @@ export function createRegistryRoutes(provider: RegistryProvider): Hono {
     );
     return c.json(filtered);
   });
+
+  // publish (auth + publisher が設定されている場合のみ)
+  if (options?.auth && options?.publisher) {
+    const { auth, publisher } = options;
+    app.post("/api/snippets", async (c) => {
+      const authContext = await auth.authenticate(c.req.raw);
+      if (!authContext) {
+        return c.json({ error: "Unauthorized" }, 401);
+      }
+
+      let payload;
+      try {
+        payload = await c.req.json();
+      } catch {
+        return c.json({ error: "Invalid JSON" }, 400);
+      }
+
+      if (!payload.definition || !payload.files || typeof payload.files !== "object") {
+        return c.json({ error: "Missing or invalid 'definition' or 'files'" }, 400);
+      }
+      if (!payload.definition.name) {
+        return c.json({ error: "Missing 'definition.name'" }, 400);
+      }
+
+      try {
+        const detail = {
+          definition: payload.definition,
+          files: new Map<string, string>(Object.entries(payload.files)),
+        };
+        await publisher.publish(detail, payload.force || false, authContext.userId);
+        return c.json({
+          message: "Snippet published successfully",
+          name: payload.definition.name,
+        }, 201);
+      } catch (error) {
+        if (error instanceof Error) {
+          return c.json({ error: error.message }, 400);
+        }
+        return c.json({ error: "Failed to publish snippet" }, 500);
+      }
+    });
+  }
 
   // dependencies (S052: getDependencies 実装)
   app.get("/api/snippets/:name/dependencies", async (c) => {

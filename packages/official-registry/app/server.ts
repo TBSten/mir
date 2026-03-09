@@ -42,25 +42,56 @@ app.post("/api/snippets", async (c) => {
   const { PublishError, saveSnippetToD1, validateAuthToken } = await import(
     "./lib/publish-handler.js"
   );
+  const { validateApiToken } = await import("./lib/auth.js");
 
-  // dev 環境判定: Cloudflare Workers 環境でない場合は dev モード
-  // または明示的に DEV_MODE=true を指定
+  // dev 環境判定
   const isDevMode =
     process.env.DEV_MODE === "true" ||
     process.env.NODE_ENV === "development" ||
     typeof (c.env as any)?.D1 === "undefined";
 
+  let ownerId: number | undefined;
+
   // 本番環境のみ認証チェック
   if (!isDevMode) {
-    try {
-      const authHeader = c.req.header("Authorization");
-      const token = (c.env as any)?.PUBLISH_API_TOKEN;
-      validateAuthToken(authHeader, token);
-    } catch (error) {
-      if (error instanceof PublishError) {
-        return c.json({ error: error.message }, error.statusCode as any);
+    const authHeader = c.req.header("Authorization");
+    const db = (c.env as any)?.D1;
+
+    // DB ベース認証を優先
+    if (db) {
+      try {
+        const tokenUser = await validateApiToken(db, authHeader);
+        if (tokenUser) {
+          ownerId = tokenUser.userId;
+        } else {
+          // フォールバック: PUBLISH_API_TOKEN 環境変数
+          const envToken = (c.env as any)?.PUBLISH_API_TOKEN;
+          try {
+            validateAuthToken(authHeader, envToken);
+          } catch (error) {
+            if (error instanceof PublishError) {
+              return c.json({ error: error.message }, error.statusCode as any);
+            }
+            return c.json({ error: "Unauthorized" }, 401);
+          }
+        }
+      } catch (error) {
+        if (error instanceof PublishError) {
+          return c.json({ error: error.message }, error.statusCode as any);
+        }
+        return c.json({ error: "Unauthorized" }, 401);
       }
-      return c.json({ error: "Unauthorized" }, 401);
+    } else {
+      // DB がない場合は環境変数のみ
+      try {
+        const envToken = (c.env as any)?.PUBLISH_API_TOKEN;
+        validateAuthToken(authHeader, envToken);
+      } catch (error) {
+        if (error instanceof PublishError) {
+          return c.json({ error: error.message }, error.statusCode as any);
+        }
+        return c.json({ error: "Unauthorized" }, 401);
+      }
     }
   }
 
@@ -86,7 +117,6 @@ app.post("/api/snippets", async (c) => {
 
   try {
     if (isDevMode) {
-      // Dev 環境: InMemory に保存
       saveToInMemoryStore(
         {
           definition: payload.definition,
@@ -102,8 +132,12 @@ app.post("/api/snippets", async (c) => {
         201
       );
     } else {
-      // 本番環境: D1 に保存
-      await saveSnippetToD1((c.env as any).D1, payload, payload.force || false);
+      await saveSnippetToD1(
+        (c.env as any).D1,
+        payload,
+        payload.force || false,
+        ownerId,
+      );
       return c.json(
         {
           message: "Snippet published successfully",

@@ -32,3 +32,25 @@ export interface RegistryProvider {
   /** snippet が依存する全ての snippet 名（推移的依存関係を含む）を返す。実装は任意 */
   getTransitiveDependencies?(name: string): Promise<string[]>;
 }
+
+/** publish 可能な registry プロバイダ */
+export interface PublishableRegistryProvider extends RegistryProvider {
+  publish(detail: RegistrySnippetDetail, force?: boolean, ownerId?: number): Promise<void>;
+}
+
+/** 認証コンテキスト */
+export interface AuthContext {
+  userId: number;
+  username: string;
+}
+
+/** 認証設定（カスタム registry 用） */
+export interface AuthConfig {
+  authenticate: (req: Request) => Promise<AuthContext | null>;
+}
+
+/** createRegistryRoutes のオプション */
+export interface RegistryRoutesOptions {
+  auth?: AuthConfig;
+  publisher?: PublishableRegistryProvider;
+}

@@ -10,6 +10,8 @@ import { registerInitCommand } from "./commands/init.js";
 import { registerPreviewCommand } from "./commands/preview.js";
 import { registerSearchCommand } from "./commands/search.js";
 import { registerCloneCommand } from "./commands/clone.js";
+import { registerLoginCommand } from "./commands/login.js";
+import { registerLogoutCommand } from "./commands/logout.js";
 import { loadMirConfig } from "./lib/mirconfig.js";
 import { getLocaleFromEnv } from "./lib/env.js";
 import * as logger from "./lib/logger.js";
@@ -21,7 +23,7 @@ const program = new Command();
 program
   .name("mir")
   .description("スニペットを配布・取得する CLI ツール")
-  .version(__PKG_VERSION__, "-v, -V, --version")
+  .version(__PKG_VERSION__, "-v, --version")
   .showHelpAfterError(true)
   .option("--config <path>", "設定ファイルパス (デフォルト: ~/.mir/config.yaml)")
   .option("--locale <lang>", "UI 言語 (ja|en)")
@@ -65,6 +67,8 @@ registerInfoCommand(program);
 registerSearchCommand(program);
 registerCloneCommand(program);
 registerPreviewCommand(program);
+registerLoginCommand(program);
+registerLogoutCommand(program);
 
 program.parseAsync().catch((err) => {
   if (err instanceof SnippetNotFoundError) {

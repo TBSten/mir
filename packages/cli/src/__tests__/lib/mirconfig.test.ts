@@ -29,7 +29,11 @@ afterEach(() => {
 describe("loadSingleConfig", () => {
   it("ファイルが存在しない場合はデフォルト設定を返す", () => {
     const config = loadSingleConfig(path.join(tmpDir, "nonexistent.yaml"));
-    expect(config.registries).toEqual([{ path: "~/.mir/registry" }]);
+    expect(config.registries).toHaveLength(2);
+    expect(config.registries[0].name).toBe("official");
+    expect(config.registries[0].url).toBe("https://mir.tbsten.me");
+    expect(config.registries[1].name).toBe("default");
+    expect(config.registries[1].path).toBe("~/.mir/registry");
   });
 
   it("設定ファイルを読み込む", () => {
@@ -53,7 +57,9 @@ describe("loadSingleConfig", () => {
     fs.writeFileSync(configPath, "", "utf-8");
 
     const config = loadSingleConfig(configPath);
-    expect(config.registries).toEqual([{ path: "~/.mir/registry" }]);
+    expect(config.registries).toHaveLength(2);
+    expect(config.registries[0].name).toBe("official");
+    expect(config.registries[1].name).toBe("default");
   });
 });
 

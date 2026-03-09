@@ -17,7 +17,7 @@ export class PublishError extends Error {
 }
 
 /**
- * Bearer トークン認証チェック
+ * Bearer トークン認証チェック（環境変数ベース、移行期間のフォールバック用）
  */
 export function validateAuthToken(
   authHeader: string | undefined,
@@ -42,21 +42,30 @@ export function validateAuthToken(
 }
 
 /**
- * Snippet を D1 に保存
+ * Snippet を D1 に保存（owner_id 対応）
  */
 export async function saveSnippetToD1(
   db: any,
   payload: PublishPayload,
   force: boolean = false,
+  ownerId?: number,
 ): Promise<void> {
   const { definition, files } = payload;
   const { name } = definition;
 
   // 既存チェック
-  const existing = await db.prepare("SELECT id FROM snippets WHERE name = ?").bind(name).first();
+  const existing = await db
+    .prepare("SELECT id, owner_id FROM snippets WHERE name = ?")
+    .bind(name)
+    .first();
 
   if (existing && !force) {
     throw new PublishError(409, `Snippet '${name}' already exists`);
+  }
+
+  // 所有権チェック: owner が設定されており、別ユーザーの場合は拒否
+  if (existing && existing.owner_id && ownerId && existing.owner_id !== ownerId) {
+    throw new PublishError(403, `Snippet '${name}' is owned by another user`);
   }
 
   if (existing && force) {
@@ -67,8 +76,8 @@ export async function saveSnippetToD1(
   // snippet を挿入
   const snippetInsert = await db
     .prepare(
-      `INSERT INTO snippets (name, version, description, tags, variables, dependencies, hooks, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+      `INSERT INTO snippets (name, version, description, tags, variables, dependencies, hooks, owner_id, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
     )
     .bind(
       name,
@@ -78,6 +87,7 @@ export async function saveSnippetToD1(
       definition.variables ? JSON.stringify(definition.variables) : null,
       definition.dependencies ? JSON.stringify(definition.dependencies) : null,
       definition.hooks ? JSON.stringify(definition.hooks) : null,
+      ownerId || null,
     )
     .run();
 

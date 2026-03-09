@@ -1,6 +1,6 @@
 import { GITHUB_URL, SITE_NAME } from "../lib/constants.js";
 
-export function Header() {
+export function Header({ username }: { username?: string }) {
   return (
     <header class="flex items-center justify-between border-b border-sky-200 px-10 py-5">
       <a href="/" class="flex items-center gap-2">
@@ -30,12 +30,31 @@ export function Header() {
         >
           github
         </a>
-        <a
-          href="/docs"
-          class="flex items-center gap-2 bg-sky-500 px-4 py-2 font-mono text-xs font-medium text-white hover:bg-sky-600"
-        >
-          $ get started
-        </a>
+        {username ? (
+          <>
+            <a
+              href="/settings/tokens"
+              class="font-mono text-sm text-sky-700 hover:text-sky-500"
+            >
+              {username}
+            </a>
+            <form method="post" action="/auth/logout" style="display:inline">
+              <button
+                type="submit"
+                class="font-mono text-xs text-sky-500 hover:text-sky-700"
+              >
+                logout
+              </button>
+            </form>
+          </>
+        ) : (
+          <a
+            href="/auth/login"
+            class="flex items-center gap-2 bg-sky-500 px-4 py-2 font-mono text-xs font-medium text-white hover:bg-sky-600"
+          >
+            $ login
+          </a>
+        )}
       </nav>
     </header>
   );

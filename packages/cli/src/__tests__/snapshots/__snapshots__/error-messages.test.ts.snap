@@ -1,16 +1,16 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`エラーメッセージ snapshot (日本語) > FileConflictError 1`] = `"ファイル "index.ts" は既に存在します"`;
+exports[`エラーメッセージ snapshot (日本語) > FileConflictError 1`] = `"ファイル "index.ts" は既に存在します。\`--no-interactive\` で全て上書きするか、\`--out-dir\` で別ディレクトリを指定してください"`;
 
-exports[`エラーメッセージ snapshot (日本語) > PathTraversalError 1`] = `"パス "../secret.txt" は出力ディレクトリの外を参照しています"`;
+exports[`エラーメッセージ snapshot (日本語) > PathTraversalError 1`] = `"セキュリティエラー: ファイルパス "../secret.txt" が出力範囲外を参照しています。テンプレートファイルを確認してください"`;
 
-exports[`エラーメッセージ snapshot (日本語) > RegistryNotFoundError 1`] = `"Registry "team" が見つかりません"`;
+exports[`エラーメッセージ snapshot (日本語) > RegistryNotFoundError 1`] = `"Registry "team" が見つかりません。\`~/.mir/mirconfig.yaml\` で registry を設定してください"`;
 
 exports[`エラーメッセージ snapshot (日本語) > RegistryRemoteError (named) 1`] = `"Registry "community" はリモート registry のため publish できません"`;
 
 exports[`エラーメッセージ snapshot (日本語) > RegistryRemoteError (unnamed) 1`] = `"リモート registry には publish できません"`;
 
-exports[`エラーメッセージ snapshot (日本語) > SnippetAlreadyExistsError 1`] = `"Snippet "my-comp" は既に存在します"`;
+exports[`エラーメッセージ snapshot (日本語) > SnippetAlreadyExistsError 1`] = `"Snippet "my-comp" は既に存在します。\`--force\` で上書きするか、別の名前を指定してください"`;
 
 exports[`エラーメッセージ snapshot (日本語) > SnippetNotFoundError - details 1`] = `
 "
@@ -25,17 +25,17 @@ exports[`エラーメッセージ snapshot (日本語) > SnippetNotFoundError - 
 • mir info <name>      - snippet の詳細情報を表示"
 `;
 
-exports[`エラーメッセージ snapshot (日本語) > SnippetNotFoundError 1`] = `"Snippet "my-comp" が見つかりません"`;
+exports[`エラーメッセージ snapshot (日本語) > SnippetNotFoundError 1`] = `"Snippet "my-comp" が見つかりません。\`mir list\` で利用可能な snippet を確認するか、\`--registry\` で別の registry を指定してください"`;
 
-exports[`エラーメッセージ snapshot (英語) > FileConflictError 1`] = `"File "index.ts" already exists"`;
+exports[`エラーメッセージ snapshot (英語) > FileConflictError 1`] = `"File "index.ts" already exists. Use \`--no-interactive\` to overwrite all files or \`--out-dir\` to specify another directory"`;
 
-exports[`エラーメッセージ snapshot (英語) > PathTraversalError 1`] = `"Path "../secret.txt" references outside the output directory"`;
+exports[`エラーメッセージ snapshot (英語) > PathTraversalError 1`] = `"Security error: File path "../secret.txt" references outside the output directory. Check your template files"`;
 
-exports[`エラーメッセージ snapshot (英語) > RegistryNotFoundError 1`] = `"Registry "team" not found"`;
+exports[`エラーメッセージ snapshot (英語) > RegistryNotFoundError 1`] = `"Registry "team" not found. Configure registries in \`~/.mir/mirconfig.yaml\`"`;
 
 exports[`エラーメッセージ snapshot (英語) > RegistryRemoteError (named) 1`] = `"Cannot publish to registry "community" because it is a remote registry"`;
 
-exports[`エラーメッセージ snapshot (英語) > SnippetAlreadyExistsError 1`] = `"Snippet "my-comp" already exists"`;
+exports[`エラーメッセージ snapshot (英語) > SnippetAlreadyExistsError 1`] = `"Snippet "my-comp" already exists. Use \`--force\` to overwrite or specify a different name"`;
 
 exports[`エラーメッセージ snapshot (英語) > SnippetNotFoundError - details 1`] = `
 "
@@ -50,4 +50,4 @@ Ways to check:
 • mir info <name>      - Show snippet details"
 `;
 
-exports[`エラーメッセージ snapshot (英語) > SnippetNotFoundError 1`] = `"Snippet "my-comp" not found"`;
+exports[`エラーメッセージ snapshot (英語) > SnippetNotFoundError 1`] = `"Snippet "my-comp" not found. Use \`mir list\` to see available snippets or specify \`--registry\` for another registry"`;

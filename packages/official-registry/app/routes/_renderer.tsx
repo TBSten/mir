@@ -4,6 +4,8 @@ import { Header } from "../components/header.js";
 import { Footer } from "../components/footer.js";
 import { SITE_NAME, SITE_DESCRIPTION } from "../lib/constants.js";
 import { buildMetaTags } from "../lib/seo.js";
+import { getCookie } from "hono/cookie";
+import { verifyJwt } from "../lib/auth.js";
 
 const darkModeScript = `(function() { const t = localStorage.getItem('theme') || 'light'; if (t === 'dark') document.documentElement.classList.add('dark'); })();`;
 
@@ -16,9 +18,24 @@ interface RendererContext {
   path?: string;
 }
 
-export default jsxRenderer((context) => {
+export default jsxRenderer(async (context, c) => {
   const { children, title, description = SITE_DESCRIPTION, path = "/" } = context as RendererContext;
   const pageTitle = title ? `${title} - ${SITE_NAME}` : SITE_NAME;
+
+  // JWT Cookie からユーザー名を取得
+  let username: string | undefined;
+  try {
+    const authSecret = (c.env as any)?.AUTH_SECRET;
+    const sessionToken = getCookie(c, "mir_session");
+    if (authSecret && sessionToken) {
+      const payload = await verifyJwt(sessionToken, authSecret);
+      if (payload) {
+        username = payload.username;
+      }
+    }
+  } catch {
+    // Cookie 検証失敗は無視
+  }
 
   const metaTags = buildMetaTags({
     title,
@@ -69,7 +86,7 @@ export default jsxRenderer((context) => {
         <Style />
       </head>
       <body class="bg-sky-50 font-body text-sky-900 dark:bg-gray-900 dark:text-gray-50 antialiased">
-        <Header />
+        <Header username={username} />
         <main class="min-h-screen">{children}</main>
         <Footer />
       </body>

@@ -13,7 +13,7 @@ describe("i18n", () => {
   it("日本語メッセージを返す", () => {
     setLocale("ja");
     expect(t("error.snippet-not-found", { name: "test" })).toBe(
-      'Snippet "test" が見つかりません',
+      'Snippet "test" が見つかりません。`mir list` で利用可能な snippet を確認するか、`--registry` で別の registry を指定してください',
     );
   });
 
@@ -21,7 +21,7 @@ describe("i18n", () => {
     setLocale("en");
     expect(getLocale()).toBe("en");
     expect(t("error.snippet-not-found", { name: "test" })).toBe(
-      'Snippet "test" not found',
+      'Snippet "test" not found. Use `mir list` to see available snippets or specify `--registry` for another registry',
     );
   });
 

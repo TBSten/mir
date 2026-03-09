@@ -3,6 +3,10 @@ export type {
   RegistrySnippetDetail,
   SnippetVersionEntry,
   RegistryProvider,
+  PublishableRegistryProvider,
+  AuthContext,
+  AuthConfig,
+  RegistryRoutesOptions,
 } from "./types.js";
 
 export { createRegistryRoutes } from "./routes.js";
