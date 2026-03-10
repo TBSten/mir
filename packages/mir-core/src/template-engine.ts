@@ -19,6 +19,20 @@ export function expandTemplate(
   return compiled(variables);
 }
 
+/**
+ * default 値が Handlebars テンプレートを含む場合に展開する。
+ * テンプレート構文 ({{ }}) を含まない場合はそのまま返す。
+ */
+export function expandDefaultValue(
+  defaultValue: unknown,
+  resolvedVariables: Record<string, unknown>,
+): unknown {
+  if (typeof defaultValue !== "string") return defaultValue;
+  // Handlebars 構文を含まない場合はそのまま
+  if (!defaultValue.includes("{{")) return defaultValue;
+  return expandTemplate(defaultValue, resolvedVariables);
+}
+
 export function expandPath(
   pathTemplate: string,
   variables: Record<string, unknown>,

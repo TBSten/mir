@@ -8,6 +8,7 @@ import {
   listRegistrySnippets,
   expandTemplateDirectory,
   expandRemoteTemplateFiles,
+  expandDefaultValue,
   fetchRemoteSnippet,
   listRemoteSnippets,
   executeHooks,
@@ -378,14 +379,18 @@ async function resolveVariables(
             }),
           );
         }
-        variables[key] = def.schema.default;
+        variables[key] = expandDefaultValue(def.schema.default, variables);
       } else {
         const description = def.description ?? def.name ?? key;
         const allowManual =
           def.schema?.type === "string" || !def.schema?.type;
-        const defaultStr =
+        const expandedDefault =
           def.schema?.default !== undefined
-            ? String(def.schema.default)
+            ? expandDefaultValue(def.schema.default, variables)
+            : undefined;
+        const defaultStr =
+          expandedDefault !== undefined
+            ? String(expandedDefault)
             : undefined;
         const answer = await selectWithSuggests({
           question: `${description} (${key})`,
@@ -396,7 +401,7 @@ async function resolveVariables(
         variables[key] = coerceValue(answer, def.schema?.type);
       }
     } else if (def.schema?.default !== undefined) {
-      variables[key] = def.schema.default;
+      variables[key] = expandDefaultValue(def.schema.default, variables);
     } else {
       if (!interactive) {
         // 非対話モード: default がない場合はエラー

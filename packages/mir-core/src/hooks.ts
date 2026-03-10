@@ -1,5 +1,5 @@
 import { MirError } from "./errors.js";
-import { expandTemplate } from "./template-engine.js";
+import { expandTemplate, expandDefaultValue } from "./template-engine.js";
 import { t } from "./i18n/index.js";
 import type { Action } from "./snippet-schema.js";
 
@@ -44,7 +44,7 @@ export function executeHooks(
         if (!answerTo) continue;
 
         if (inputDef.schema?.default !== undefined) {
-          vars[answerTo] = inputDef.schema.default;
+          vars[answerTo] = expandDefaultValue(inputDef.schema.default, vars);
         } else {
           throw new MirError(
             t("error.hook-input-required", { key: answerTo }),
