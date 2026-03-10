@@ -4,7 +4,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run build -w packages/mir-core && npm run build -w packages/cli && npm run build -w packages/official-registry",
     "dev": "npm run dev --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
