@@ -130,12 +130,86 @@ variables:
 - `schema.default` と併用すると、該当する選択肢に `(default)` マークが付き、Enter のみで default 値を使用可能
 - CLI 引数（`--key=value`）で値が指定済みの場合、suggests はスキップされる
 
+#### default 値でのテンプレート展開
+
+`default` 値に Handlebars テンプレート構文を使うことで、他の変数を参照・変換できます。
+先に定義された（YAML 上で上に書かれた）変数のみ参照可能です。
+
+```yaml
+variables:
+  packageDir:
+    description: "パッケージディレクトリ"
+    schema:
+      type: string
+  packageName:
+    description: "パッケージ名（自動生成）"
+    schema:
+      type: string
+      default: "{{ replace packageDir '/' '.' }}"
+  className:
+    description: "クラス名（自動生成）"
+    schema:
+      type: string
+      default: "{{ pascalCase packageName }}"
+```
+
+`--packageDir=com/example/app` でインストールした場合:
+- `packageName` → `com.example.app`
+- `className` → `ComExampleApp`
+
+#### 利用可能なヘルパー関数
+
+**文字列変換:**
+
+| ヘルパー | 説明 | 例 |
+|---|---|---|
+| `lowercase` | 小文字に変換 | `{{ lowercase name }}` → `hello` |
+| `uppercase` | 大文字に変換 | `{{ uppercase name }}` → `HELLO` |
+| `capitalize` | 先頭を大文字に | `{{ capitalize name }}` → `Hello` |
+| `uncapitalize` | 先頭を小文字に | `{{ uncapitalize name }}` → `hello` |
+| `trim` | 前後の空白を除去 | `{{ trim name }}` |
+
+**ケース変換:**
+
+| ヘルパー | 説明 | 例 |
+|---|---|---|
+| `camelCase` | camelCase に変換 | `{{ camelCase name }}` → `myComponent` |
+| `pascalCase` | PascalCase に変換 | `{{ pascalCase name }}` → `MyComponent` |
+| `snakeCase` | snake_case に変換 | `{{ snakeCase name }}` → `my_component` |
+| `kebabCase` | kebab-case に変換 | `{{ kebabCase name }}` → `my-component` |
+| `dotCase` | dot.case に変換 | `{{ dotCase name }}` → `my.component` |
+| `pathCase` | path/case に変換 | `{{ pathCase name }}` → `my/component` |
+
+**文字列操作:**
+
+| ヘルパー | 説明 | 例 |
+|---|---|---|
+| `replace` | 文字列置換 | `{{ replace name "/" "." }}` |
+| `concat` | 文字列結合 | `{{ concat name "-" version }}` |
+| `slice` | 部分文字列の切り出し | `{{ slice name 0 3 }}` |
+| `length` | 文字列の長さ | `{{ length name }}` |
+
+**条件判定（`#if` と組み合わせて使用）:**
+
+| ヘルパー | 説明 | 例 |
+|---|---|---|
+| `contains` | 部分文字列を含むか | `{{#if (contains name "test")}}...{{/if}}` |
+| `startsWith` | 先頭一致か | `{{#if (startsWith name "use")}}...{{/if}}` |
+| `endsWith` | 末尾一致か | `{{#if (endsWith file ".ts")}}...{{/if}}` |
+
+ヘルパーはネストして使用できます:
+
+```handlebars
+{{ uppercase (replace packageDir "/" ".") }}
+{{ pascalCase (replace pkg "/" "-") }}
+```
+
 #### 変数スキーマ（variableSchema）
 
 | フィールド | 型 | 説明 |
 |---|---|---|
 | `type` | `"string"` \| `"number"` \| `"boolean"` | 変数の型 |
-| `default` | `any` | デフォルト値 |
+| `default` | `any` | デフォルト値（Handlebars テンプレート構文で他の変数を参照可能） |
 | `enum` | `any[]` | 選択肢 |
 
 変数は以下の場面で使用される:

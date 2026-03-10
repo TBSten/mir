@@ -24,7 +24,7 @@ export function validateAuthToken(
   expectedToken: string | undefined,
 ): void {
   if (!expectedToken) {
-    throw new PublishError(500, "PUBLISH_API_TOKEN is not configured");
+    throw new PublishError(401, "Authentication is not configured");
   }
 
   if (!authHeader) {

@@ -53,6 +53,7 @@ export function renderError(c: Context, error: AppError) {
   const isNetworkError = error instanceof NetworkError;
   const isInvalidManifest = error instanceof InvalidManifestError;
 
+  c.status(error.statusCode as any);
   return c.render(
     <div class="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4">
       <p class="font-mono text-6xl font-bold text-sky-300">

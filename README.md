@@ -64,6 +64,41 @@ variables:
       default: 3
 ```
 
+#### default 値でのテンプレート展開
+
+`default` 値に Handlebars テンプレートを使うことで、他の変数を参照・変換できます。先に定義された変数のみ参照可能です。
+
+```yaml
+variables:
+  packageDir:
+    schema:
+      type: string
+  packageName:
+    description: "パッケージ名（自動生成）"
+    schema:
+      type: string
+      default: "{{ replace packageDir '/' '.' }}"
+```
+
+#### 利用可能なテンプレートヘルパー
+
+テンプレートファイル内・default 値の両方で以下のヘルパーが使えます:
+
+| ヘルパー | 説明 | 例 |
+|---|---|---|
+| `lowercase` / `uppercase` | 大文字小文字変換 | `{{ uppercase name }}` |
+| `capitalize` / `uncapitalize` | 先頭文字の変換 | `{{ capitalize name }}` |
+| `camelCase` / `pascalCase` | キャメル/パスカルケース | `{{ pascalCase name }}` |
+| `snakeCase` / `kebabCase` | スネーク/ケバブケース | `{{ kebabCase name }}` |
+| `dotCase` / `pathCase` | ドット/パスケース | `{{ dotCase name }}` |
+| `replace` | 文字列置換 | `{{ replace name "/" "." }}` |
+| `concat` | 文字列結合 | `{{ concat name "-" version }}` |
+| `slice` | 部分文字列 | `{{ slice name 0 3 }}` |
+| `length` | 文字列長 | `{{ length name }}` |
+| `trim` | 空白除去 | `{{ trim name }}` |
+| `contains` | 部分一致判定 | `{{#if (contains name "test")}}...{{/if}}` |
+| `startsWith` / `endsWith` | 先頭/末尾一致 | `{{#if (startsWith name "use")}}...{{/if}}` |
+
 テンプレートで使用している変数を自動検出して `variables` に追加するには `sync` コマンドが便利です:
 
 ```shell
@@ -137,7 +172,6 @@ Claude Code 等の AI Agent 向けの skills を提供しています。
 | Skill | 説明 |
 |---|---|
 | `error-handling` | mir CLI のエラー発生時のトラブルシューティング |
-| `search-snippet` | ユーザのリクエストから適切な snippet を検索・提案 |
 | `getting-started` | mir のインストールと基本的な使い方を案内 |
 | `extract-snippet` | 既存のプロジェクトコードから snippet を新規作成 |
 | `private-mir` | .mir を git に含めず自分だけで使う設定 |

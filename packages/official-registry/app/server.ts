@@ -161,18 +161,24 @@ app.post("/api/snippets", async (c) => {
 });
 
 // 静的プロトコルルート (CLI 用)
-app.all("/registry/*", (c) => {
+// /registry/* と ルートレベル (/index.json, /*.yaml) の両方で提供
+const handleStaticProtocol = (prefixToStrip: string) => (c: any) => {
   const provider = getProvider(c);
   const registryApp = createStaticProtocolRoutes(provider);
 
-  // /registry プレフィックスを除去して内部ルートにマップ
-  // /registry/index.json → /index.json
-  // /registry/snippet.yaml → /snippet.yaml
   const url = new URL(c.req.url);
-  url.pathname = url.pathname.replace(/^\/registry/, "") || "/";
+  if (prefixToStrip) {
+    url.pathname = url.pathname.replace(new RegExp(`^${prefixToStrip}`), "") || "/";
+  }
   const req = new Request(url.toString(), c.req.raw);
 
   return registryApp.fetch(req, c.env, c.executionCtx);
-});
+};
+
+app.all("/registry/*", handleStaticProtocol("/registry"));
+
+// ルートレベルの静的プロトコルルート
+app.get("/index.json", handleStaticProtocol(""));
+app.get("/:file{.+\\.yaml$}", handleStaticProtocol(""));
 
 export default app;

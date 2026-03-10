@@ -24,12 +24,13 @@ snippet の品質をレビューし、改善点を提案する skill。
 
 - 変数名が用途を明確に表しているか
 - schema の type / default / enum が適切か
+- 他の変数から派生する値は default にテンプレート式を使っているか（例: `default: "{{ replace packageDir '/' '.' }}"`)
 - description がインストール時のプロンプトで分かりやすいか
 - suggests で選択肢が提示されているか（該当する場合）
 
 #### テンプレート品質
 
-- テンプレートヘルパー（camelCase, pascalCase, kebabCase, snakeCase 等）が適切に使われているか
+- テンプレートヘルパー（camelCase, pascalCase, kebabCase, snakeCase, dotCase, pathCase, replace, concat, contains, startsWith, endsWith 等）が適切に使われているか
 - 1つの変数から複数の命名規則に正しく展開されているか
 - 生成コードの可読性は十分か
 - 不要なハードコードがないか
