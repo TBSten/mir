@@ -1,6 +1,6 @@
 {
   "name": "@tbsten/mir-core",
-  "version": "0.0.2-alpha07",
+  "version": "0.0.2-alpha08",
   "description": "スニペット配布・取得ツール mir のコアロジック（テンプレート、スキーマ、i18n）",
   "type": "module",
   "keywords": [
