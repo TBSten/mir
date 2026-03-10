@@ -24,8 +24,8 @@
     },
     "defaults": {
       "type": "object",
-      "description": "snippet 作成時のデフォルト値",
-      "additionalProperties": false,
+      "description": "デフォルト値。任意のテンプレート変数名をキーとして設定可能",
+      "additionalProperties": { "type": "string" },
       "properties": {
         "author": {
           "type": "string",

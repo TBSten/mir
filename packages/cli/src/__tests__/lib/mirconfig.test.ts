@@ -52,6 +52,23 @@ describe("loadSingleConfig", () => {
     expect(config.registries[1].name).toBe("team");
   });
 
+  it("defaults に任意キーを含む config を読み込める", () => {
+    const configPath = path.join(tmpDir, "config.yaml");
+    const configData = {
+      defaults: {
+        author: "testuser",
+        packageName: "com.example.app",
+        license: "MIT",
+      },
+    };
+    fs.writeFileSync(configPath, yaml.dump(configData), "utf-8");
+
+    const config = loadSingleConfig(configPath);
+    expect(config.defaults?.author).toBe("testuser");
+    expect(config.defaults?.packageName).toBe("com.example.app");
+    expect(config.defaults?.license).toBe("MIT");
+  });
+
   it("空のファイルの場合はデフォルト設定を返す", () => {
     const configPath = path.join(tmpDir, "config.yaml");
     fs.writeFileSync(configPath, "", "utf-8");
@@ -114,6 +131,34 @@ describe("mergeConfigs", () => {
     };
     const merged = mergeConfigs(local, global);
     expect(merged.defaults?.author).toBe("local-author");
+  });
+
+  it("defaults の任意キーがマージされる", () => {
+    const local: MirConfig = {
+      registries: [],
+      defaults: { packageName: "com.local.app" },
+    };
+    const global: MirConfig = {
+      registries: [],
+      defaults: { author: "global-author", license: "MIT" },
+    };
+    const merged = mergeConfigs(local, global);
+    expect(merged.defaults?.author).toBe("global-author");
+    expect(merged.defaults?.packageName).toBe("com.local.app");
+    expect(merged.defaults?.license).toBe("MIT");
+  });
+
+  it("defaults の任意キーはローカルが優先される", () => {
+    const local: MirConfig = {
+      registries: [],
+      defaults: { license: "Apache-2.0" },
+    };
+    const global: MirConfig = {
+      registries: [],
+      defaults: { license: "MIT" },
+    };
+    const merged = mergeConfigs(local, global);
+    expect(merged.defaults?.license).toBe("Apache-2.0");
   });
 
   it("名前のない global registry は常に含まれる", () => {
