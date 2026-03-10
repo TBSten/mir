@@ -422,7 +422,7 @@ describe("Story 25: hooks exit 発動", () => {
       installSnippet(
         "node-config",
         { type: "json" },
-        { outDir },
+        { outDir, safe: false },
         tmpDir,
         configPath,
       ),
