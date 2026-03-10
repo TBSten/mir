@@ -25,7 +25,7 @@ export const en: MessageCatalog = {
   "error.safe-mode-overwrite": "Overwriting existing files is not allowed in safe mode: {path}",
   "error.file-not-found": "File \"{path}\" not found",
   "error.file-read-failed": "Failed to read file \"{path}\"",
-  "error.snippet-not-found-details": "\nPossible causes:\n1. Typo in snippet name\n2. Snippet not registered in registry\n3. No access permission to registry\n\nWays to check:\n• mir list              - Show available snippets\n• mir search <keyword> - Search by keyword\n• mir info <name>      - Show snippet details",
+  "error.snippet-not-found-details": "\nPossible causes:\n1. Typo in snippet name\n2. Snippet not registered in registry\n3. No access permission to registry\n\nWays to check:\n• mir list         - Show available snippets\n• mir info <name>  - Show snippet details",
 
   // create
   "create.success": "Created snippet \"{name}\"",
@@ -51,10 +51,6 @@ export const en: MessageCatalog = {
   // sync
   "sync.no-new-vars": "No new variables to add",
   "sync.success": "Added {count} variable(s)",
-
-  // search
-  "search.query-required": "Search query is required",
-  "search.no-results": "No snippets found matching \"{query}\"",
 
   // error specific
   "error.no-failed-snippets": "No failed snippet history",

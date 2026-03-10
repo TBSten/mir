@@ -67,14 +67,6 @@ function createFallbackProvider(
       }
     },
 
-    async search(query: string) {
-      try {
-        return await primaryProvider.search!(query);
-      } catch (e) {
-        return await fallbackProvider.search!(query);
-      }
-    },
-
     async getVersionHistory(name: string) {
       try {
         return await primaryProvider.getVersionHistory!(name);

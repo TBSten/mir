@@ -1,20 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`API レスポンス snapshot > GET /api/search?q=nonexistent 空結果 1`] = `[]`;
-
-exports[`API レスポンス snapshot > GET /api/search?q=react レスポンス 1`] = `
-[
-  {
-    "description": "React カスタムフック雛形",
-    "name": "react-hook",
-  },
-  {
-    "description": "React コンポーネント",
-    "name": "react-component",
-  },
-]
-`;
-
 exports[`API レスポンス snapshot > GET /api/snippets レスポンス 1`] = `
 {
   "items": [

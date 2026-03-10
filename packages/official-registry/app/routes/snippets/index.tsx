@@ -14,9 +14,14 @@ export default createRoute(async (c) => {
     const offset = (page - 1) * limit;
 
     const provider = getProvider(c);
+    const allSnippets = await provider.list();
     const all = query
-      ? await (provider.search?.(query) ?? provider.list())
-      : await provider.list();
+      ? allSnippets.filter(
+          (s) =>
+            s.name.toLowerCase().includes(query.toLowerCase()) ||
+            (s.description?.toLowerCase().includes(query.toLowerCase()) ?? false),
+        )
+      : allSnippets;
 
     const total = all.length;
     const totalPages = Math.max(1, Math.ceil(total / limit));

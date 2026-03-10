@@ -25,21 +25,6 @@ export function createInMemoryProvider(): RegistryProvider {
       return store.get(name) || null;
     },
 
-    async search(query: string): Promise<RegistrySnippetSummary[]> {
-      const lowerQuery = query.toLowerCase();
-      return Array.from(store.values())
-        .filter(
-          (detail) =>
-            detail.definition.name.toLowerCase().includes(lowerQuery) ||
-            (detail.definition.description || "").toLowerCase().includes(lowerQuery)
-        )
-        .map((detail) => ({
-          name: detail.definition.name,
-          description: detail.definition.description || "",
-          version: detail.definition.version,
-        }));
-    },
-
     async getVersionHistory(name: string): Promise<SnippetVersionEntry[] | null> {
       const detail = store.get(name);
       if (!detail) return null;

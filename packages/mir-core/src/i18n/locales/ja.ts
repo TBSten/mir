@@ -25,7 +25,7 @@ export const ja: MessageCatalog = {
   "error.safe-mode-overwrite": "safe モードでは既存ファイルの上書きは許可されていません: {path}",
   "error.file-not-found": "ファイル \"{path}\" が見つかりません",
   "error.file-read-failed": "ファイル \"{path}\" の読み込みに失敗しました",
-  "error.snippet-not-found-details": "\n可能な原因:\n1. Snippet 名の入力ミス\n2. Registry に登録されていない\n3. Registry へのアクセス権限がない\n\n確認方法:\n• mir list              - 利用可能な snippet を表示\n• mir search <keyword> - キーワードで検索\n• mir info <name>      - snippet の詳細情報を表示",
+  "error.snippet-not-found-details": "\n可能な原因:\n1. Snippet 名の入力ミス\n2. Registry に登録されていない\n3. Registry へのアクセス権限がない\n\n確認方法:\n• mir list         - 利用可能な snippet を表示\n• mir info <name>  - snippet の詳細情報を表示",
 
   // create
   "create.success": "Snippet \"{name}\" を作成しました",
@@ -51,10 +51,6 @@ export const ja: MessageCatalog = {
   // sync
   "sync.no-new-vars": "追加する変数はありません",
   "sync.success": "{count} 件の変数を追加しました",
-
-  // search
-  "search.query-required": "検索キーワードが必要です",
-  "search.no-results": "\"{query}\" に一致する snippet が見つかりません",
 
   // error specific
   "error.no-failed-snippets": "失敗した snippet の履歴がありません",

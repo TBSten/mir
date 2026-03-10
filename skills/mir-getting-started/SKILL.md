@@ -34,8 +34,7 @@ mir をインストールして基本的な使い方を教える skill。
 # プロジェクトの初期化
 mir init
 
-# 利用可能な snippet を検索
-mir search <keyword>
+# 利用可能な snippet を一覧表示
 mir list
 
 # snippet の詳細を確認

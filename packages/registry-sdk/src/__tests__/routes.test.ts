@@ -37,15 +37,6 @@ function createMockProvider(
         files: new Map(Object.entries(snippet.files)),
       };
     },
-    async search(query) {
-      return snippets
-        .filter(
-          (s) =>
-            s.name.includes(query) ||
-            (s.description?.includes(query) ?? false),
-        )
-        .map((s) => ({ name: s.name, version: s.version, description: s.description }));
-    },
   };
 }
 
@@ -276,65 +267,6 @@ describe("GET /api/snippets/:name/files/*", () => {
       "/api/snippets/react-hook/files/nonexistent.ts",
     );
     expect(res.status).toBe(404);
-  });
-});
-
-describe("GET /api/search", () => {
-  it("クエリに一致する snippet を返す", async () => {
-    const app = createRegistryRoutes(createMockProvider(testSnippets));
-    const res = await app.request("/api/search?q=react");
-    expect(res.status).toBe(200);
-    const data = await res.json();
-    expect(data).toHaveLength(2);
-    expect(data.map((s: { name: string }) => s.name)).toContain("react-hook");
-    expect(data.map((s: { name: string }) => s.name)).toContain("react-component");
-  });
-
-  it("一致しないクエリは空配列", async () => {
-    const app = createRegistryRoutes(createMockProvider(testSnippets));
-    const res = await app.request("/api/search?q=nonexistent");
-    expect(res.status).toBe(200);
-    const data = await res.json();
-    expect(data).toEqual([]);
-  });
-
-  it("空クエリは全 snippet を返す", async () => {
-    const app = createRegistryRoutes(createMockProvider(testSnippets));
-    const res = await app.request("/api/search?q=");
-    expect(res.status).toBe(200);
-    const data = await res.json();
-    expect(data).toHaveLength(3);
-  });
-
-  it("description でも検索可能", async () => {
-    const app = createRegistryRoutes(createMockProvider(testSnippets));
-    const res = await app.request("/api/search?q=Express");
-    expect(res.status).toBe(200);
-    const data = await res.json();
-    expect(data).toHaveLength(1);
-    expect(data[0].name).toBe("express-api");
-  });
-});
-
-describe("search 未実装の provider", () => {
-  it("list からフィルタして返す", async () => {
-    const providerWithoutSearch: RegistryProvider = {
-      async list() {
-        return testSnippets.map((s) => ({
-          name: s.name,
-          description: s.description,
-        }));
-      },
-      async get() {
-        return null;
-      },
-      // search メソッドなし
-    };
-    const app = createRegistryRoutes(providerWithoutSearch);
-    const res = await app.request("/api/search?q=react");
-    expect(res.status).toBe(200);
-    const data = await res.json();
-    expect(data).toHaveLength(2);
   });
 });
 

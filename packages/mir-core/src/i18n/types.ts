@@ -50,10 +50,6 @@ export interface MessageCatalog {
   "sync.no-new-vars": string;
   "sync.success": string;
 
-  // search
-  "search.query-required": string;
-  "search.no-results": string;
-
   // error specific
   "error.no-failed-snippets": string;
   "error.publish-token-required": string;

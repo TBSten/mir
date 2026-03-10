@@ -148,4 +148,3 @@ mir preview react-hook --name=useAuth --output
 
 - [mir install](./install.md) - snippet をインストール（--dry-run でプレビュー）
 - [mir info](./info.md) - snippet の詳細情報を表示
-- [mir search](./search.md) - キーワードで snippet を検索

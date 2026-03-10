@@ -61,17 +61,4 @@ describe("API レスポンス snapshot", () => {
     expect({ status: res.status, body: data }).toMatchSnapshot();
   });
 
-  it("GET /api/search?q=react レスポンス", async () => {
-    const app = createRegistryRoutes(mockProvider);
-    const res = await app.request("/api/search?q=react");
-    const data = await res.json();
-    expect(data).toMatchSnapshot();
-  });
-
-  it("GET /api/search?q=nonexistent 空結果", async () => {
-    const app = createRegistryRoutes(mockProvider);
-    const res = await app.request("/api/search?q=nonexistent");
-    const data = await res.json();
-    expect(data).toMatchSnapshot();
-  });
 });

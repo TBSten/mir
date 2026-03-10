@@ -77,34 +77,6 @@ export function createD1Provider(db: D1Database): RegistryProvider {
       }
     },
 
-    async search(query: string): Promise<RegistrySnippetSummary[]> {
-      try {
-        const searchQuery = `%${query}%`;
-        const result = await db
-          .prepare(
-            `SELECT name, version, description, authorization_status FROM snippets
-             WHERE name LIKE ? OR description LIKE ?
-             ORDER BY name`,
-          )
-          .bind(searchQuery, searchQuery)
-          .all();
-
-        if (!result.success) {
-          return [];
-        }
-
-        return (result.results || []).map((row: any) => ({
-          name: row.name,
-          version: row.version || undefined,
-          description: row.description || undefined,
-          authorizationStatus: (row.authorization_status || "examination") as AuthorizationStatus,
-        }));
-      } catch (e) {
-        console.error("D1 search() error:", e);
-        return [];
-      }
-    },
-
     async getVersionHistory(name: string): Promise<SnippetVersionEntry[]> {
       try {
         const snippetResult = await db

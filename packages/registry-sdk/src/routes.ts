@@ -93,23 +93,6 @@ export function createRegistryRoutes(provider: RegistryProvider, options?: Regis
     return c.text(content);
   });
 
-  // 検索
-  app.get("/api/search", async (c) => {
-    const query = c.req.query("q") ?? "";
-    if (provider.search) {
-      const results = await provider.search(query);
-      return c.json(results);
-    }
-    // search 未実装の場合は list から name/description でフィルタ
-    const all = await provider.list();
-    const filtered = all.filter(
-      (s) =>
-        s.name.includes(query) ||
-        (s.description?.includes(query) ?? false),
-    );
-    return c.json(filtered);
-  });
-
   // publish (auth + publisher が設定されている場合のみ)
   if (options?.auth && options?.publisher) {
     const { auth, publisher } = options;

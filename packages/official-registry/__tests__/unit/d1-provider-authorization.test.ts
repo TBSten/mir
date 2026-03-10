@@ -207,52 +207,6 @@ describe("D1 Provider: get() の authorization_status", () => {
   });
 });
 
-describe("D1 Provider: search() の authorization_status", () => {
-  it("検索結果に authorizationStatus が含まれる", async () => {
-    const db = createMockDb({
-      allResults: [
-        { name: "hook-a", authorization_status: "approved" },
-        { name: "hook-b", authorization_status: "rejected" },
-      ],
-    });
-    // search は bind().all() を使うため、bind のモックを修正
-    const mockAll = vi.fn().mockResolvedValue({
-      success: true,
-      results: [
-        { name: "hook-a", authorization_status: "approved" },
-        { name: "hook-b", authorization_status: "rejected" },
-      ],
-    });
-    (db as any).prepare = vi.fn().mockReturnValue({
-      bind: vi.fn().mockReturnValue({ all: mockAll }),
-    });
-
-    const provider = createD1Provider(db);
-    const results = await provider.search!("hook");
-
-    expect(results).toHaveLength(2);
-    expect(results[0].authorizationStatus).toBe("approved");
-    expect(results[1].authorizationStatus).toBe("rejected");
-  });
-
-  it("authorization_status 未設定 → examination にフォールバック", async () => {
-    const mockAll = vi.fn().mockResolvedValue({
-      success: true,
-      results: [{ name: "s1", authorization_status: null }],
-    });
-    const db = {
-      prepare: vi.fn().mockReturnValue({
-        bind: vi.fn().mockReturnValue({ all: mockAll }),
-      }),
-    } as unknown as D1Database;
-
-    const provider = createD1Provider(db);
-    const results = await provider.search!("s1");
-
-    expect(results[0].authorizationStatus).toBe("examination");
-  });
-});
-
 describe("D1 Provider: list() レスポンス構造スナップショット", () => {
   it("全ステータスを含むリスト", async () => {
     const db = createMockDb({

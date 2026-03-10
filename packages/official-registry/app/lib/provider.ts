@@ -94,21 +94,6 @@ export const staticProvider: RegistryProvider = {
     };
   },
 
-  async search(query: string): Promise<RegistrySnippetSummary[]> {
-    const q = query.toLowerCase();
-    return snippets
-      .filter(
-        (s) =>
-          s.name.toLowerCase().includes(q) ||
-          s.description.toLowerCase().includes(q),
-      )
-      .map((s) => ({
-        name: s.name,
-        version: s.version,
-        description: s.description,
-      }));
-  },
-
   async getVersionHistory(name: string): Promise<SnippetVersionEntry[] | null> {
     const s = snippets.find((s) => s.name === name);
     if (!s) return null;

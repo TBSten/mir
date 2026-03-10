@@ -64,27 +64,6 @@ describe("staticProvider", () => {
     });
   });
 
-  describe("search", () => {
-    it("名前で検索できる", async () => {
-      const results = await staticProvider.search!("react");
-      expect(results).toHaveLength(2);
-      const names = results.map((s) => s.name);
-      expect(names).toContain("react-hook");
-      expect(names).toContain("react-component");
-    });
-
-    it("description で検索できる", async () => {
-      const results = await staticProvider.search!("boilerplate");
-      expect(results).toHaveLength(1);
-      expect(results[0].name).toBe("react-component");
-    });
-
-    it("マッチしない場合は空配列", async () => {
-      const results = await staticProvider.search!("zzzznonexistent");
-      expect(results).toEqual([]);
-    });
-  });
-
   describe("getVersionHistory", () => {
     it("存在する snippet のバージョン履歴を返す (S039)", async () => {
       const history = await staticProvider.getVersionHistory!("react-hook");

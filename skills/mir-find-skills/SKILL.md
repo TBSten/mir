@@ -12,7 +12,6 @@ description: 利用可能な mir skills を検索・一覧表示する。「mir 
 | Skill | 説明 |
 |---|---|
 | `error-handling` | mir CLI のエラー発生時のトラブルシューティング |
-| `search-snippet` | ユーザのリクエストから適切な snippet を検索・提案 |
 | `getting-started` | mir のインストールと基本的な使い方を案内 |
 | `extract-snippet` | 既存のプロジェクトコードから snippet を新規作成 |
 | `private-mir` | .mir を git に含めず自分だけで使う設定 |

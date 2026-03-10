@@ -29,7 +29,6 @@ export interface SnippetVersionEntry {
 export interface RegistryProvider {
   list(): Promise<RegistrySnippetSummary[]>;
   get(name: string): Promise<RegistrySnippetDetail | null>;
-  search?(query: string): Promise<RegistrySnippetSummary[]>;
   /** snippet のバージョン履歴を返す。実装は任意 */
   getVersionHistory?(name: string): Promise<SnippetVersionEntry[] | null>;
   /** snippet が直接依存する snippet 名の一覧を返す。実装は任意 */

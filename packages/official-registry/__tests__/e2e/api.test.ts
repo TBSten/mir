@@ -58,13 +58,6 @@ test.describe.skip("API エンドポイント", () => {
     }
   });
 
-  test("Story 36: GET /api/search?q= で検索", async ({ request }) => {
-    const res = await request.get("/api/search?q=react");
-    expect(res.status()).toBe(200);
-    const data = await res.json();
-    expect(Array.isArray(data)).toBe(true);
-  });
-
   test("Story 47: ヘルスチェック (snippet一覧で代用)", async ({ request }) => {
     const res = await request.get("/api/snippets");
     expect(res.status()).toBe(200);

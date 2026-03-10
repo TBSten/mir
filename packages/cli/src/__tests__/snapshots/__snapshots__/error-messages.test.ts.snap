@@ -20,9 +20,8 @@ exports[`エラーメッセージ snapshot (日本語) > SnippetNotFoundError - 
 3. Registry へのアクセス権限がない
 
 確認方法:
-• mir list              - 利用可能な snippet を表示
-• mir search <keyword> - キーワードで検索
-• mir info <name>      - snippet の詳細情報を表示"
+• mir list         - 利用可能な snippet を表示
+• mir info <name>  - snippet の詳細情報を表示"
 `;
 
 exports[`エラーメッセージ snapshot (日本語) > SnippetNotFoundError 1`] = `"Snippet "my-comp" が見つかりません。\`mir list\` で利用可能な snippet を確認するか、\`--registry\` で別の registry を指定してください"`;
@@ -45,9 +44,8 @@ Possible causes:
 3. No access permission to registry
 
 Ways to check:
-• mir list              - Show available snippets
-• mir search <keyword> - Search by keyword
-• mir info <name>      - Show snippet details"
+• mir list         - Show available snippets
+• mir info <name>  - Show snippet details"
 `;
 
 exports[`エラーメッセージ snapshot (英語) > SnippetNotFoundError 1`] = `"Snippet "my-comp" not found. Use \`mir list\` to see available snippets or specify \`--registry\` for another registry"`;

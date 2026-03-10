@@ -3,7 +3,6 @@ import { Command } from "commander";
 import { registerListCommand } from "../../commands/list.js";
 import { registerCreateCommand } from "../../commands/create.js";
 import { registerSyncCommand } from "../../commands/sync.js";
-import { registerSearchCommand } from "../../commands/search.js";
 import { registerInstallCommand } from "../../commands/install.js";
 import { registerValidateCommand } from "../../commands/validate.js";
 
@@ -39,12 +38,6 @@ describe("コマンドエイリアス", () => {
     const program = createProgram(registerSyncCommand);
     const aliases = getAliases(program, "sync");
     expect(aliases).toContain("s");
-  });
-
-  it("search コマンドに q エイリアスがある", () => {
-    const program = createProgram(registerSearchCommand);
-    const aliases = getAliases(program, "search");
-    expect(aliases).toContain("q");
   });
 
   it("install コマンドに i エイリアスがある", () => {
