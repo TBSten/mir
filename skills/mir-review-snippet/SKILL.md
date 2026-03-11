@@ -30,7 +30,7 @@ snippet の品質をレビューし、改善点を提案する skill。
 
 #### テンプレート品質
 
-- テンプレートヘルパー（camelCase, pascalCase, kebabCase, snakeCase, dotCase, pathCase, replace, concat, contains, startsWith, endsWith 等）が適切に使われているか
+- テンプレートヘルパー（lowercase, uppercase, capitalize, uncapitalize, camelCase, pascalCase, snakeCase, kebabCase, dotCase, pathCase, replace, concat, slice, trim, contains, startsWith, endsWith, length）が適切に使われているか
 - 1つの変数から複数の命名規則に正しく展開されているか
 - 生成コードの可読性は十分か
 - 不要なハードコードがないか

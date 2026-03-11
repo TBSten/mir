@@ -38,7 +38,8 @@ registry が見つからない。
 
 install 先に同名ファイルが既にある。
 
-- `--force` で上書きする
+- 対話モードで実行すると上書き確認プロンプトが表示される（yes/no/all）
+- `--no-interactive` 使用時は上書きがスキップされる（`--safe` と同様）
 - または手動で既存ファイルを退避してから再実行
 
 ### PathTraversalError

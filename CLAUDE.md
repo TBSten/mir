@@ -19,6 +19,8 @@ npm workspaces で管理。
 
 **依存関係**: `mir-core` ← `cli`, `registry-sdk` / `registry-sdk` ← `official-registry`
 
+**ビルド順序**: `npm run build` は依存関係順（mir-core → cli → official-registry）で実行される。`registry-sdk` は build スクリプトなし。
+
 ## Build & Dev Commands
 
 ```bash
@@ -54,24 +56,51 @@ npm run mir -- --help              # CLI 動作確認
 
 ### CLI Commands (per docs/)
 
-| Command | Description |
-|---|---|
-| `mir init` | `.mir/` ディレクトリを初期化（サンプル snippet、config, README 生成） |
-| `mir list` / `mir ls` | 利用可能な snippet を一覧表示（ローカル・リモート） |
-| `mir info <name>` | snippet の詳細情報を表示（変数一覧など） |
-| `mir create <name>` | `.mir/snippets/` に snippet の雛形を作成 |
-| `mir publish <name>` | snippet を registry に登録（ローカル・リモート両対応） |
-| `mir install <name>` | registry から snippet をインストール |
-| `mir sync <name>` | テンプレートの変数を snippet 定義に同期 |
-| `mir login` | リモート registry に GitHub OAuth でログイン |
-| `mir logout` | リモート registry からログアウト |
+| Command | Alias | Description |
+|---|---|---|
+| `mir init` | | `.mir/` ディレクトリを初期化（サンプル snippet、config, README 生成） |
+| `mir list` | `ls`, `l` | 利用可能な snippet を一覧表示（ローカル・リモート） |
+| `mir info <name>` | | snippet の詳細情報を表示（変数一覧など） |
+| `mir create <name>` | `c` | `.mir/snippets/` に snippet の雛形を作成 |
+| `mir publish <name>` | | snippet を registry に登録（ローカル・リモート両対応） |
+| `mir install <name>` | `i` | registry から snippet をインストール |
+| `mir sync <name>` | `s` | テンプレートの変数を snippet 定義に同期 |
+| `mir validate <name>` | `v` | snippet 定義のバリデーション |
+| `mir clone <name> [alias]` | | snippet を複製して新しい snippet を作成 |
+| `mir preview <name>` | | snippet のインストール結果をプレビュー表示 |
+| `mir login` | | リモート registry に GitHub OAuth でログイン |
+| `mir logout` | | リモート registry からログアウト |
 
 ### Key Concepts
 
 - **Snippet 定義**: `.mir/snippets/<name>.yaml` (スキーマ: `schema/v1/snippet.schema.json`)
 - **テンプレートファイル**: `.mir/snippets/<name>/` 内の Handlebars テンプレート
 - **Registry**: ローカル (`~/.mir/registry/`) またはリモート (URL)
-- **Global config**: `~/.mir/mirconfig.yaml` (スキーマ: `schema/v1/mirconfig.schema.json`)
+- **Global config**: `~/.mir/config.yaml` (スキーマ: `schema/v1/mirconfig.schema.json`)
+
+### Template Helpers
+
+テンプレートファイル・ファイル名・variable の default 値で使える Handlebars ヘルパー。
+実装: `packages/mir-core/src/helpers/`
+
+- **ケース変換**: `lowercase`, `uppercase`, `capitalize`, `uncapitalize`, `camelCase`, `pascalCase`, `snakeCase`, `kebabCase`, `dotCase`, `pathCase`
+- **文字列操作**: `replace`, `concat`, `slice`, `trim`, `length`
+- **条件判定** (`#if` と併用): `contains`, `startsWith`, `endsWith`
+
+### Variable Default のテンプレート展開
+
+variable の `default` 値に Handlebars テンプレートを書くと、先に定義された変数で展開される。
+実装: `packages/mir-core/src/template-engine.ts` の `expandDefaultValue()`
+
+```yaml
+variables:
+  packageDir:
+    schema: { type: string }
+  packageName:
+    schema:
+      type: string
+      default: "{{ replace packageDir '/' '.' }}"
+```
 
 ## Documentation
 
